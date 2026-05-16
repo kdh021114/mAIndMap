@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HAI Graph Chat Prototype</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="app-shell">
+    <main class="workspace">
+      <section class="graph-panel">
+        <div id="graph-scroll">
+          <div id="graph-canvas">
+            <svg id="edge-layer"></svg>
+            <div id="edge-label-layer"></div>
+            <div id="node-layer"></div>
+          </div>
+        </div>
+        <div id="mode-indicator" class="mode-indicator hidden"></div>
+      </section>
+
+      <aside id="chat-sidebar" class="chat-sidebar">
+        <div id="chat-resize-handle" class="chat-resize-handle" role="separator" aria-orientation="vertical"></div>
+        <div class="chat-header">
+          <div>
+            <div id="selected-node-title" class="chat-title"></div>
+            <div id="selected-node-meta" class="chat-meta"></div>
+          </div>
+          <button id="hide-chat-btn" class="icon-button chat-close-button" type="button">×</button>
+        </div>
+        <div id="message-list" class="message-list"></div>
+        <form id="message-form" class="composer">
+          <textarea id="message-input" rows="3"></textarea>
+          <button id="send-button" class="button primary" type="submit"></button>
+        </form>
+      </aside>
+
+      <button id="chat-edge-toggle" class="chat-edge-toggle" type="button"></button>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
