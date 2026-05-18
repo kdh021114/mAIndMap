@@ -34,6 +34,17 @@ const i18n = {
     createRootHint: '루트 노드 생성',
     editNodeTitle: '노드 제목 편집',
     editRelation: '관계 문구 편집',
+    graphThreads: '그래프 스레드',
+    graphThreadMeta: '독립 그래프와 로그',
+    newGraphThread: '새 스레드',
+    deleteGraphThread: '스레드 삭제',
+    hideThreads: '스레드 숨기기',
+    showThreads: '스레드 보이기',
+    nodes: '노드',
+    selectionMode: '선택',
+    exitSelectionMode: '선택 해제',
+    deleteSelectedNodes: '선택 삭제',
+    selectedCount: '{count}개 선택',
   },
   en: {
     createRoot: 'Create Root',
@@ -70,19 +81,38 @@ const i18n = {
     createRootHint: 'Create root node',
     editNodeTitle: 'Edit node title',
     editRelation: 'Edit relation',
+    graphThreads: 'Graph Threads',
+    graphThreadMeta: 'Independent graphs and logs',
+    newGraphThread: 'New thread',
+    deleteGraphThread: 'Delete thread',
+    hideThreads: 'Hide threads',
+    showThreads: 'Show threads',
+    nodes: 'nodes',
+    selectionMode: 'Select',
+    exitSelectionMode: 'Clear',
+    deleteSelectedNodes: 'Delete',
+    selectedCount: '{count} selected',
   },
 };
 
 let state = null;
 let selectedNodeId = null;
+let selectedNodeIds = new Set();
 let messages = [];
 let isSending = false;
+let selectionMode = false;
+let undoStack = [];
+let redoStack = [];
+let historyInFlight = false;
 let hasCenteredGraph = false;
 let pendingCenterNodeId = null;
 let graphView = { x: 0, y: 0, scale: 1 };
 let panGesture = null;
 let nodeDrag = null;
 let deleteConfirmEl = null;
+let pendingDeleteGraphThreadId = null;
+let threadSidebarHidden = localStorage.getItem('graphChat.threadSidebarHidden') === 'true';
+let threadSidebarWidth = Number(localStorage.getItem('graphChat.threadSidebarWidth')) || 286;
 let chatSidebarHidden = localStorage.getItem('graphChat.sidebarHidden') === 'true';
 let chatSidebarWidth = Number(localStorage.getItem('graphChat.sidebarWidth')) || 380;
 let sidebarResize = null;
@@ -93,8 +123,9 @@ const GRAPH_VIEW = {
   zoomStep: 1.28,
   wheelZoomSpeed: 0.0026,
   dragThreshold: 4,
-  collisionPadding: 28,
 };
+
+const HISTORY_LIMIT = 40;
 
 const el = {
   graphViewport: document.getElementById('graph-scroll'),
@@ -113,7 +144,15 @@ const el = {
   messageForm: document.getElementById('message-form'),
   messageInput: document.getElementById('message-input'),
   sendButton: document.getElementById('send-button'),
+  selectionToolbar: document.getElementById('selection-toolbar'),
+  selectionModeBtn: document.getElementById('selection-mode-btn'),
+  bulkDeleteBtn: document.getElementById('bulk-delete-btn'),
+  selectionCount: document.getElementById('selection-count'),
   toast: document.getElementById('toast'),
+  threadSidebar: document.getElementById('thread-sidebar'),
+  threadList: document.getElementById('thread-list'),
+  newThreadBtn: document.getElementById('new-thread-btn'),
+  threadEdgeToggle: document.getElementById('thread-edge-toggle'),
 };
 
 function t(key) {
@@ -140,29 +179,216 @@ async function api(path, options = {}) {
   return data;
 }
 
+async function workspaceSnapshot() {
+  return api('/api/history/snapshot');
+}
+
+function captureUiState() {
+  return {
+    selectedNodeId,
+    selectedNodeIds: [...selectedNodeIds],
+    selectionMode,
+  };
+}
+
+async function pushHistoryEntry(beforeSnapshot, beforeUiState, afterUiState = captureUiState()) {
+  const afterSnapshot = await workspaceSnapshot();
+  if (JSON.stringify(beforeSnapshot) === JSON.stringify(afterSnapshot)) return;
+  undoStack.push({
+    before: beforeSnapshot,
+    after: afterSnapshot,
+    beforeUi: beforeUiState,
+    afterUi: afterUiState,
+  });
+  if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
+  redoStack = [];
+}
+
+async function runUndoable(action) {
+  const beforeSnapshot = await workspaceSnapshot();
+  const beforeUiState = captureUiState();
+  const result = await action();
+  await pushHistoryEntry(beforeSnapshot, beforeUiState);
+  return result;
+}
+
+function restoreUiState(uiState) {
+  const existingNodeIds = new Set(state.nodes.map((node) => node.id));
+  selectedNodeId = existingNodeIds.has(uiState?.selectedNodeId) ? uiState.selectedNodeId : null;
+  selectedNodeIds = new Set(
+    (uiState?.selectedNodeIds || []).filter((nodeId) => existingNodeIds.has(nodeId)),
+  );
+  selectionMode = Boolean(uiState?.selectionMode && selectedNodeIds.size > 0);
+  pendingCenterNodeId = selectedNodeId;
+}
+
+async function reloadSelectedMessages() {
+  const node = getSelectedNode();
+  messages = node ? await api(`/api/threads/${node.threadId}/messages`) : [];
+}
+
+async function restoreHistorySnapshot(snapshot, uiState) {
+  const data = await api('/api/history/restore', {
+    method: 'POST',
+    body: JSON.stringify({ snapshot }),
+  });
+  state = data.state;
+  restoreUiState(uiState);
+  await reloadSelectedMessages();
+  renderAll();
+}
+
+async function undoLastAction() {
+  if (historyInFlight || undoStack.length === 0 || isSending) return;
+  historyInFlight = true;
+  const entry = undoStack.pop();
+  try {
+    await restoreHistorySnapshot(entry.before, entry.beforeUi);
+    redoStack.push(entry);
+  } catch (error) {
+    undoStack.push(entry);
+    showError(error);
+  } finally {
+    historyInFlight = false;
+  }
+}
+
+async function redoLastAction() {
+  if (historyInFlight || redoStack.length === 0 || isSending) return;
+  historyInFlight = true;
+  const entry = redoStack.pop();
+  try {
+    await restoreHistorySnapshot(entry.after, entry.afterUi);
+    undoStack.push(entry);
+  } catch (error) {
+    redoStack.push(entry);
+    showError(error);
+  } finally {
+    historyInFlight = false;
+  }
+}
+
 async function loadState() {
   state = await api('/api/state');
-  if (selectedNodeId && !state.nodes.some((node) => node.id === selectedNodeId)) {
-    selectedNodeId = null;
-    messages = [];
-  }
   renderAll();
 }
 
 function renderAll() {
+  reconcileSelectionWithState();
   document.documentElement.lang = state.locale;
   el.messageInput.placeholder = t('typeMessage');
-  el.sendButton.textContent = isSending ? t('sending') : t('send');
+  el.sendButton.textContent = isSending ? '...' : '➤';
+  el.sendButton.title = isSending ? t('sending') : t('send');
+  el.sendButton.setAttribute('aria-label', isSending ? t('sending') : t('send'));
   el.modeIndicator.textContent = t('testMode');
   el.modeIndicator.classList.toggle('hidden', state.llmMode !== 'test');
   el.hideChatBtn.title = t('hideChat');
   el.hideChatBtn.setAttribute('aria-label', t('hideChat'));
+  el.newThreadBtn.title = t('newGraphThread');
+  el.newThreadBtn.setAttribute('aria-label', t('newGraphThread'));
   el.messageInput.disabled = !selectedNodeId || isSending;
   el.sendButton.disabled = !selectedNodeId || isSending;
+  renderSelectionToolbar();
 
+  renderThreadSidebar();
   renderGraph();
   renderChatSidebar();
+  applyThreadSidebarState();
   applyChatSidebarState();
+}
+
+function reconcileSelectionWithState() {
+  if (!state) return;
+  const existingNodeIds = new Set(state.nodes.map((node) => node.id));
+  if (selectedNodeId && !existingNodeIds.has(selectedNodeId)) {
+    selectedNodeId = null;
+    messages = [];
+  }
+  selectedNodeIds = new Set([...selectedNodeIds].filter((nodeId) => existingNodeIds.has(nodeId)));
+}
+
+function renderSelectionToolbar() {
+  const selectedCount = selectedNodeIds.size;
+  el.selectionModeBtn.textContent = '✓';
+  el.selectionModeBtn.classList.toggle('active', selectionMode);
+  el.selectionModeBtn.setAttribute('aria-pressed', String(selectionMode));
+  el.selectionModeBtn.title = selectionMode ? t('exitSelectionMode') : t('selectionMode');
+  el.selectionModeBtn.setAttribute('aria-label', selectionMode ? t('exitSelectionMode') : t('selectionMode'));
+  el.bulkDeleteBtn.textContent = '−';
+  el.bulkDeleteBtn.title = t('deleteSelectedNodes');
+  el.bulkDeleteBtn.setAttribute('aria-label', t('deleteSelectedNodes'));
+  el.bulkDeleteBtn.disabled = selectedCount === 0;
+  el.bulkDeleteBtn.classList.toggle('hidden', selectedCount === 0);
+  el.selectionCount.textContent = selectedCount > 0 ? selectedCount : '';
+  el.selectionCount.classList.toggle('hidden', selectedCount === 0);
+  el.selectionToolbar.classList.toggle('has-selection', selectedCount > 0);
+}
+
+function renderThreadSidebar() {
+  el.threadList.innerHTML = '';
+  for (const graphThread of state.graphThreads || []) {
+    const item = document.createElement('article');
+    item.className = 'thread-item';
+    if (graphThread.id === state.activeGraphThreadId) item.classList.add('active');
+
+    const content = document.createElement('button');
+    content.className = 'thread-item-content';
+    content.type = 'button';
+    content.addEventListener('click', () => selectGraphThread(graphThread.id));
+
+    const title = document.createElement('div');
+    title.className = 'thread-item-title';
+    title.textContent = graphThread.displayTitle;
+
+    const meta = document.createElement('div');
+    meta.className = 'thread-item-meta';
+    meta.textContent = `${graphThread.nodeCount} ${t('nodes')} · ${graphThread.messageCount} ${t('messages')}`;
+
+    content.appendChild(title);
+    content.appendChild(meta);
+    item.appendChild(content);
+
+    if ((state.graphThreads || []).length > 1) {
+      if (pendingDeleteGraphThreadId === graphThread.id) {
+        const confirmation = document.createElement('div');
+        confirmation.className = 'thread-delete-confirm';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'thread-delete-button cancel';
+        cancelButton.type = 'button';
+        cancelButton.textContent = t('cancel');
+        cancelButton.addEventListener('click', () => {
+          pendingDeleteGraphThreadId = null;
+          renderThreadSidebar();
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'thread-delete-button delete';
+        deleteButton.type = 'button';
+        deleteButton.textContent = t('confirmDelete');
+        deleteButton.addEventListener('click', () => deleteGraphThread(graphThread.id));
+
+        confirmation.appendChild(cancelButton);
+        confirmation.appendChild(deleteButton);
+        item.appendChild(confirmation);
+      } else {
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'thread-item-delete';
+        deleteButton.type = 'button';
+        deleteButton.textContent = '×';
+        deleteButton.title = t('deleteGraphThread');
+        deleteButton.setAttribute('aria-label', t('deleteGraphThread'));
+        deleteButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          pendingDeleteGraphThreadId = graphThread.id;
+          renderThreadSidebar();
+        });
+        item.appendChild(deleteButton);
+      }
+    }
+
+    el.threadList.appendChild(item);
+  }
 }
 
 function renderGraph() {
@@ -173,6 +399,7 @@ function renderGraph() {
   el.edgeLayer.setAttribute('width', '1');
   el.edgeLayer.setAttribute('height', '1');
   el.edgeLayer.setAttribute('viewBox', '0 0 1 1');
+  el.graphViewport.classList.remove('context-active');
 
   if (state.nodes.length === 0) {
     const empty = document.createElement('div');
@@ -198,17 +425,19 @@ function renderGraph() {
     return;
   }
 
+  const contextHighlight = selectedContextHighlight();
+  el.graphViewport.classList.toggle('context-active', contextHighlight.active);
   const layoutById = new Map(state.nodes.map((node) => [node.id, node.layout]));
 
   for (const edge of state.edges) {
     const source = layoutById.get(edge.sourceNodeId);
     const target = layoutById.get(edge.targetNodeId);
     if (!source || !target) continue;
-    drawEdge(edge, source, target);
+    drawEdge(edge, source, target, contextHighlight);
   }
 
   for (const node of state.nodes) {
-    drawNode(node);
+    drawNode(node, contextHighlight);
   }
 
   if (pendingCenterNodeId) {
@@ -221,7 +450,29 @@ function renderGraph() {
   applyGraphView();
 }
 
-function drawEdge(edge, source, target) {
+function selectedContextHighlight() {
+  const empty = { active: false, nodeIds: new Set(), edgeIds: new Set() };
+  if (!selectedNodeId || selectionMode || selectedNodeIds.size > 0) return empty;
+
+  const nodesById = new Map(state.nodes.map((node) => [node.id, node]));
+  let node = nodesById.get(selectedNodeId);
+  if (!node) return empty;
+
+  const nodeIds = new Set();
+  while (node) {
+    nodeIds.add(node.id);
+    node = node.parentNodeId ? nodesById.get(node.parentNodeId) : null;
+  }
+
+  const edgeIds = new Set(
+    state.edges
+      .filter((edge) => nodeIds.has(edge.sourceNodeId) && nodeIds.has(edge.targetNodeId))
+      .map((edge) => edge.id),
+  );
+  return { active: true, nodeIds, edgeIds };
+}
+
+function drawEdge(edge, source, target, contextHighlight = selectedContextHighlight()) {
   const anchors = edgeAnchors(source, target);
   const { sx, sy, tx, ty, axis, sign } = anchors;
   const distance = axis === 'x' ? Math.abs(tx - sx) : Math.abs(ty - sy);
@@ -232,12 +483,18 @@ function drawEdge(edge, source, target) {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', d);
   path.setAttribute('class', 'edge-path');
+  if (contextHighlight.active) {
+    path.classList.add(contextHighlight.edgeIds.has(edge.id) ? 'context-path' : 'context-dimmed');
+  }
   const targetNode = state.nodes.find((node) => node.id === edge.targetNodeId);
   applyDepthColors(path, targetNode?.depth || 0, true);
   el.edgeLayer.appendChild(path);
 
   const label = document.createElement('div');
   label.className = 'edge-label';
+  if (contextHighlight.active) {
+    label.classList.add(contextHighlight.edgeIds.has(edge.id) ? 'context-path' : 'context-dimmed');
+  }
   label.tabIndex = 0;
   label.setAttribute('role', 'button');
   label.textContent = edge.displayPhrase || '...';
@@ -255,10 +512,14 @@ function drawEdge(edge, source, target) {
   el.edgeLabelLayer.appendChild(label);
 }
 
-function drawNode(node) {
+function drawNode(node, contextHighlight = selectedContextHighlight()) {
   const card = document.createElement('article');
   card.className = 'node-card';
   if (node.id === selectedNodeId) card.classList.add('selected');
+  if (selectedNodeIds.has(node.id)) card.classList.add('multi-selected');
+  if (contextHighlight.active) {
+    card.classList.add(contextHighlight.nodeIds.has(node.id) ? 'context-path' : 'context-dimmed');
+  }
   card.style.left = `${node.layout.x}px`;
   card.style.top = `${node.layout.y}px`;
   card.style.width = `${node.layout.width}px`;
@@ -271,8 +532,11 @@ function drawNode(node) {
   title.tabIndex = 0;
   title.setAttribute('role', 'button');
   title.title = t('editNodeTitle');
-  title.addEventListener('pointerdown', (event) => event.stopPropagation());
-  title.addEventListener('click', () => startNodeTitleEdit(node, title));
+  title.addEventListener('dblclick', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    startNodeTitleEdit(node, title);
+  });
   title.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') startNodeTitleEdit(node, title);
   });
@@ -314,6 +578,7 @@ function drawNode(node) {
   card.appendChild(title);
   card.appendChild(meta);
   card.appendChild(actions);
+  card.dataset.nodeId = node.id;
   card.addEventListener('pointerdown', (event) => beginNodeDrag(event, node, card));
   el.nodeLayer.appendChild(card);
 }
@@ -480,21 +745,39 @@ function handleGraphWheel(event) {
 
 function beginNodeDrag(event, node, card) {
   if (event.button !== 0) return;
-  if (event.target.closest?.('.node-title, .node-actions, .node-title-input')) return;
+  if (event.target.closest?.('.node-actions, .node-title-input')) return;
   event.preventDefault();
   event.stopPropagation();
+  const dragItems = selectedNodeIds.has(node.id) && selectedNodeIds.size > 1
+    ? [...selectedNodeIds].map((nodeId) => nodeDragItem(nodeId)).filter(Boolean)
+    : [nodeDragItem(node.id, card)].filter(Boolean);
   nodeDrag = {
     pointerId: event.pointerId,
     nodeId: node.id,
     card,
+    items: dragItems,
     startClientX: event.clientX,
     startClientY: event.clientY,
     startX: node.layout.x,
     startY: node.layout.y,
+    multiSelect: selectionMode || event.shiftKey,
     moved: false,
   };
-  card.classList.add('dragging');
+  for (const item of dragItems) {
+    item.card?.classList.add('dragging');
+  }
   card.setPointerCapture(event.pointerId);
+}
+
+function nodeDragItem(nodeId, fallbackCard = null) {
+  const node = state.nodes.find((item) => item.id === nodeId);
+  if (!node) return null;
+  return {
+    nodeId,
+    card: fallbackCard || el.nodeLayer.querySelector(`[data-node-id="${nodeId}"]`),
+    startX: node.layout.x,
+    startY: node.layout.y,
+  };
 }
 
 function updateNodeDrag(event) {
@@ -505,13 +788,17 @@ function updateNodeDrag(event) {
     nodeDrag.moved = true;
   }
 
-  const next = {
-    x: nodeDrag.startX + dx,
-    y: nodeDrag.startY + dy,
-  };
-  moveNodeLocally(nodeDrag.nodeId, next);
-  nodeDrag.card.style.left = `${next.x}px`;
-  nodeDrag.card.style.top = `${next.y}px`;
+  for (const item of nodeDrag.items) {
+    const next = {
+      x: item.startX + dx,
+      y: item.startY + dy,
+    };
+    moveNodeLocally(item.nodeId, next);
+    if (item.card) {
+      item.card.style.left = `${next.x}px`;
+      item.card.style.top = `${next.y}px`;
+    }
+  }
   redrawEdges();
 }
 
@@ -519,28 +806,45 @@ async function endNodeDrag(event) {
   if (!nodeDrag || event.pointerId !== nodeDrag.pointerId) return;
   const drag = nodeDrag;
   nodeDrag = null;
-  drag.card.classList.remove('dragging');
+  for (const item of drag.items) {
+    item.card?.classList.remove('dragging');
+  }
   if (drag.card.hasPointerCapture(event.pointerId)) {
     drag.card.releasePointerCapture(event.pointerId);
   }
 
   if (!drag.moved) {
     try {
-      await selectNode(drag.nodeId);
+      if (drag.multiSelect) {
+        toggleNodeMultiSelection(drag.nodeId);
+      } else {
+        resetMultiSelection();
+        await selectNode(drag.nodeId);
+      }
     } catch (error) {
       showError(error);
     }
     return;
   }
 
-  const node = state.nodes.find((item) => item.id === drag.nodeId);
-  if (!node) return;
+  const positions = drag.items
+    .map((item) => state.nodes.find((node) => node.id === item.nodeId))
+    .filter(Boolean)
+    .map((node) => ({
+      nodeId: node.id,
+      x: node.layout.x,
+      y: node.layout.y,
+    }));
+  if (positions.length === 0) return;
   try {
-    const data = await api(`/api/nodes/${drag.nodeId}/position`, {
+    const beforeSnapshot = await workspaceSnapshot();
+    const beforeUiState = captureUiState();
+    const data = await api('/api/nodes/positions', {
       method: 'PATCH',
-      body: JSON.stringify({ position: { x: node.layout.x, y: node.layout.y } }),
+      body: JSON.stringify({ positions }),
     });
     state = data.state;
+    await pushHistoryEntry(beforeSnapshot, beforeUiState);
     renderAll();
   } catch (error) {
     showError(error);
@@ -558,12 +862,13 @@ function moveNodeLocally(nodeId, position) {
 function redrawEdges() {
   el.edgeLayer.innerHTML = '';
   el.edgeLabelLayer.innerHTML = '';
+  const contextHighlight = selectedContextHighlight();
   const layoutById = new Map(state.nodes.map((node) => [node.id, node.layout]));
   for (const edge of state.edges) {
     const source = layoutById.get(edge.sourceNodeId);
     const target = layoutById.get(edge.targetNodeId);
     if (!source || !target) continue;
-    drawEdge(edge, source, target);
+    drawEdge(edge, source, target, contextHighlight);
   }
 }
 
@@ -626,9 +931,13 @@ function startNodeTitleEdit(node, titleElement) {
     }
 
     try {
-      const data = await api(`/api/nodes/${node.id}/title`, {
-        method: 'PATCH',
-        body: JSON.stringify({ title: nextTitle }),
+      const data = await runUndoable(async () => {
+        const response = await api(`/api/nodes/${node.id}/title`, {
+          method: 'PATCH',
+          body: JSON.stringify({ title: nextTitle }),
+        });
+        state = response.state;
+        return response;
       });
       state = data.state;
       renderAll();
@@ -678,9 +987,13 @@ function startEdgePhraseEdit(edge, labelElement) {
     }
 
     try {
-      const data = await api(`/api/edges/${edge.id}/phrase`, {
-        method: 'PATCH',
-        body: JSON.stringify({ phrase: nextPhrase }),
+      const data = await runUndoable(async () => {
+        const response = await api(`/api/edges/${edge.id}/phrase`, {
+          method: 'PATCH',
+          body: JSON.stringify({ phrase: nextPhrase }),
+        });
+        state = response.state;
+        return response;
       });
       state = data.state;
       renderAll();
@@ -711,6 +1024,30 @@ async function selectNode(nodeId) {
   if (!node) return;
   messages = await api(`/api/threads/${node.threadId}/messages`);
   renderAll();
+}
+
+function toggleSelectionMode() {
+  selectionMode = !selectionMode;
+  if (!selectionMode) {
+    selectedNodeIds.clear();
+  }
+  renderAll();
+}
+
+function toggleNodeMultiSelection(nodeId) {
+  dismissDeleteConfirmation();
+  selectionMode = true;
+  if (selectedNodeIds.has(nodeId)) {
+    selectedNodeIds.delete(nodeId);
+  } else {
+    selectedNodeIds.add(nodeId);
+  }
+  renderAll();
+}
+
+function resetMultiSelection() {
+  selectedNodeIds.clear();
+  selectionMode = false;
 }
 
 function getSelectedNode() {
@@ -765,6 +1102,32 @@ function applyChatSidebarState() {
   localStorage.setItem('graphChat.sidebarWidth', String(Math.round(width)));
 }
 
+function applyThreadSidebarState() {
+  const width = clamp(threadSidebarWidth, minThreadWidth(), maxThreadWidth());
+  threadSidebarWidth = width;
+  document.documentElement.style.setProperty('--thread-sidebar-width', `${width}px`);
+  el.threadSidebar.classList.toggle('collapsed', threadSidebarHidden);
+  el.threadEdgeToggle.textContent = threadSidebarHidden ? '›' : '‹';
+  el.threadEdgeToggle.title = threadSidebarHidden ? t('showThreads') : t('hideThreads');
+  el.threadEdgeToggle.setAttribute('aria-label', threadSidebarHidden ? t('showThreads') : t('hideThreads'));
+  el.threadEdgeToggle.style.left = threadSidebarHidden ? '0px' : `${width}px`;
+  localStorage.setItem('graphChat.threadSidebarHidden', String(threadSidebarHidden));
+  localStorage.setItem('graphChat.threadSidebarWidth', String(Math.round(width)));
+}
+
+function toggleThreadSidebar() {
+  threadSidebarHidden = !threadSidebarHidden;
+  applyThreadSidebarState();
+}
+
+function minThreadWidth() {
+  return Math.min(260, Math.max(220, window.innerWidth - 36));
+}
+
+function maxThreadWidth() {
+  return Math.max(minThreadWidth(), Math.min(360, window.innerWidth - 24));
+}
+
 function toggleChatSidebar() {
   chatSidebarHidden = !chatSidebarHidden;
   applyChatSidebarState();
@@ -808,14 +1171,70 @@ function maxChatWidth() {
 
 async function createRoot() {
   try {
-    const data = await api('/api/nodes/root', {
+    const data = await runUndoable(async () => api('/api/nodes/root', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }));
+    state = data.state;
+    selectedNodeId = data.result.node.id;
+    resetMultiSelection();
+    pendingCenterNodeId = selectedNodeId;
+    messages = [];
+    renderAll();
+  } catch (error) {
+    showError(error);
+  }
+}
+
+async function createGraphThread() {
+  try {
+    const data = await runUndoable(async () => api('/api/graph-threads', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }));
+    state = data.state;
+    selectedNodeId = null;
+    resetMultiSelection();
+    messages = [];
+    hasCenteredGraph = false;
+    pendingCenterNodeId = null;
+    renderAll();
+  } catch (error) {
+    showError(error);
+  }
+}
+
+async function selectGraphThread(graphThreadId) {
+  if (graphThreadId === state.activeGraphThreadId) return;
+  try {
+    const data = await api(`/api/graph-threads/${graphThreadId}/select`, {
       method: 'POST',
       body: JSON.stringify({}),
     });
     state = data.state;
-    selectedNodeId = data.result.node.id;
-    pendingCenterNodeId = selectedNodeId;
+    selectedNodeId = null;
+    resetMultiSelection();
     messages = [];
+    hasCenteredGraph = false;
+    pendingCenterNodeId = null;
+    renderAll();
+  } catch (error) {
+    showError(error);
+  }
+}
+
+async function deleteGraphThread(graphThreadId) {
+  try {
+    const data = await runUndoable(async () => api(`/api/graph-threads/${graphThreadId}`, {
+      method: 'DELETE',
+    }));
+    state = data.state;
+    pendingDeleteGraphThreadId = null;
+    selectedNodeId = null;
+    resetMultiSelection();
+    messages = [];
+    hasCenteredGraph = false;
+    pendingCenterNodeId = null;
     renderAll();
   } catch (error) {
     showError(error);
@@ -831,12 +1250,13 @@ async function addChildForNode(parentNodeId) {
   const parent = state.nodes.find((node) => node.id === parentNodeId);
   if (!parent) return;
   try {
-    const data = await api(`/api/nodes/${parentNodeId}/children`, {
+    const data = await runUndoable(async () => api(`/api/nodes/${parentNodeId}/children`, {
       method: 'POST',
-      body: JSON.stringify({ position: nextChildPosition(parent) }),
-    });
+      body: JSON.stringify({}),
+    }));
     state = data.state;
     selectedNodeId = data.result.node.id;
+    resetMultiSelection();
     pendingCenterNodeId = selectedNodeId;
     messages = [];
     renderAll();
@@ -845,50 +1265,16 @@ async function addChildForNode(parentNodeId) {
   }
 }
 
-function nextChildPosition(parent) {
-  const gap = Number(state?.graphSettings?.verticalGap) || 150;
-  const width = Number(state?.graphSettings?.nodeWidth) || parent.layout.width;
-  const height = Number(state?.graphSettings?.nodeHeight) || parent.layout.height;
-  let candidate = {
-    x: parent.layout.x,
-    y: parent.layout.y + gap,
-    width,
-    height,
-  };
-
-  const siblings = state.nodes
-    .filter((node) => node.parentNodeId === parent.id)
-    .sort((a, b) => a.layout.y - b.layout.y);
-  for (const sibling of siblings) {
-    candidate.y = Math.max(candidate.y, sibling.layout.y + gap);
-  }
-
-  while (state.nodes.some((node) => rectanglesOverlap(candidate, node.layout, GRAPH_VIEW.collisionPadding))) {
-    candidate.y += gap;
-  }
-
-  return { x: candidate.x, y: candidate.y };
-}
-
-function rectanglesOverlap(a, b, padding) {
-  return !(
-    a.x + a.width + padding < b.x
-    || b.x + b.width + padding < a.x
-    || a.y + a.height + padding < b.y
-    || b.y + b.height + padding < a.y
-  );
-}
-
 async function renameSelectedNode() {
   const node = getSelectedNode();
   if (!node) return;
   const next = window.prompt(t('renamePrompt'), node.displayTitle);
   if (!next || !next.trim()) return;
   try {
-    const data = await api(`/api/nodes/${node.id}/title`, {
+    const data = await runUndoable(async () => api(`/api/nodes/${node.id}/title`, {
       method: 'PATCH',
       body: JSON.stringify({ title: next.trim() }),
-    });
+    }));
     state = data.state;
     renderAll();
   } catch (error) {
@@ -958,7 +1344,28 @@ function dismissDeleteConfirmation() {
 async function performDeleteNodeById(nodeId) {
   try {
     dismissDeleteConfirmation();
-    state = await api(`/api/nodes/${nodeId}`, { method: 'DELETE' });
+    state = await runUndoable(async () => api(`/api/nodes/${nodeId}`, { method: 'DELETE' }));
+    selectedNodeIds.delete(nodeId);
+    if (!selectedNodeId || !state.nodes.some((node) => node.id === selectedNodeId)) {
+      selectedNodeId = null;
+      messages = [];
+    }
+    renderAll();
+  } catch (error) {
+    showError(error);
+  }
+}
+
+async function deleteSelectedNodes() {
+  const nodeIds = [...selectedNodeIds];
+  if (nodeIds.length === 0) return;
+  try {
+    dismissDeleteConfirmation();
+    state = await runUndoable(async () => api('/api/nodes', {
+      method: 'DELETE',
+      body: JSON.stringify({ nodeIds }),
+    }));
+    resetMultiSelection();
     if (!selectedNodeId || !state.nodes.some((node) => node.id === selectedNodeId)) {
       selectedNodeId = null;
       messages = [];
@@ -973,10 +1380,10 @@ async function editEdgePhrase(edge) {
   const next = window.prompt(t('editEdgePhrase'), edge.displayPhrase || '');
   if (!next || !next.trim()) return;
   try {
-    const data = await api(`/api/edges/${edge.id}/phrase`, {
+    const data = await runUndoable(async () => api(`/api/edges/${edge.id}/phrase`, {
       method: 'PATCH',
       body: JSON.stringify({ phrase: next.trim() }),
-    });
+    }));
     state = data.state;
     renderAll();
   } catch (error) {
@@ -991,21 +1398,23 @@ async function sendMessage(event) {
   const content = el.messageInput.value.trim();
   if (!content) return;
 
-  isSending = true;
-  messages = [
-    ...messages,
-    {
-      id: `local_${Date.now()}`,
-      thread_id: node.threadId,
-      role: 'user',
-      content,
-      created_at: new Date().toISOString(),
-    },
-  ];
-  el.messageInput.value = '';
-  renderAll();
-
   try {
+    const beforeSnapshot = await workspaceSnapshot();
+    const beforeUiState = captureUiState();
+    isSending = true;
+    messages = [
+      ...messages,
+      {
+        id: `local_${Date.now()}`,
+        thread_id: node.threadId,
+        role: 'user',
+        content,
+        created_at: new Date().toISOString(),
+      },
+    ];
+    el.messageInput.value = '';
+    renderAll();
+
     const data = await api(`/api/nodes/${node.id}/messages`, {
       method: 'POST',
       body: JSON.stringify({ content }),
@@ -1013,6 +1422,7 @@ async function sendMessage(event) {
     state = data.state;
     messages = data.messages;
     selectedNodeId = node.id;
+    await pushHistoryEntry(beforeSnapshot, beforeUiState);
   } catch (error) {
     showError(error);
   } finally {
@@ -1027,7 +1437,43 @@ function showError(error) {
   window.setTimeout(() => el.toast.classList.add('hidden'), 4200);
 }
 
+function handleGlobalKeydown(event) {
+  if (isUndoRedoShortcut(event)) {
+    if (shouldUseNativeTextUndo(event)) return;
+    event.preventDefault();
+    if (event.shiftKey) {
+      redoLastAction();
+    } else {
+      undoLastAction();
+    }
+    return;
+  }
+
+  if (isTextEditingTarget(event.target)) return;
+  if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNodeIds.size > 0) {
+    event.preventDefault();
+    deleteSelectedNodes();
+  }
+}
+
+function isUndoRedoShortcut(event) {
+  return (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z';
+}
+
+function shouldUseNativeTextUndo(event) {
+  if (!isTextEditingTarget(event.target)) return false;
+  return !(event.target === el.messageInput && el.messageInput.value.length === 0);
+}
+
+function isTextEditingTarget(target) {
+  return Boolean(target?.closest?.('input, textarea, select, [contenteditable="true"]'));
+}
+
 el.chatEdgeToggle.addEventListener('click', toggleChatSidebar);
+el.threadEdgeToggle.addEventListener('click', toggleThreadSidebar);
+el.newThreadBtn.addEventListener('click', createGraphThread);
+el.selectionModeBtn.addEventListener('click', toggleSelectionMode);
+el.bulkDeleteBtn.addEventListener('click', deleteSelectedNodes);
 el.hideChatBtn.addEventListener('click', () => {
   chatSidebarHidden = true;
   applyChatSidebarState();
@@ -1045,19 +1491,23 @@ document.addEventListener('pointerdown', (event) => {
   if (event.target.closest?.('.delete-confirm-popover, .node-action-button.delete')) return;
   dismissDeleteConfirmation();
 });
+document.addEventListener('keydown', handleGlobalKeydown);
 el.chatResizeHandle.addEventListener('pointerdown', beginSidebarResize);
 document.addEventListener('pointermove', updateSidebarResize);
 document.addEventListener('pointerup', endSidebarResize);
 document.addEventListener('pointercancel', endSidebarResize);
 window.addEventListener('resize', () => {
   applyChatSidebarState();
+  applyThreadSidebarState();
   if (!state?.nodes.length) return;
   centerViewOnGraph();
   applyGraphView();
 });
 el.messageForm.addEventListener('submit', sendMessage);
 el.messageInput.addEventListener('keydown', (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+  if (event.isComposing) return;
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
     el.messageForm.requestSubmit();
   }
 });

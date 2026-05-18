@@ -5,8 +5,13 @@ from typing import List, Optional
 
 from app.domain.chat import ChatThread, Message
 from app.domain.common import utc_now_iso
-from app.domain.graph import GraphEdge, GraphNode
-from app.domain.ports import ChatRepository, GraphRepository, SettingsRepository
+from app.domain.graph import GraphEdge, GraphNode, GraphThread
+from app.domain.ports import (
+    ChatRepository,
+    GraphRepository,
+    SettingsRepository,
+    WorkspaceSnapshotRepository,
+)
 from app.infrastructure.persistence.json_store import JsonStore
 
 
@@ -14,13 +19,58 @@ class JsonGraphRepository(GraphRepository):
     def __init__(self, store: JsonStore):
         self._store = store
 
-    def list_nodes(self) -> List[GraphNode]:
+    def list_graph_threads(self) -> List[GraphThread]:
         state = self._store.read()
-        return [GraphNode.from_dict(v) for v in state["nodes"].values()]
+        graph_threads = [GraphThread.from_dict(v) for v in state["graph_threads"].values()]
+        return sorted(graph_threads, key=lambda graph_thread: graph_thread.created_at)
 
-    def list_edges(self) -> List[GraphEdge]:
+    def get_graph_thread(self, graph_thread_id: str) -> GraphThread:
         state = self._store.read()
-        return [GraphEdge.from_dict(v) for v in state["edges"].values()]
+        try:
+            return GraphThread.from_dict(state["graph_threads"][graph_thread_id])
+        except KeyError as exc:
+            raise KeyError(f"Graph thread not found: {graph_thread_id}") from exc
+
+    def save_graph_thread(self, graph_thread: GraphThread) -> GraphThread:
+        def mutate(state: dict) -> None:
+            state["graph_threads"][graph_thread.id] = asdict(graph_thread)
+
+        self._store.update(mutate)
+        return graph_thread
+
+    def delete_graph_thread(self, graph_thread_id: str) -> None:
+        def mutate(state: dict) -> None:
+            state["graph_threads"].pop(graph_thread_id, None)
+            node_ids = [
+                node_id
+                for node_id, node in state["nodes"].items()
+                if node.get("graph_thread_id") == graph_thread_id
+            ]
+            for node_id in node_ids:
+                state["nodes"].pop(node_id, None)
+            edge_ids = [
+                edge_id
+                for edge_id, edge in state["edges"].items()
+                if edge.get("graph_thread_id") == graph_thread_id
+            ]
+            for edge_id in edge_ids:
+                state["edges"].pop(edge_id, None)
+
+        self._store.update(mutate)
+
+    def list_nodes(self, graph_thread_id: str | None = None) -> List[GraphNode]:
+        state = self._store.read()
+        nodes = [GraphNode.from_dict(v) for v in state["nodes"].values()]
+        if graph_thread_id is not None:
+            nodes = [node for node in nodes if node.graph_thread_id == graph_thread_id]
+        return nodes
+
+    def list_edges(self, graph_thread_id: str | None = None) -> List[GraphEdge]:
+        state = self._store.read()
+        edges = [GraphEdge.from_dict(v) for v in state["edges"].values()]
+        if graph_thread_id is not None:
+            edges = [edge for edge in edges if edge.graph_thread_id == graph_thread_id]
+        return edges
 
     def get_node(self, node_id: str) -> GraphNode:
         state = self._store.read()
@@ -146,6 +196,17 @@ class JsonChatRepository(ChatRepository):
         self._store.update(mutate)
 
 
+class JsonWorkspaceSnapshotRepository(WorkspaceSnapshotRepository):
+    def __init__(self, store: JsonStore):
+        self._store = store
+
+    def get_snapshot(self) -> dict:
+        return self._store.read()
+
+    def restore_snapshot(self, snapshot: dict) -> None:
+        self._store.replace(snapshot)
+
+
 class JsonSettingsRepository(SettingsRepository):
     def __init__(self, store: JsonStore, default_locale: str, supported_locales: tuple[str, ...]):
         self._store = store
@@ -165,5 +226,19 @@ class JsonSettingsRepository(SettingsRepository):
 
         def mutate(state: dict) -> None:
             state["settings"]["locale"] = locale
+
+        self._store.update(mutate)
+
+    def get_active_graph_thread_id(self) -> str:
+        state = self._store.read()
+        return state["settings"]["active_graph_thread_id"]
+
+    def set_active_graph_thread_id(self, graph_thread_id: str) -> None:
+        state = self._store.read()
+        if graph_thread_id not in state["graph_threads"]:
+            raise ValueError(f"Graph thread not found: {graph_thread_id}")
+
+        def mutate(state: dict) -> None:
+            state["settings"]["active_graph_thread_id"] = graph_thread_id
 
         self._store.update(mutate)

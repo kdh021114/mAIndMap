@@ -8,12 +8,21 @@ from app.application.chat_use_cases import LoadThreadMessagesUseCase, SendMessag
 from app.application.context_builder import AncestorContextPolicy, AncestorLineageContextBuilder
 from app.application.graph_use_cases import (
     AddChildNodeUseCase,
+    CreateGraphThreadUseCase,
     CreateRootNodeUseCase,
+    DeleteGraphThreadUseCase,
     DeleteNodeUseCase,
+    DeleteNodesUseCase,
     EditEdgePhraseUseCase,
     GenerateMissingGraphLabelsUseCase,
     MoveNodeUseCase,
+    MoveNodesUseCase,
     RenameNodeUseCase,
+    SwitchGraphThreadUseCase,
+)
+from app.application.history_use_cases import (
+    GetWorkspaceSnapshotUseCase,
+    RestoreWorkspaceSnapshotUseCase,
 )
 from app.application.settings_use_cases import ChangeLocaleUseCase
 from app.application.workspace_state import GetWorkspaceStateUseCase
@@ -24,6 +33,7 @@ from app.infrastructure.persistence.json_repositories import (
     JsonChatRepository,
     JsonGraphRepository,
     JsonSettingsRepository,
+    JsonWorkspaceSnapshotRepository,
 )
 from app.infrastructure.persistence.json_store import JsonStore
 from app.presentation.web.routes import register_routes
@@ -32,22 +42,30 @@ from app.presentation.web.routes import register_routes
 @dataclass(frozen=True)
 class UseCaseContainer:
     get_workspace_state: GetWorkspaceStateUseCase
+    create_graph_thread: CreateGraphThreadUseCase
+    switch_graph_thread: SwitchGraphThreadUseCase
+    delete_graph_thread: DeleteGraphThreadUseCase
     create_root_node: CreateRootNodeUseCase
     add_child_node: AddChildNodeUseCase
     rename_node: RenameNodeUseCase
     move_node: MoveNodeUseCase
+    move_nodes: MoveNodesUseCase
     delete_node: DeleteNodeUseCase
+    delete_nodes: DeleteNodesUseCase
     edit_edge_phrase: EditEdgePhraseUseCase
     generate_missing_graph_labels: GenerateMissingGraphLabelsUseCase
     load_thread_messages: LoadThreadMessagesUseCase
     send_message: SendMessageUseCase
     change_locale: ChangeLocaleUseCase
+    get_workspace_snapshot: GetWorkspaceSnapshotUseCase
+    restore_workspace_snapshot: RestoreWorkspaceSnapshotUseCase
 
 
 def create_app(config_module) -> Flask:
     store = JsonStore(config_module.DATA_FILE)
     graph_repository = JsonGraphRepository(store)
     chat_repository = JsonChatRepository(store)
+    snapshot_repository = JsonWorkspaceSnapshotRepository(store)
     settings_repository = JsonSettingsRepository(
         store,
         default_locale=config_module.DEFAULT_LOCALE,
@@ -94,9 +112,23 @@ def create_app(config_module) -> Flask:
             app_title=config_module.APP_TITLE,
             llm_mode=llm_services.mode,
         ),
+        create_graph_thread=CreateGraphThreadUseCase(
+            graph_repository=graph_repository,
+            settings_repository=settings_repository,
+        ),
+        switch_graph_thread=SwitchGraphThreadUseCase(
+            graph_repository=graph_repository,
+            settings_repository=settings_repository,
+        ),
+        delete_graph_thread=DeleteGraphThreadUseCase(
+            graph_repository=graph_repository,
+            chat_repository=chat_repository,
+            settings_repository=settings_repository,
+        ),
         create_root_node=CreateRootNodeUseCase(
             graph_repository=graph_repository,
             chat_repository=chat_repository,
+            settings_repository=settings_repository,
             tree_policy=tree_policy,
             root_position=NodePosition(
                 x=config_module.ROOT_NODE_X,
@@ -107,6 +139,7 @@ def create_app(config_module) -> Flask:
             graph_repository=graph_repository,
             chat_repository=chat_repository,
             tree_policy=tree_policy,
+            default_horizontal_gap=config_module.TREE_HORIZONTAL_GAP,
             default_vertical_gap=config_module.TREE_VERTICAL_GAP,
         ),
         rename_node=RenameNodeUseCase(
@@ -114,7 +147,12 @@ def create_app(config_module) -> Flask:
             chat_repository=chat_repository,
         ),
         move_node=MoveNodeUseCase(graph_repository=graph_repository),
+        move_nodes=MoveNodesUseCase(graph_repository=graph_repository),
         delete_node=DeleteNodeUseCase(
+            graph_repository=graph_repository,
+            chat_repository=chat_repository,
+        ),
+        delete_nodes=DeleteNodesUseCase(
             graph_repository=graph_repository,
             chat_repository=chat_repository,
         ),
@@ -136,6 +174,8 @@ def create_app(config_module) -> Flask:
             current_thread_message_limit=config_module.CURRENT_THREAD_MESSAGE_LIMIT,
         ),
         change_locale=ChangeLocaleUseCase(settings_repository=settings_repository),
+        get_workspace_snapshot=GetWorkspaceSnapshotUseCase(snapshot_repository=snapshot_repository),
+        restore_workspace_snapshot=RestoreWorkspaceSnapshotUseCase(snapshot_repository=snapshot_repository),
     )
 
     flask_app = Flask(__name__, static_folder="presentation/web/static", static_url_path="/static")

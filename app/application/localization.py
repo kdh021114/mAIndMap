@@ -25,3 +25,7 @@ def default_root_title(locale: str) -> str:
 
 def default_edge_phrase(locale: str) -> str:
     return "새 분기" if locale == "ko" else "New branch"
+
+
+def default_graph_thread_title(locale: str, index: int) -> str:
+    return f"그래프 스레드 {index}" if locale == "ko" else f"Graph thread {index}"

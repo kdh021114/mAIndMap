@@ -6,6 +6,43 @@ from typing import Dict, Iterable, List, Optional
 from app.domain.common import LocalizedText, utc_now_iso
 
 
+DEFAULT_GRAPH_THREAD_ID = "graph_default"
+
+
+@dataclass(frozen=True)
+class GraphThread:
+    """A top-level workspace thread that owns one independent graph."""
+
+    id: str
+    title: LocalizedText
+    created_at: str
+    updated_at: str
+
+    @staticmethod
+    def new(graph_thread_id: str, title: LocalizedText) -> "GraphThread":
+        now = utc_now_iso()
+        return GraphThread(
+            id=graph_thread_id,
+            title=title,
+            created_at=now,
+            updated_at=now,
+        )
+
+    @staticmethod
+    def from_dict(data: dict) -> "GraphThread":
+        return GraphThread(
+            id=data["id"],
+            title=dict(data.get("title", {})),
+            created_at=data["created_at"],
+            updated_at=data["updated_at"],
+        )
+
+    def with_title(self, locale: str, title: str) -> "GraphThread":
+        titles = dict(self.title)
+        titles[locale] = title.strip()
+        return replace(self, title=titles, updated_at=utc_now_iso())
+
+
 @dataclass(frozen=True)
 class NodePosition:
     """Canvas-space top-left coordinate for a graph node."""
@@ -29,30 +66,36 @@ class GraphNode:
     """
 
     id: str
+    graph_thread_id: str
     thread_id: str
     parent_node_id: Optional[str]
     title: LocalizedText
     user_edited_title_locales: Dict[str, bool]
     position: NodePosition
+    manually_positioned: bool
     created_at: str
     updated_at: str
 
     @staticmethod
     def new(
         node_id: str,
+        graph_thread_id: str,
         thread_id: str,
         parent_node_id: Optional[str],
         title: LocalizedText,
         position: NodePosition | None = None,
+        manually_positioned: bool = False,
     ) -> "GraphNode":
         now = utc_now_iso()
         return GraphNode(
             id=node_id,
+            graph_thread_id=graph_thread_id,
             thread_id=thread_id,
             parent_node_id=parent_node_id,
             title=title,
             user_edited_title_locales={},
             position=position or NodePosition(x=0, y=0),
+            manually_positioned=manually_positioned,
             created_at=now,
             updated_at=now,
         )
@@ -61,11 +104,13 @@ class GraphNode:
     def from_dict(data: dict) -> "GraphNode":
         return GraphNode(
             id=data["id"],
+            graph_thread_id=data.get("graph_thread_id", DEFAULT_GRAPH_THREAD_ID),
             thread_id=data["thread_id"],
             parent_node_id=data.get("parent_node_id"),
             title=dict(data.get("title", {})),
             user_edited_title_locales=dict(data.get("user_edited_title_locales", {})),
             position=NodePosition.from_dict(data.get("position")),
+            manually_positioned=bool(data.get("manually_positioned", False)),
             created_at=data["created_at"],
             updated_at=data["updated_at"],
         )
@@ -82,8 +127,13 @@ class GraphNode:
             updated_at=utc_now_iso(),
         )
 
-    def with_position(self, position: NodePosition) -> "GraphNode":
-        return replace(self, position=position, updated_at=utc_now_iso())
+    def with_position(self, position: NodePosition, *, manually_positioned: bool = True) -> "GraphNode":
+        return replace(
+            self,
+            position=position,
+            manually_positioned=manually_positioned,
+            updated_at=utc_now_iso(),
+        )
 
 
 @dataclass(frozen=True)
@@ -91,6 +141,7 @@ class GraphEdge:
     """A parent-child tree edge with a phrase-level relation label."""
 
     id: str
+    graph_thread_id: str
     source_node_id: str
     target_node_id: str
     phrase: LocalizedText
@@ -102,6 +153,7 @@ class GraphEdge:
     @staticmethod
     def new(
         edge_id: str,
+        graph_thread_id: str,
         source_node_id: str,
         target_node_id: str,
         phrase: LocalizedText,
@@ -110,6 +162,7 @@ class GraphEdge:
         now = utc_now_iso()
         return GraphEdge(
             id=edge_id,
+            graph_thread_id=graph_thread_id,
             source_node_id=source_node_id,
             target_node_id=target_node_id,
             phrase=phrase,
@@ -123,6 +176,7 @@ class GraphEdge:
     def from_dict(data: dict) -> "GraphEdge":
         return GraphEdge(
             id=data["id"],
+            graph_thread_id=data.get("graph_thread_id", DEFAULT_GRAPH_THREAD_ID),
             source_node_id=data["source_node_id"],
             target_node_id=data["target_node_id"],
             phrase=dict(data.get("phrase", {})),

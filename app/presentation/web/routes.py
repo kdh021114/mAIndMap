@@ -22,6 +22,19 @@ def register_routes(app: Flask, use_cases: Any) -> None:
     def get_state():
         return jsonify(use_cases.get_workspace_state.execute())
 
+    @app.get("/api/history/snapshot")
+    def get_workspace_snapshot():
+        return jsonify(use_cases.get_workspace_snapshot.execute())
+
+    @app.post("/api/history/restore")
+    def restore_workspace_snapshot():
+        data = _json_body()
+        snapshot = data.get("snapshot")
+        if not isinstance(snapshot, dict):
+            raise ValueError("snapshot must be an object.")
+        use_cases.restore_workspace_snapshot.execute(snapshot=snapshot)
+        return jsonify({"state": use_cases.get_workspace_state.execute()})
+
     @app.post("/api/settings/locale")
     def change_locale():
         data = _json_body()
@@ -35,6 +48,23 @@ def register_routes(app: Flask, use_cases: Any) -> None:
         locale = _current_locale(use_cases)
         use_cases.generate_missing_graph_labels.execute(locale=locale)
         return jsonify(use_cases.get_workspace_state.execute())
+
+    @app.post("/api/graph-threads")
+    def create_graph_thread():
+        locale = _current_locale(use_cases)
+        result = use_cases.create_graph_thread.execute(locale=locale)
+        return jsonify({"result": _to_dict(result), "state": use_cases.get_workspace_state.execute()})
+
+    @app.post("/api/graph-threads/<graph_thread_id>/select")
+    def select_graph_thread(graph_thread_id: str):
+        graph_thread = use_cases.switch_graph_thread.execute(graph_thread_id=graph_thread_id)
+        return jsonify({"graphThread": _to_dict(graph_thread), "state": use_cases.get_workspace_state.execute()})
+
+    @app.delete("/api/graph-threads/<graph_thread_id>")
+    def delete_graph_thread(graph_thread_id: str):
+        locale = _current_locale(use_cases)
+        graph_thread = use_cases.delete_graph_thread.execute(graph_thread_id=graph_thread_id, locale=locale)
+        return jsonify({"activeGraphThread": _to_dict(graph_thread), "state": use_cases.get_workspace_state.execute()})
 
     @app.post("/api/nodes/root")
     def create_root_node():
@@ -74,9 +104,37 @@ def register_routes(app: Flask, use_cases: Any) -> None:
         node = use_cases.move_node.execute(node_id=node_id, position=position)
         return jsonify({"node": _to_dict(node), "state": use_cases.get_workspace_state.execute()})
 
+    @app.patch("/api/nodes/positions")
+    def move_nodes():
+        data = _json_body()
+        raw_positions = data.get("positions", [])
+        if not isinstance(raw_positions, list):
+            raise ValueError("positions must be a list.")
+        positions = {}
+        for item in raw_positions:
+            if not isinstance(item, dict) or not isinstance(item.get("nodeId"), str):
+                raise ValueError("Each position requires a nodeId.")
+            position = _position_from_body(item)
+            if position is None:
+                raise ValueError("Each position requires finite x and y values.")
+            positions[item["nodeId"]] = position
+        nodes = use_cases.move_nodes.execute(positions=positions)
+        return jsonify({"nodes": _to_dict(nodes), "state": use_cases.get_workspace_state.execute()})
+
     @app.delete("/api/nodes/<node_id>")
     def delete_node(node_id: str):
         use_cases.delete_node.execute(node_id=node_id)
+        return jsonify(use_cases.get_workspace_state.execute())
+
+    @app.delete("/api/nodes")
+    def delete_nodes():
+        data = _json_body()
+        node_ids = data.get("nodeIds", [])
+        if not isinstance(node_ids, list):
+            raise ValueError("nodeIds must be a list.")
+        if not all(isinstance(node_id, str) and node_id for node_id in node_ids):
+            raise ValueError("nodeIds must contain non-empty strings.")
+        use_cases.delete_nodes.execute(node_ids=node_ids)
         return jsonify(use_cases.get_workspace_state.execute())
 
     @app.get("/api/threads/<thread_id>/messages")

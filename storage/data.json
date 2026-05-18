@@ -1,281 +1,214 @@
 {
-  "settings": {
-    "locale": "ko"
-  },
-  "nodes": {
-    "node_e308a27ce5a4": {
-      "id": "node_e308a27ce5a4",
-      "thread_id": "thread_ae28dae86a82",
-      "parent_node_id": null,
-      "title": {
-        "ko": "asdfdsf"
-      },
-      "user_edited_title_locales": {
-        "ko": true
-      },
-      "position": {
-        "x": -181.203125,
-        "y": -100.82421875
-      },
-      "created_at": "2026-05-13T13:04:57.357261+00:00",
-      "updated_at": "2026-05-16T06:09:57.672274+00:00"
-    },
-    "node_9b285a59d88c": {
-      "id": "node_9b285a59d88c",
-      "thread_id": "thread_2b82478ae1a8",
-      "parent_node_id": "node_e308a27ce5a4",
-      "title": {
-        "ko": "4."
-      },
-      "user_edited_title_locales": {
-        "ko": false
-      },
-      "position": {
-        "x": -511.1024394147902,
-        "y": 77.65298980450211
-      },
-      "created_at": "2026-05-16T06:09:23.187852+00:00",
-      "updated_at": "2026-05-16T06:11:49.605410+00:00"
-    },
-    "node_2bc679a24fb7": {
-      "id": "node_2bc679a24fb7",
-      "thread_id": "thread_f2112a2c633e",
-      "parent_node_id": "node_e308a27ce5a4",
-      "title": {
-        "ko": "1"
-      },
-      "user_edited_title_locales": {
-        "ko": false
-      },
-      "position": {
-        "x": -181.203125,
-        "y": 132.15354356920426
-      },
-      "created_at": "2026-05-16T06:09:38.054713+00:00",
-      "updated_at": "2026-05-16T06:26:35.841969+00:00"
-    },
-    "node_255041921235": {
-      "id": "node_255041921235",
-      "thread_id": "thread_f5d03db8ce6b",
-      "parent_node_id": "node_2bc679a24fb7",
-      "title": {
-        "ko": "새 대화"
-      },
-      "user_edited_title_locales": {},
-      "position": {
-        "x": -181.203125,
-        "y": 386.39453125
-      },
-      "created_at": "2026-05-16T06:22:00.457548+00:00",
-      "updated_at": "2026-05-16T06:22:00.457548+00:00"
-    }
-  },
   "edges": {
-    "edge_a15dea27685a": {
-      "id": "edge_a15dea27685a",
-      "source_node_id": "node_e308a27ce5a4",
-      "target_node_id": "node_9b285a59d88c",
-      "phrase": {
-        "ko": "구체화"
-      },
-      "phrase_generated_by": "ai",
-      "user_edited_phrase_locales": {
-        "ko": false
-      },
-      "created_at": "2026-05-16T06:09:23.187881+00:00",
-      "updated_at": "2026-05-16T06:09:31.247926+00:00"
-    },
-    "edge_05fcaeaa8540": {
-      "id": "edge_05fcaeaa8540",
-      "source_node_id": "node_e308a27ce5a4",
-      "target_node_id": "node_2bc679a24fb7",
-      "phrase": {
-        "ko": "구체화"
-      },
-      "phrase_generated_by": "ai",
-      "user_edited_phrase_locales": {
-        "ko": false
-      },
-      "created_at": "2026-05-16T06:09:38.054759+00:00",
-      "updated_at": "2026-05-16T06:26:35.846293+00:00"
-    },
-    "edge_d431587ea19f": {
-      "id": "edge_d431587ea19f",
-      "source_node_id": "node_2bc679a24fb7",
-      "target_node_id": "node_255041921235",
+    "edge_3e7675ebdf7c": {
+      "created_at": "2026-05-18T12:06:22.636731+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_3e7675ebdf7c",
       "phrase": {
         "ko": "새 분기"
       },
       "phrase_generated_by": "system",
-      "user_edited_phrase_locales": {},
-      "created_at": "2026-05-16T06:22:00.457607+00:00",
-      "updated_at": "2026-05-16T06:22:00.457607+00:00"
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_98fa10c1d8e4",
+      "updated_at": "2026-05-18T12:06:22.636731+00:00",
+      "user_edited_phrase_locales": {}
+    },
+    "edge_4c079f12a5d1": {
+      "created_at": "2026-05-18T12:29:24.678405+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_4c079f12a5d1",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_ba51ada4c8a0",
+      "target_node_id": "node_aef97ae19b29",
+      "updated_at": "2026-05-18T12:29:24.678405+00:00",
+      "user_edited_phrase_locales": {}
+    },
+    "edge_62b43c33cd77": {
+      "created_at": "2026-05-18T12:07:34.191244+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_62b43c33cd77",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_cd0dd6e986ea",
+      "updated_at": "2026-05-18T12:07:34.191244+00:00",
+      "user_edited_phrase_locales": {}
+    },
+    "edge_bb98c7926426": {
+      "created_at": "2026-05-18T12:29:23.307832+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_bb98c7926426",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_cd0dd6e986ea",
+      "target_node_id": "node_ba51ada4c8a0",
+      "updated_at": "2026-05-18T12:29:23.307832+00:00",
+      "user_edited_phrase_locales": {}
     }
   },
-  "threads": {
-    "thread_ae28dae86a82": {
-      "id": "thread_ae28dae86a82",
+  "graph_threads": {
+    "graph_default": {
+      "created_at": "1970-01-01T00:00:00+00:00",
+      "id": "graph_default",
       "title": {
-        "ko": "asdfdsf"
+        "en": "Default thread",
+        "ko": "기본 스레드"
       },
-      "node_id": "node_e308a27ce5a4",
-      "created_at": "2026-05-13T13:04:57.357301+00:00",
-      "updated_at": "2026-05-16T06:09:57.674513+00:00"
+      "updated_at": "1970-01-01T00:00:00+00:00"
     },
-    "thread_2b82478ae1a8": {
-      "id": "thread_2b82478ae1a8",
+    "graph_e35a962628be": {
+      "created_at": "2026-05-18T11:31:20.679798+00:00",
+      "id": "graph_e35a962628be",
       "title": {
-        "ko": "4."
+        "ko": "그래프 스레드 2"
       },
-      "node_id": "node_9b285a59d88c",
-      "created_at": "2026-05-16T06:09:23.187868+00:00",
-      "updated_at": "2026-05-16T06:09:32.428987+00:00"
-    },
-    "thread_f2112a2c633e": {
-      "id": "thread_f2112a2c633e",
-      "title": {
-        "ko": "1"
+      "updated_at": "2026-05-18T11:31:20.679798+00:00"
+    }
+  },
+  "messages": {},
+  "nodes": {
+    "node_98fa10c1d8e4": {
+      "created_at": "2026-05-18T12:06:22.636683+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_98fa10c1d8e4",
+      "manually_positioned": false,
+      "parent_node_id": "node_e9c59afd15bc",
+      "position": {
+        "x": -270,
+        "y": 150
       },
-      "node_id": "node_2bc679a24fb7",
-      "created_at": "2026-05-16T06:09:38.054737+00:00",
-      "updated_at": "2026-05-16T06:26:44.059674+00:00"
-    },
-    "thread_f5d03db8ce6b": {
-      "id": "thread_f5d03db8ce6b",
+      "thread_id": "thread_95f66daacb1c",
       "title": {
         "ko": "새 대화"
       },
-      "node_id": "node_255041921235",
-      "created_at": "2026-05-16T06:22:00.457592+00:00",
-      "updated_at": "2026-05-16T06:22:00.457592+00:00"
+      "updated_at": "2026-05-18T12:07:42.084610+00:00",
+      "user_edited_title_locales": {}
+    },
+    "node_aef97ae19b29": {
+      "created_at": "2026-05-18T12:29:24.678349+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_aef97ae19b29",
+      "manually_positioned": false,
+      "parent_node_id": "node_ba51ada4c8a0",
+      "position": {
+        "x": 5.48046875,
+        "y": 508.828125
+      },
+      "thread_id": "thread_7b2672a75197",
+      "title": {
+        "ko": "새 대화"
+      },
+      "updated_at": "2026-05-18T12:29:24.678806+00:00",
+      "user_edited_title_locales": {}
+    },
+    "node_ba51ada4c8a0": {
+      "created_at": "2026-05-18T12:29:23.307797+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_ba51ada4c8a0",
+      "manually_positioned": false,
+      "parent_node_id": "node_cd0dd6e986ea",
+      "position": {
+        "x": 5.48046875,
+        "y": 358.828125
+      },
+      "thread_id": "thread_9dccae321d0c",
+      "title": {
+        "ko": "새 대화"
+      },
+      "updated_at": "2026-05-18T12:29:23.308051+00:00",
+      "user_edited_title_locales": {}
+    },
+    "node_cd0dd6e986ea": {
+      "created_at": "2026-05-18T12:07:34.191212+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_cd0dd6e986ea",
+      "manually_positioned": true,
+      "parent_node_id": "node_e9c59afd15bc",
+      "position": {
+        "x": 5.48046875,
+        "y": 208.828125
+      },
+      "thread_id": "thread_573504d5310a",
+      "title": {
+        "ko": "새 대화"
+      },
+      "updated_at": "2026-05-18T12:29:22.669348+00:00",
+      "user_edited_title_locales": {}
+    },
+    "node_e9c59afd15bc": {
+      "created_at": "2026-05-18T12:06:17.532523+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_e9c59afd15bc",
+      "manually_positioned": false,
+      "parent_node_id": null,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "thread_id": "thread_4dc433d606b9",
+      "title": {
+        "ko": "시작 대화"
+      },
+      "updated_at": "2026-05-18T12:06:17.532523+00:00",
+      "user_edited_title_locales": {}
     }
   },
-  "messages": {
-    "msg_22cc04ad02dc": {
-      "id": "msg_22cc04ad02dc",
-      "thread_id": "thread_ae28dae86a82",
-      "role": "user",
-      "content": "1",
-      "created_at": "2026-05-16T06:09:07.705066+00:00"
+  "settings": {
+    "active_graph_thread_id": "graph_default",
+    "locale": "ko"
+  },
+  "threads": {
+    "thread_4dc433d606b9": {
+      "created_at": "2026-05-18T12:06:17.532588+00:00",
+      "id": "thread_4dc433d606b9",
+      "node_id": "node_e9c59afd15bc",
+      "title": {
+        "ko": "시작 대화"
+      },
+      "updated_at": "2026-05-18T12:06:17.532588+00:00"
     },
-    "msg_069d41d07fc1": {
-      "id": "msg_069d41d07fc1",
-      "thread_id": "thread_ae28dae86a82",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 1",
-      "created_at": "2026-05-16T06:09:07.706717+00:00"
+    "thread_573504d5310a": {
+      "created_at": "2026-05-18T12:07:34.191231+00:00",
+      "id": "thread_573504d5310a",
+      "node_id": "node_cd0dd6e986ea",
+      "title": {
+        "ko": "새 대화"
+      },
+      "updated_at": "2026-05-18T12:07:34.191231+00:00"
     },
-    "msg_275f21bb0301": {
-      "id": "msg_275f21bb0301",
-      "thread_id": "thread_ae28dae86a82",
-      "role": "user",
-      "content": "2",
-      "created_at": "2026-05-16T06:09:09.271565+00:00"
+    "thread_7b2672a75197": {
+      "created_at": "2026-05-18T12:29:24.678380+00:00",
+      "id": "thread_7b2672a75197",
+      "node_id": "node_aef97ae19b29",
+      "title": {
+        "ko": "새 대화"
+      },
+      "updated_at": "2026-05-18T12:29:24.678380+00:00"
     },
-    "msg_3240bfd05177": {
-      "id": "msg_3240bfd05177",
-      "thread_id": "thread_ae28dae86a82",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 2",
-      "created_at": "2026-05-16T06:09:09.272938+00:00"
+    "thread_95f66daacb1c": {
+      "created_at": "2026-05-18T12:06:22.636710+00:00",
+      "id": "thread_95f66daacb1c",
+      "node_id": "node_98fa10c1d8e4",
+      "title": {
+        "ko": "새 대화"
+      },
+      "updated_at": "2026-05-18T12:06:22.636710+00:00"
     },
-    "msg_c95c32475ee3": {
-      "id": "msg_c95c32475ee3",
-      "thread_id": "thread_ae28dae86a82",
-      "role": "user",
-      "content": "3",
-      "created_at": "2026-05-16T06:09:10.253774+00:00"
-    },
-    "msg_6f9de91e3150": {
-      "id": "msg_6f9de91e3150",
-      "thread_id": "thread_ae28dae86a82",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 3",
-      "created_at": "2026-05-16T06:09:10.255563+00:00"
-    },
-    "msg_d7041dffdc43": {
-      "id": "msg_d7041dffdc43",
-      "thread_id": "thread_2b82478ae1a8",
-      "role": "user",
-      "content": "4.",
-      "created_at": "2026-05-16T06:09:31.240132+00:00"
-    },
-    "msg_ba01edcb2aed": {
-      "id": "msg_ba01edcb2aed",
-      "thread_id": "thread_2b82478ae1a8",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 4.",
-      "created_at": "2026-05-16T06:09:31.243149+00:00"
-    },
-    "msg_4f3c36b56864": {
-      "id": "msg_4f3c36b56864",
-      "thread_id": "thread_2b82478ae1a8",
-      "role": "user",
-      "content": "5",
-      "created_at": "2026-05-16T06:09:32.425905+00:00"
-    },
-    "msg_7b1119731577": {
-      "id": "msg_7b1119731577",
-      "thread_id": "thread_2b82478ae1a8",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 5",
-      "created_at": "2026-05-16T06:09:32.428878+00:00"
-    },
-    "msg_73a75af33ae0": {
-      "id": "msg_73a75af33ae0",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "user",
-      "content": "1",
-      "created_at": "2026-05-16T06:26:35.836228+00:00"
-    },
-    "msg_02d02fecf1c7": {
-      "id": "msg_02d02fecf1c7",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 1",
-      "created_at": "2026-05-16T06:26:35.840226+00:00"
-    },
-    "msg_c8cff3bd7611": {
-      "id": "msg_c8cff3bd7611",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "user",
-      "content": "2",
-      "created_at": "2026-05-16T06:26:37.786211+00:00"
-    },
-    "msg_ca1cc7a37545": {
-      "id": "msg_ca1cc7a37545",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 2",
-      "created_at": "2026-05-16T06:26:37.790034+00:00"
-    },
-    "msg_e4795dbb19a7": {
-      "id": "msg_e4795dbb19a7",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "user",
-      "content": "3",
-      "created_at": "2026-05-16T06:26:42.814037+00:00"
-    },
-    "msg_884e42fc8380": {
-      "id": "msg_884e42fc8380",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 3",
-      "created_at": "2026-05-16T06:26:42.819279+00:00"
-    },
-    "msg_5c43fc912e9b": {
-      "id": "msg_5c43fc912e9b",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "user",
-      "content": "4",
-      "created_at": "2026-05-16T06:26:44.055616+00:00"
-    },
-    "msg_d7ef6f34286f": {
-      "id": "msg_d7ef6f34286f",
-      "thread_id": "thread_f2112a2c633e",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 4",
-      "created_at": "2026-05-16T06:26:44.059517+00:00"
+    "thread_9dccae321d0c": {
+      "created_at": "2026-05-18T12:29:23.307818+00:00",
+      "id": "thread_9dccae321d0c",
+      "node_id": "node_ba51ada4c8a0",
+      "title": {
+        "ko": "새 대화"
+      },
+      "updated_at": "2026-05-18T12:29:23.307818+00:00"
     }
   }
 }

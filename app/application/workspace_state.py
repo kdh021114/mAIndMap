@@ -24,8 +24,10 @@ class GetWorkspaceStateUseCase:
 
     def execute(self) -> dict:
         locale = self._settings_repository.get_locale()
-        nodes = self._graph_repository.list_nodes()
-        edges = self._graph_repository.list_edges()
+        active_graph_thread_id = self._settings_repository.get_active_graph_thread_id()
+        graph_threads = self._graph_repository.list_graph_threads()
+        nodes = self._graph_repository.list_nodes(graph_thread_id=active_graph_thread_id)
+        edges = self._graph_repository.list_edges(graph_thread_id=active_graph_thread_id)
         layout = self._layout_service.layout(nodes)
         children_count = {node.id: 0 for node in nodes}
         for node in nodes:
@@ -38,15 +40,26 @@ class GetWorkspaceStateUseCase:
             "locale": locale,
             "llmMode": self._llm_mode,
             "usingMockLlm": self._llm_mode in {"test", "mock"},
+            "activeGraphThreadId": active_graph_thread_id,
+            "graphThreads": [
+                self._graph_thread_state(
+                    graph_thread=graph_thread,
+                    locale=locale,
+                    is_active=graph_thread.id == active_graph_thread_id,
+                )
+                for graph_thread in graph_threads
+            ],
             "graphSettings": self._layout_service.settings(),
             "nodes": [
                 {
                     "id": node.id,
+                    "graphThreadId": node.graph_thread_id,
                     "threadId": node.thread_id,
                     "parentNodeId": node.parent_node_id,
                     "title": node.title,
                     "displayTitle": pick_localized_text(node.title, locale, fallback="Untitled"),
                     "position": {"x": node.position.x, "y": node.position.y},
+                    "manuallyPositioned": node.manually_positioned,
                     "layout": layout.get(node.id, {"x": 0, "y": 0, "width": 210, "height": 82}),
                     "depth": depths.get(node.id, 0),
                     "childrenCount": children_count.get(node.id, 0),
@@ -59,6 +72,7 @@ class GetWorkspaceStateUseCase:
             "edges": [
                 {
                     "id": edge.id,
+                    "graphThreadId": edge.graph_thread_id,
                     "sourceNodeId": edge.source_node_id,
                     "targetNodeId": edge.target_node_id,
                     "phrase": edge.phrase,
@@ -69,6 +83,24 @@ class GetWorkspaceStateUseCase:
                 }
                 for edge in edges
             ],
+        }
+
+    def _graph_thread_state(self, *, graph_thread, locale: str, is_active: bool) -> dict:
+        nodes = self._graph_repository.list_nodes(graph_thread_id=graph_thread.id)
+        root = next((node for node in nodes if node.parent_node_id is None), None)
+        display_title = pick_localized_text(graph_thread.title, locale, fallback="Graph thread")
+        if root is not None:
+            display_title = pick_localized_text(root.title, locale, fallback=display_title)
+        message_count = sum(len(self._chat_repository.list_messages(node.thread_id)) for node in nodes)
+        return {
+            "id": graph_thread.id,
+            "title": graph_thread.title,
+            "displayTitle": display_title,
+            "nodeCount": len(nodes),
+            "messageCount": message_count,
+            "isActive": is_active,
+            "createdAt": graph_thread.created_at,
+            "updatedAt": graph_thread.updated_at,
         }
 
     def _node_depths(self, nodes) -> dict[str, int]:

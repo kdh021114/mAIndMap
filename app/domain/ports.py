@@ -1,18 +1,30 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Protocol
+from typing import Any, List, Optional, Protocol
 
 from app.domain.chat import ChatThread, Message
-from app.domain.graph import GraphEdge, GraphNode
+from app.domain.graph import GraphEdge, GraphNode, GraphThread
 
 
 class GraphRepository(ABC):
     @abstractmethod
-    def list_nodes(self) -> List[GraphNode]: ...
+    def list_graph_threads(self) -> List[GraphThread]: ...
 
     @abstractmethod
-    def list_edges(self) -> List[GraphEdge]: ...
+    def get_graph_thread(self, graph_thread_id: str) -> GraphThread: ...
+
+    @abstractmethod
+    def save_graph_thread(self, graph_thread: GraphThread) -> GraphThread: ...
+
+    @abstractmethod
+    def delete_graph_thread(self, graph_thread_id: str) -> None: ...
+
+    @abstractmethod
+    def list_nodes(self, graph_thread_id: str | None = None) -> List[GraphNode]: ...
+
+    @abstractmethod
+    def list_edges(self, graph_thread_id: str | None = None) -> List[GraphEdge]: ...
 
     @abstractmethod
     def get_node(self, node_id: str) -> GraphNode: ...
@@ -34,6 +46,14 @@ class GraphRepository(ABC):
 
     @abstractmethod
     def delete_subtree(self, root_node_id: str) -> None: ...
+
+
+class WorkspaceSnapshotRepository(ABC):
+    @abstractmethod
+    def get_snapshot(self) -> dict[str, Any]: ...
+
+    @abstractmethod
+    def restore_snapshot(self, snapshot: dict[str, Any]) -> None: ...
 
 
 class ChatRepository(ABC):
@@ -65,6 +85,12 @@ class SettingsRepository(ABC):
 
     @abstractmethod
     def set_locale(self, locale: str) -> None: ...
+
+    @abstractmethod
+    def get_active_graph_thread_id(self) -> str: ...
+
+    @abstractmethod
+    def set_active_graph_thread_id(self, graph_thread_id: str) -> None: ...
 
 
 class ChatModel(ABC):

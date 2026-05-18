@@ -9,6 +9,13 @@
 <body>
   <div id="app-shell">
     <main class="workspace">
+      <aside id="thread-sidebar" class="thread-sidebar">
+        <div class="thread-header">
+          <button id="new-thread-btn" class="icon-button" type="button">+</button>
+        </div>
+        <div id="thread-list" class="thread-list"></div>
+      </aside>
+
       <section class="graph-panel">
         <div id="graph-scroll">
           <div id="graph-canvas">
@@ -18,6 +25,11 @@
           </div>
         </div>
         <div id="mode-indicator" class="mode-indicator hidden"></div>
+        <div id="selection-toolbar" class="selection-toolbar">
+          <button id="selection-mode-btn" class="selection-mode-button" type="button"></button>
+          <button id="bulk-delete-btn" class="selection-delete-button" type="button"></button>
+          <span id="selection-count" class="selection-count"></span>
+        </div>
       </section>
 
       <aside id="chat-sidebar" class="chat-sidebar">
@@ -37,6 +49,7 @@
       </aside>
 
       <button id="chat-edge-toggle" class="chat-edge-toggle" type="button"></button>
+      <button id="thread-edge-toggle" class="thread-edge-toggle" type="button"></button>
     </main>
   </div>
 
