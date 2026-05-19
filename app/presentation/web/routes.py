@@ -167,6 +167,39 @@ def register_routes(app: Flask, use_cases: Any) -> None:
         edge = use_cases.edit_edge_phrase.execute(edge_id=edge_id, locale=locale, phrase=phrase)
         return jsonify({"edge": _to_dict(edge), "state": use_cases.get_workspace_state.execute()})
 
+    @app.get("/api/search")
+    def search_workspace():
+        query = request.args.get("q", "")
+        results = use_cases.search_workspace.execute(query=query)
+        return jsonify({"query": query, "results": results})
+
+    @app.post("/api/nodes/merge")
+    def merge_sibling_nodes():
+        data = _json_body()
+        node_ids = data.get("nodeIds", [])
+        if not isinstance(node_ids, list):
+            raise ValueError("nodeIds must be a list.")
+        if not all(isinstance(node_id, str) and node_id for node_id in node_ids):
+            raise ValueError("nodeIds must contain non-empty strings.")
+        result = use_cases.merge_sibling_nodes.execute(node_ids=node_ids)
+        return jsonify({"result": _to_dict(result), "state": use_cases.get_workspace_state.execute()})
+
+    @app.post("/api/nodes/<node_id>/split")
+    def split_node(node_id: str):
+        data = _json_body()
+        message_ids = data.get("messageIds", [])
+        if not isinstance(message_ids, list):
+            raise ValueError("messageIds must be a list.")
+        if not all(isinstance(message_id, str) and message_id for message_id in message_ids):
+            raise ValueError("messageIds must contain non-empty strings.")
+        locale = _current_locale(use_cases)
+        result = use_cases.split_node.execute(
+            source_node_id=node_id,
+            message_ids=message_ids,
+            locale=locale,
+        )
+        return jsonify({"result": _to_dict(result), "state": use_cases.get_workspace_state.execute()})
+
     @app.errorhandler(Exception)
     def handle_exception(error: Exception):
         status = 400
