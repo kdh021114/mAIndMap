@@ -45,6 +45,9 @@ class GraphRepository(ABC):
     def save_edge(self, edge: GraphEdge) -> GraphEdge: ...
 
     @abstractmethod
+    def delete_edge(self, edge_id: str) -> None: ...
+
+    @abstractmethod
     def delete_subtree(self, root_node_id: str) -> None: ...
 
 
@@ -77,6 +80,9 @@ class ChatRepository(ABC):
 
     @abstractmethod
     def delete_thread_with_messages(self, thread_id: str) -> None: ...
+
+    @abstractmethod
+    def reassign_messages_to_thread(self, message_ids: List[str], thread_id: str) -> None: ...
 
 
 class SettingsRepository(ABC):

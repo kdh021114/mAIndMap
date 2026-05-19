@@ -149,6 +149,189 @@ button, textarea, select {
   pointer-events: none;
 }
 
+.search-panel {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 8;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.search-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(217, 224, 234, 0.78);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+  padding: 4px 8px 4px 14px;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text);
+  padding: 6px 4px;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+}
+
+.search-clear-button {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.search-clear-button:hover {
+  background: #eef2f7;
+  color: var(--text);
+}
+
+.search-results {
+  margin-top: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid rgba(217, 224, 234, 0.78);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(12px);
+  padding: 6px;
+}
+
+.search-result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.search-result-item:hover,
+.search-result-item:focus-visible {
+  background: #eef3ff;
+  outline: none;
+}
+
+.search-result-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-snippet {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.search-result-mark {
+  background: #fff3a8;
+  color: var(--text);
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+.search-result-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #2563eb;
+  margin-right: 4px;
+}
+
+.search-result-tag.message {
+  color: #c2410c;
+}
+
+.search-empty {
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.node-card.search-match {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
+}
+
+/* Semantic zoom: node detail level varies with view scale.
+   At compact level only a short truncated title shows.
+   At medium level the full title shows but meta/actions are dimmed.
+   At full level everything is visible. */
+#graph-scroll.zoom-compact .node-title {
+  font-size: 13px;
+  margin-bottom: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+#graph-scroll.zoom-compact .node-meta {
+  display: none;
+}
+
+#graph-scroll.zoom-compact .node-card {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+#graph-scroll.zoom-medium .node-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#graph-scroll.zoom-medium .node-meta {
+  opacity: 0.65;
+}
+
+#graph-scroll.zoom-compact .edge-label {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .selection-toolbar {
   position: absolute;
   top: 14px;
@@ -198,6 +381,109 @@ button, textarea, select {
 
 .selection-delete-button {
   color: var(--danger);
+}
+
+.selection-merge-button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #1d4ed8;
+  padding: 0;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  transition: 120ms ease;
+}
+
+.selection-merge-button:hover:not(:disabled) {
+  border-color: #93c5fd;
+  background: #eef6ff;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.1);
+}
+
+.selection-merge-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-action-button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 120ms ease;
+}
+
+.chat-action-button:hover {
+  border-color: rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.05);
+  color: var(--text);
+}
+
+.chat-action-button.active {
+  background: #eef6ff;
+  border-color: #93c5fd;
+  color: #1e3a8a;
+}
+
+.split-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #f8fafc, #ffffff);
+}
+
+.split-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.split-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.split-actions .button {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.message.split-selected {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16);
+}
+
+.message-split-checkbox {
+  margin-right: 8px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.message-content {
+  vertical-align: middle;
 }
 
 .selection-delete-button:disabled {

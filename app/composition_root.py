@@ -24,6 +24,11 @@ from app.application.history_use_cases import (
     GetWorkspaceSnapshotUseCase,
     RestoreWorkspaceSnapshotUseCase,
 )
+from app.application.restructure_use_cases import (
+    MergeSiblingNodesUseCase,
+    SplitNodeUseCase,
+)
+from app.application.search_use_cases import SearchWorkspaceUseCase
 from app.application.settings_use_cases import ChangeLocaleUseCase
 from app.application.workspace_state import GetWorkspaceStateUseCase
 from app.domain.graph import NodePosition, TreeGraphPolicy
@@ -59,6 +64,9 @@ class UseCaseContainer:
     change_locale: ChangeLocaleUseCase
     get_workspace_snapshot: GetWorkspaceSnapshotUseCase
     restore_workspace_snapshot: RestoreWorkspaceSnapshotUseCase
+    search_workspace: SearchWorkspaceUseCase
+    merge_sibling_nodes: MergeSiblingNodesUseCase
+    split_node: SplitNodeUseCase
 
 
 def create_app(config_module) -> Flask:
@@ -176,6 +184,25 @@ def create_app(config_module) -> Flask:
         change_locale=ChangeLocaleUseCase(settings_repository=settings_repository),
         get_workspace_snapshot=GetWorkspaceSnapshotUseCase(snapshot_repository=snapshot_repository),
         restore_workspace_snapshot=RestoreWorkspaceSnapshotUseCase(snapshot_repository=snapshot_repository),
+        search_workspace=SearchWorkspaceUseCase(
+            graph_repository=graph_repository,
+            chat_repository=chat_repository,
+            settings_repository=settings_repository,
+        ),
+        merge_sibling_nodes=MergeSiblingNodesUseCase(
+            graph_repository=graph_repository,
+            chat_repository=chat_repository,
+            tree_policy=tree_policy,
+        ),
+        split_node=SplitNodeUseCase(
+            graph_repository=graph_repository,
+            chat_repository=chat_repository,
+            tree_policy=tree_policy,
+            title_generator=llm_services.title_generator,
+            edge_phrase_generator=llm_services.edge_phrase_generator,
+            default_vertical_gap=config_module.TREE_VERTICAL_GAP,
+            default_horizontal_gap=config_module.TREE_HORIZONTAL_GAP,
+        ),
     )
 
     flask_app = Flask(__name__, static_folder="presentation/web/static", static_url_path="/static")
