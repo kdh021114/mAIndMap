@@ -132,6 +132,7 @@ let selectionMode = false;
 let undoStack = [];
 let redoStack = [];
 let historyInFlight = false;
+let titleClickTimer = null;
 let hasCenteredGraph = false;
 let pendingCenterNodeId = null;
 let graphView = { x: 0, y: 0, scale: 1 };
@@ -157,6 +158,7 @@ const GRAPH_VIEW = {
   zoomStep: 1.28,
   wheelZoomSpeed: 0.0026,
   dragThreshold: 4,
+  gridSize: 28,
 };
 
 const ZOOM_LEVEL_THRESHOLDS = [
@@ -590,6 +592,7 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   if (searchMatchNodeIds.has(node.id)) card.classList.add('search-match');
   if (contextHighlight.active) {
     card.classList.add(contextHighlight.nodeIds.has(node.id) ? 'context-path' : 'context-dimmed');
+    if (node.id === selectedNodeId) card.classList.add('context-current');
   }
   card.style.left = `${node.layout.x}px`;
   card.style.top = `${node.layout.y}px`;
@@ -603,9 +606,12 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   title.tabIndex = 0;
   title.setAttribute('role', 'button');
   title.title = t('editNodeTitle');
+  title.addEventListener('pointerdown', (event) => event.stopPropagation());
+  title.addEventListener('click', (event) => handleNodeTitleClick(event, node, title));
   title.addEventListener('dblclick', (event) => {
     event.preventDefault();
     event.stopPropagation();
+    clearTitleClickTimer();
     startNodeTitleEdit(node, title);
   });
   title.addEventListener('keydown', (event) => {
@@ -795,6 +801,7 @@ function beginPan(event) {
     startClientY: event.clientY,
     startViewX: graphView.x,
     startViewY: graphView.y,
+    moved: false,
   };
   el.graphViewport.classList.add('panning');
   el.graphViewport.setPointerCapture(event.pointerId);
@@ -802,6 +809,9 @@ function beginPan(event) {
 
 function updatePan(event) {
   if (!panGesture || event.pointerId !== panGesture.pointerId) return;
+  if (Math.hypot(event.clientX - panGesture.startClientX, event.clientY - panGesture.startClientY) > GRAPH_VIEW.dragThreshold) {
+    panGesture.moved = true;
+  }
   graphView.x = panGesture.startViewX + event.clientX - panGesture.startClientX;
   graphView.y = panGesture.startViewY + event.clientY - panGesture.startClientY;
   applyGraphView();
@@ -809,10 +819,14 @@ function updatePan(event) {
 
 function endPan(event) {
   if (!panGesture || event.pointerId !== panGesture.pointerId) return;
+  const wasClick = !panGesture.moved;
   panGesture = null;
   el.graphViewport.classList.remove('panning');
   if (el.graphViewport.hasPointerCapture(event.pointerId)) {
     el.graphViewport.releasePointerCapture(event.pointerId);
+  }
+  if (wasClick) {
+    clearNodeSelectionAndCollapseChat();
   }
 }
 
@@ -847,6 +861,8 @@ function beginNodeDrag(event, node, card) {
     startClientY: event.clientY,
     startX: node.layout.x,
     startY: node.layout.y,
+    lastSnapX: node.layout.x,
+    lastSnapY: node.layout.y,
     multiSelect: selectionMode || event.shiftKey,
     moved: false,
   };
@@ -875,10 +891,24 @@ function updateNodeDrag(event) {
     nodeDrag.moved = true;
   }
 
+  const snappedPrimary = snapToGrid({
+    x: nodeDrag.startX + dx,
+    y: nodeDrag.startY + dy,
+  });
+  const snapDelta = {
+    x: snappedPrimary.x - nodeDrag.startX,
+    y: snappedPrimary.y - nodeDrag.startY,
+  };
+  if (nodeDrag.lastSnapX !== snappedPrimary.x || nodeDrag.lastSnapY !== snappedPrimary.y) {
+    pulseSnapFeedback();
+    nodeDrag.lastSnapX = snappedPrimary.x;
+    nodeDrag.lastSnapY = snappedPrimary.y;
+  }
+
   for (const item of nodeDrag.items) {
     const next = {
-      x: item.startX + dx,
-      y: item.startY + dy,
+      x: item.startX + snapDelta.x,
+      y: item.startY + snapDelta.y,
     };
     moveNodeLocally(item.nodeId, next);
     if (item.card) {
@@ -946,6 +976,19 @@ function moveNodeLocally(nodeId, position) {
   node.position = { x: position.x, y: position.y };
 }
 
+function snapToGrid(position) {
+  const gridSize = GRAPH_VIEW.gridSize;
+  return {
+    x: Math.round(position.x / gridSize) * gridSize,
+    y: Math.round(position.y / gridSize) * gridSize,
+  };
+}
+
+function pulseSnapFeedback() {
+  if (!navigator.vibrate) return;
+  navigator.vibrate(4);
+}
+
 function redrawEdges() {
   el.edgeLayer.innerHTML = '';
   el.edgeLabelLayer.innerHTML = '';
@@ -993,7 +1036,39 @@ function lerp(start, end, amount) {
   return start + (end - start) * amount;
 }
 
+function handleNodeTitleClick(event, node, titleElement) {
+  event.preventDefault();
+  event.stopPropagation();
+  clearTitleClickTimer();
+
+  if (event.detail >= 2) {
+    startNodeTitleEdit(node, titleElement);
+    return;
+  }
+
+  titleClickTimer = window.setTimeout(async () => {
+    titleClickTimer = null;
+    try {
+      if (event.shiftKey || selectionMode) {
+        toggleNodeMultiSelection(node.id);
+      } else {
+        resetMultiSelection();
+        await selectNode(node.id);
+      }
+    } catch (error) {
+      showError(error);
+    }
+  }, 280);
+}
+
+function clearTitleClickTimer() {
+  if (!titleClickTimer) return;
+  window.clearTimeout(titleClickTimer);
+  titleClickTimer = null;
+}
+
 function startNodeTitleEdit(node, titleElement) {
+  clearTitleClickTimer();
   if (titleElement.querySelector('input')) return;
 
   const input = document.createElement('input');
@@ -1111,9 +1186,23 @@ async function selectNode(nodeId) {
     splitSelectedMessageIds = new Set();
   }
   selectedNodeId = nodeId;
+  chatSidebarHidden = false;
   const node = getSelectedNode();
   if (!node) return;
   messages = await api(`/api/threads/${node.threadId}/messages`);
+  renderAll();
+}
+
+function clearNodeSelectionAndCollapseChat() {
+  if (!selectedNodeId && selectedNodeIds.size === 0 && !selectionMode && chatSidebarHidden) return;
+  selectedNodeId = null;
+  selectedNodeIds.clear();
+  selectionMode = false;
+  splitMode = false;
+  splitSelectedMessageIds = new Set();
+  messages = [];
+  chatSidebarHidden = true;
+  dismissDeleteConfirmation();
   renderAll();
 }
 
@@ -1832,6 +1921,14 @@ function handleGlobalKeydown(event) {
   }
 
   if (isTextEditingTarget(event.target)) return;
+  if (event.key === 'Escape') {
+    if (selectedNodeId || selectedNodeIds.size > 0 || selectionMode || !chatSidebarHidden) {
+      event.preventDefault();
+      clearNodeSelectionAndCollapseChat();
+    }
+    return;
+  }
+
   if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNodeIds.size > 0) {
     event.preventDefault();
     deleteSelectedNodes();

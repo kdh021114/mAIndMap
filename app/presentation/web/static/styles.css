@@ -640,6 +640,30 @@ button, textarea, select {
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18), var(--shadow);
 }
 
+.node-card.context-current {
+  border-color: #2563eb;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 6px rgba(37, 99, 235, 0.24),
+    0 18px 42px rgba(37, 99, 235, 0.18),
+    var(--shadow);
+  transform: translateY(-2px);
+}
+
+.node-card.context-current::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #2563eb;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.28);
+  transform: translateX(-50%);
+}
+
 .node-card.context-dimmed {
   opacity: 0.28;
 }

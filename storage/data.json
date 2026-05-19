@@ -1,55 +1,72 @@
 {
   "edges": {
+    "edge_077156bbf55d": {
+      "created_at": "2026-05-19T01:50:54.333465+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_077156bbf55d",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_98fa10c1d8e4",
+      "target_node_id": "node_14534027373a",
+      "updated_at": "2026-05-19T01:50:54.333465+00:00",
+      "user_edited_phrase_locales": {}
+    },
+    "edge_10b6632fd6a8": {
+      "created_at": "2026-05-19T01:10:35.914884+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_10b6632fd6a8",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_cd0dd6e986ea",
+      "target_node_id": "node_868bbb464e45",
+      "updated_at": "2026-05-19T01:10:35.914884+00:00",
+      "user_edited_phrase_locales": {}
+    },
     "edge_3e7675ebdf7c": {
       "created_at": "2026-05-18T12:06:22.636731+00:00",
       "graph_thread_id": "graph_default",
       "id": "edge_3e7675ebdf7c",
       "phrase": {
-        "ko": "새 분기"
+        "ko": "구체화"
       },
-      "phrase_generated_by": "system",
+      "phrase_generated_by": "user",
       "source_node_id": "node_e9c59afd15bc",
       "target_node_id": "node_98fa10c1d8e4",
-      "updated_at": "2026-05-18T12:06:22.636731+00:00",
-      "user_edited_phrase_locales": {}
-    },
-    "edge_4c079f12a5d1": {
-      "created_at": "2026-05-18T12:29:24.678405+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "edge_4c079f12a5d1",
-      "phrase": {
-        "ko": "새 분기"
-      },
-      "phrase_generated_by": "system",
-      "source_node_id": "node_ba51ada4c8a0",
-      "target_node_id": "node_aef97ae19b29",
-      "updated_at": "2026-05-18T12:29:24.678405+00:00",
-      "user_edited_phrase_locales": {}
+      "updated_at": "2026-05-19T01:49:23.953635+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
     },
     "edge_62b43c33cd77": {
       "created_at": "2026-05-18T12:07:34.191244+00:00",
       "graph_thread_id": "graph_default",
       "id": "edge_62b43c33cd77",
       "phrase": {
-        "ko": "새 분기"
+        "ko": "구체화"
       },
-      "phrase_generated_by": "system",
+      "phrase_generated_by": "user",
       "source_node_id": "node_e9c59afd15bc",
       "target_node_id": "node_cd0dd6e986ea",
-      "updated_at": "2026-05-18T12:07:34.191244+00:00",
-      "user_edited_phrase_locales": {}
+      "updated_at": "2026-05-19T01:49:26.187506+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
     },
-    "edge_bb98c7926426": {
-      "created_at": "2026-05-18T12:29:23.307832+00:00",
+    "edge_bbf04850db37": {
+      "created_at": "2026-05-19T01:50:30.481313+00:00",
       "graph_thread_id": "graph_default",
-      "id": "edge_bb98c7926426",
+      "id": "edge_bbf04850db37",
       "phrase": {
         "ko": "새 분기"
       },
       "phrase_generated_by": "system",
-      "source_node_id": "node_cd0dd6e986ea",
-      "target_node_id": "node_ba51ada4c8a0",
-      "updated_at": "2026-05-18T12:29:23.307832+00:00",
+      "source_node_id": "node_98fa10c1d8e4",
+      "target_node_id": "node_76c3a6eb1a2d",
+      "updated_at": "2026-05-19T01:50:30.481313+00:00",
       "user_edited_phrase_locales": {}
     }
   },
@@ -74,56 +91,98 @@
   },
   "messages": {},
   "nodes": {
+    "node_14534027373a": {
+      "created_at": "2026-05-19T01:50:54.333416+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_14534027373a",
+      "manually_positioned": false,
+      "parent_node_id": "node_98fa10c1d8e4",
+      "position": {
+        "x": -193.56640625,
+        "y": 278.1875
+      },
+      "thread_id": "thread_bf1e540ad7d1",
+      "title": {
+        "ko": "Github 관련 문제 해결"
+      },
+      "updated_at": "2026-05-19T01:51:17.112085+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_42abb12caa42": {
+      "created_at": "2026-05-19T01:45:00.677797+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_42abb12caa42",
+      "manually_positioned": false,
+      "parent_node_id": null,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "thread_id": "thread_a33064073f7e",
+      "title": {
+        "ko": "시작 대화"
+      },
+      "updated_at": "2026-05-19T01:45:00.677797+00:00",
+      "user_edited_title_locales": {}
+    },
+    "node_76c3a6eb1a2d": {
+      "created_at": "2026-05-19T01:50:30.481267+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_76c3a6eb1a2d",
+      "manually_positioned": false,
+      "parent_node_id": "node_98fa10c1d8e4",
+      "position": {
+        "x": -463.56640625,
+        "y": 278.1875
+      },
+      "thread_id": "thread_0ce7ca46ff47",
+      "title": {
+        "ko": "Repository 폴더 구조 설계"
+      },
+      "updated_at": "2026-05-19T01:50:54.333920+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_868bbb464e45": {
+      "created_at": "2026-05-19T01:10:35.914835+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_868bbb464e45",
+      "manually_positioned": true,
+      "parent_node_id": "node_cd0dd6e986ea",
+      "position": {
+        "x": 308,
+        "y": 364
+      },
+      "thread_id": "thread_df9ca9721fce",
+      "title": {
+        "ko": "NASA-TLX 질문"
+      },
+      "updated_at": "2026-05-19T02:43:42.419868+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
     "node_98fa10c1d8e4": {
       "created_at": "2026-05-18T12:06:22.636683+00:00",
       "graph_thread_id": "graph_default",
       "id": "node_98fa10c1d8e4",
-      "manually_positioned": false,
+      "manually_positioned": true,
       "parent_node_id": "node_e9c59afd15bc",
       "position": {
-        "x": -270,
-        "y": 150
+        "x": -328.56640625,
+        "y": 128.1875
       },
       "thread_id": "thread_95f66daacb1c",
       "title": {
-        "ko": "새 대화"
+        "ko": "기술적 구현 방안"
       },
-      "updated_at": "2026-05-18T12:07:42.084610+00:00",
-      "user_edited_title_locales": {}
-    },
-    "node_aef97ae19b29": {
-      "created_at": "2026-05-18T12:29:24.678349+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "node_aef97ae19b29",
-      "manually_positioned": false,
-      "parent_node_id": "node_ba51ada4c8a0",
-      "position": {
-        "x": 5.48046875,
-        "y": 508.828125
-      },
-      "thread_id": "thread_7b2672a75197",
-      "title": {
-        "ko": "새 대화"
-      },
-      "updated_at": "2026-05-18T12:29:24.678806+00:00",
-      "user_edited_title_locales": {}
-    },
-    "node_ba51ada4c8a0": {
-      "created_at": "2026-05-18T12:29:23.307797+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "node_ba51ada4c8a0",
-      "manually_positioned": false,
-      "parent_node_id": "node_cd0dd6e986ea",
-      "position": {
-        "x": 5.48046875,
-        "y": 358.828125
-      },
-      "thread_id": "thread_9dccae321d0c",
-      "title": {
-        "ko": "새 대화"
-      },
-      "updated_at": "2026-05-18T12:29:23.308051+00:00",
-      "user_edited_title_locales": {}
+      "updated_at": "2026-05-19T01:50:10.402464+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
     },
     "node_cd0dd6e986ea": {
       "created_at": "2026-05-18T12:07:34.191212+00:00",
@@ -132,32 +191,36 @@
       "manually_positioned": true,
       "parent_node_id": "node_e9c59afd15bc",
       "position": {
-        "x": 5.48046875,
-        "y": 208.828125
+        "x": 308,
+        "y": 140
       },
       "thread_id": "thread_573504d5310a",
       "title": {
-        "ko": "새 대화"
+        "ko": "User Study"
       },
-      "updated_at": "2026-05-18T12:29:22.669348+00:00",
-      "user_edited_title_locales": {}
+      "updated_at": "2026-05-19T02:42:59.754193+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
     },
     "node_e9c59afd15bc": {
-      "created_at": "2026-05-18T12:06:17.532523+00:00",
-      "graph_thread_id": "graph_default",
       "id": "node_e9c59afd15bc",
-      "manually_positioned": false,
-      "parent_node_id": null,
-      "position": {
-        "x": 0,
-        "y": 0
-      },
+      "graph_thread_id": "graph_default",
       "thread_id": "thread_4dc433d606b9",
+      "parent_node_id": null,
       "title": {
-        "ko": "시작 대화"
+        "ko": "그래프 인터페이스 연구"
       },
-      "updated_at": "2026-05-18T12:06:17.532523+00:00",
-      "user_edited_title_locales": {}
+      "user_edited_title_locales": {
+        "ko": true
+      },
+      "position": {
+        "x": 0.0,
+        "y": -28.0
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-18T12:06:17.532523+00:00",
+      "updated_at": "2026-05-19T02:47:21.069659+00:00"
     }
   },
   "settings": {
@@ -165,50 +228,68 @@
     "locale": "ko"
   },
   "threads": {
+    "thread_0ce7ca46ff47": {
+      "created_at": "2026-05-19T01:50:30.481291+00:00",
+      "id": "thread_0ce7ca46ff47",
+      "node_id": "node_76c3a6eb1a2d",
+      "title": {
+        "ko": "Repository 폴더 구조 설계"
+      },
+      "updated_at": "2026-05-19T01:50:48.636988+00:00"
+    },
     "thread_4dc433d606b9": {
       "created_at": "2026-05-18T12:06:17.532588+00:00",
       "id": "thread_4dc433d606b9",
       "node_id": "node_e9c59afd15bc",
       "title": {
-        "ko": "시작 대화"
+        "ko": "그래프 인터페이스 연구"
       },
-      "updated_at": "2026-05-18T12:06:17.532588+00:00"
+      "updated_at": "2026-05-19T01:48:51.681158+00:00"
     },
     "thread_573504d5310a": {
       "created_at": "2026-05-18T12:07:34.191231+00:00",
       "id": "thread_573504d5310a",
       "node_id": "node_cd0dd6e986ea",
       "title": {
-        "ko": "새 대화"
+        "ko": "User Study"
       },
-      "updated_at": "2026-05-18T12:07:34.191231+00:00"
-    },
-    "thread_7b2672a75197": {
-      "created_at": "2026-05-18T12:29:24.678380+00:00",
-      "id": "thread_7b2672a75197",
-      "node_id": "node_aef97ae19b29",
-      "title": {
-        "ko": "새 대화"
-      },
-      "updated_at": "2026-05-18T12:29:24.678380+00:00"
+      "updated_at": "2026-05-19T01:49:14.184717+00:00"
     },
     "thread_95f66daacb1c": {
       "created_at": "2026-05-18T12:06:22.636710+00:00",
       "id": "thread_95f66daacb1c",
       "node_id": "node_98fa10c1d8e4",
       "title": {
-        "ko": "새 대화"
+        "ko": "기술적 구현 방안"
       },
-      "updated_at": "2026-05-18T12:06:22.636710+00:00"
+      "updated_at": "2026-05-19T01:50:10.404640+00:00"
     },
-    "thread_9dccae321d0c": {
-      "created_at": "2026-05-18T12:29:23.307818+00:00",
-      "id": "thread_9dccae321d0c",
-      "node_id": "node_ba51ada4c8a0",
+    "thread_a33064073f7e": {
+      "created_at": "2026-05-19T01:45:00.677825+00:00",
+      "id": "thread_a33064073f7e",
+      "node_id": "node_42abb12caa42",
       "title": {
-        "ko": "새 대화"
+        "ko": "시작 대화"
       },
-      "updated_at": "2026-05-18T12:29:23.307818+00:00"
+      "updated_at": "2026-05-19T01:45:00.677825+00:00"
+    },
+    "thread_bf1e540ad7d1": {
+      "created_at": "2026-05-19T01:50:54.333442+00:00",
+      "id": "thread_bf1e540ad7d1",
+      "node_id": "node_14534027373a",
+      "title": {
+        "ko": "Github 관련 문제 해결"
+      },
+      "updated_at": "2026-05-19T01:51:17.115113+00:00"
+    },
+    "thread_df9ca9721fce": {
+      "created_at": "2026-05-19T01:10:35.914866+00:00",
+      "id": "thread_df9ca9721fce",
+      "node_id": "node_868bbb464e45",
+      "title": {
+        "ko": "NASA-TLX 질문"
+      },
+      "updated_at": "2026-05-19T01:49:41.485631+00:00"
     }
   }
 }
