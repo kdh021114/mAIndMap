@@ -112,6 +112,12 @@ class JsonGraphRepository(GraphRepository):
         self._store.update(mutate)
         return edge
 
+    def delete_edge(self, edge_id: str) -> None:
+        def mutate(state: dict) -> None:
+            state["edges"].pop(edge_id, None)
+
+        self._store.update(mutate)
+
     def delete_subtree(self, root_node_id: str) -> None:
         nodes = self.list_nodes()
         children_by_parent = {}
@@ -192,6 +198,27 @@ class JsonChatRepository(ChatRepository):
             ]
             for message_id in message_ids:
                 state["messages"].pop(message_id, None)
+
+        self._store.update(mutate)
+
+    def reassign_messages_to_thread(self, message_ids: List[str], thread_id: str) -> None:
+        message_id_set = set(message_ids)
+        if not message_id_set:
+            return
+
+        def mutate(state: dict) -> None:
+            now = utc_now_iso()
+            touched_threads: set[str] = set()
+            for message_id in list(state["messages"].keys()):
+                if message_id not in message_id_set:
+                    continue
+                message = state["messages"][message_id]
+                touched_threads.add(message["thread_id"])
+                message["thread_id"] = thread_id
+            touched_threads.add(thread_id)
+            for affected_thread_id in touched_threads:
+                if affected_thread_id in state["threads"]:
+                    state["threads"][affected_thread_id]["updated_at"] = now
 
         self._store.update(mutate)
 

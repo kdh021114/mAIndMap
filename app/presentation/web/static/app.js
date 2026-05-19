@@ -45,6 +45,20 @@ const i18n = {
     exitSelectionMode: '선택 해제',
     deleteSelectedNodes: '선택 삭제',
     selectedCount: '{count}개 선택',
+    searchPlaceholder: '노드/메시지 검색...',
+    searchClear: '검색 초기화',
+    searchNoResults: '검색 결과가 없습니다.',
+    searchTagTitle: '제목',
+    searchTagMessage: '메시지',
+    mergeNodes: '병합',
+    mergeOnlySiblings: '같은 부모를 가진 형제 노드만 병합할 수 있습니다.',
+    mergeNeedTwo: '병합하려면 2개 이상의 노드를 선택하세요.',
+    splitModeEnter: '분리 모드',
+    splitModeExit: '분리 취소',
+    splitConfirm: '분리 실행',
+    splitHint: '새 자식 노드로 분리할 메시지를 선택하세요.',
+    splitNeedOne: '최소 하나의 메시지를 선택하세요.',
+    splitCannotMoveAll: '모든 메시지를 분리할 수는 없습니다.',
   },
   en: {
     createRoot: 'Create Root',
@@ -92,6 +106,20 @@ const i18n = {
     exitSelectionMode: 'Clear',
     deleteSelectedNodes: 'Delete',
     selectedCount: '{count} selected',
+    searchPlaceholder: 'Search nodes / messages...',
+    searchClear: 'Clear search',
+    searchNoResults: 'No matching nodes or messages.',
+    searchTagTitle: 'Title',
+    searchTagMessage: 'Message',
+    mergeNodes: 'Merge',
+    mergeOnlySiblings: 'Only sibling nodes under the same parent can be merged.',
+    mergeNeedTwo: 'Select 2 or more nodes to merge.',
+    splitModeEnter: 'Split mode',
+    splitModeExit: 'Cancel split',
+    splitConfirm: 'Split out',
+    splitHint: 'Check the messages to move into a new child node.',
+    splitNeedOne: 'Select at least one message.',
+    splitCannotMoveAll: 'Cannot split out every message from a node.',
   },
 };
 
@@ -116,6 +144,12 @@ let threadSidebarWidth = Number(localStorage.getItem('graphChat.threadSidebarWid
 let chatSidebarHidden = localStorage.getItem('graphChat.sidebarHidden') === 'true';
 let chatSidebarWidth = Number(localStorage.getItem('graphChat.sidebarWidth')) || 380;
 let sidebarResize = null;
+let searchQuery = '';
+let searchResults = [];
+let searchMatchNodeIds = new Set();
+let searchDebounceHandle = null;
+let splitMode = false;
+let splitSelectedMessageIds = new Set();
 
 const GRAPH_VIEW = {
   minScale: 0.35,
@@ -124,6 +158,14 @@ const GRAPH_VIEW = {
   wheelZoomSpeed: 0.0026,
   dragThreshold: 4,
 };
+
+const ZOOM_LEVEL_THRESHOLDS = [
+  { level: 'compact', max: 0.55 },
+  { level: 'medium', max: 0.95 },
+  { level: 'full', max: Infinity },
+];
+
+let currentZoomLevel = 'full';
 
 const HISTORY_LIMIT = 40;
 
@@ -153,6 +195,16 @@ const el = {
   threadList: document.getElementById('thread-list'),
   newThreadBtn: document.getElementById('new-thread-btn'),
   threadEdgeToggle: document.getElementById('thread-edge-toggle'),
+  searchPanel: document.getElementById('search-panel'),
+  searchInput: document.getElementById('search-input'),
+  searchClearBtn: document.getElementById('search-clear-btn'),
+  searchResults: document.getElementById('search-results'),
+  mergeBtn: document.getElementById('merge-btn'),
+  splitModeBtn: document.getElementById('split-mode-btn'),
+  splitToolbar: document.getElementById('split-toolbar'),
+  splitHint: document.getElementById('split-hint'),
+  splitCancelBtn: document.getElementById('split-cancel-btn'),
+  splitConfirmBtn: document.getElementById('split-confirm-btn'),
 };
 
 function t(key) {
@@ -295,6 +347,7 @@ function renderAll() {
   renderChatSidebar();
   applyThreadSidebarState();
   applyChatSidebarState();
+  applySearchPlaceholder();
 }
 
 function reconcileSelectionWithState() {
@@ -319,9 +372,26 @@ function renderSelectionToolbar() {
   el.bulkDeleteBtn.setAttribute('aria-label', t('deleteSelectedNodes'));
   el.bulkDeleteBtn.disabled = selectedCount === 0;
   el.bulkDeleteBtn.classList.toggle('hidden', selectedCount === 0);
+
+  const mergeEligible = selectedCount >= 2 && allSelectedAreSiblings();
+  el.mergeBtn.textContent = '⤳';
+  el.mergeBtn.title = t('mergeNodes');
+  el.mergeBtn.setAttribute('aria-label', t('mergeNodes'));
+  el.mergeBtn.classList.toggle('hidden', selectedCount < 2);
+  el.mergeBtn.disabled = !mergeEligible;
+
   el.selectionCount.textContent = selectedCount > 0 ? selectedCount : '';
   el.selectionCount.classList.toggle('hidden', selectedCount === 0);
   el.selectionToolbar.classList.toggle('has-selection', selectedCount > 0);
+}
+
+function allSelectedAreSiblings() {
+  if (!state || selectedNodeIds.size < 2) return false;
+  const nodes = state.nodes.filter((node) => selectedNodeIds.has(node.id));
+  if (nodes.length < 2) return false;
+  const parentId = nodes[0].parentNodeId;
+  if (parentId === null || parentId === undefined) return false;
+  return nodes.every((node) => node.parentNodeId === parentId);
 }
 
 function renderThreadSidebar() {
@@ -517,6 +587,7 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   card.className = 'node-card';
   if (node.id === selectedNodeId) card.classList.add('selected');
   if (selectedNodeIds.has(node.id)) card.classList.add('multi-selected');
+  if (searchMatchNodeIds.has(node.id)) card.classList.add('search-match');
   if (contextHighlight.active) {
     card.classList.add(contextHighlight.nodeIds.has(node.id) ? 'context-path' : 'context-dimmed');
   }
@@ -626,6 +697,22 @@ function applyGraphView() {
   el.graphViewport.style.setProperty('--graph-pan-x', `${graphView.x}px`);
   el.graphViewport.style.setProperty('--graph-pan-y', `${graphView.y}px`);
   el.graphViewport.style.setProperty('--graph-scale', graphView.scale);
+  applyZoomLevelClass();
+}
+
+function applyZoomLevelClass() {
+  const nextLevel = computeZoomLevel(graphView.scale);
+  if (nextLevel === currentZoomLevel && el.graphViewport.classList.contains(`zoom-${nextLevel}`)) return;
+  el.graphViewport.classList.remove('zoom-compact', 'zoom-medium', 'zoom-full');
+  el.graphViewport.classList.add(`zoom-${nextLevel}`);
+  currentZoomLevel = nextLevel;
+}
+
+function computeZoomLevel(scale) {
+  for (const tier of ZOOM_LEVEL_THRESHOLDS) {
+    if (scale < tier.max) return tier.level;
+  }
+  return 'full';
 }
 
 function centerViewOnGraph() {
@@ -1019,6 +1106,10 @@ function startEdgePhraseEdit(edge, labelElement) {
 }
 
 async function selectNode(nodeId) {
+  if (nodeId !== selectedNodeId) {
+    splitMode = false;
+    splitSelectedMessageIds = new Set();
+  }
   selectedNodeId = nodeId;
   const node = getSelectedNode();
   if (!node) return;
@@ -1057,6 +1148,8 @@ function getSelectedNode() {
 
 function renderChatSidebar() {
   const node = getSelectedNode();
+  renderSplitModeButton(node);
+  renderSplitToolbar();
   if (!node) {
     el.selectedNodeTitle.textContent = t('noNodeTitle');
     el.selectedNodeMeta.textContent = t('noNodeMeta');
@@ -1083,7 +1176,30 @@ function renderChatSidebar() {
   for (const message of messages) {
     const bubble = document.createElement('div');
     bubble.className = `message ${message.role}`;
-    bubble.textContent = message.content;
+    bubble.dataset.messageId = message.id;
+
+    if (splitMode) {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'message-split-checkbox';
+      checkbox.checked = splitSelectedMessageIds.has(message.id);
+      checkbox.addEventListener('change', () => toggleSplitMessage(message.id));
+      bubble.classList.toggle('split-selected', checkbox.checked);
+      bubble.appendChild(checkbox);
+
+      const content = document.createElement('span');
+      content.className = 'message-content';
+      content.textContent = message.content;
+      bubble.appendChild(content);
+
+      bubble.addEventListener('click', (event) => {
+        if (event.target === checkbox) return;
+        event.preventDefault();
+        toggleSplitMessage(message.id);
+      });
+    } else {
+      bubble.textContent = message.content;
+    }
     el.messageList.appendChild(bubble);
   }
   el.messageList.scrollTop = el.messageList.scrollHeight;
@@ -1437,6 +1553,272 @@ function showError(error) {
   window.setTimeout(() => el.toast.classList.add('hidden'), 4200);
 }
 
+function applySearchPlaceholder() {
+  el.searchInput.placeholder = t('searchPlaceholder');
+  el.searchClearBtn.title = t('searchClear');
+  el.searchClearBtn.setAttribute('aria-label', t('searchClear'));
+}
+
+function handleSearchInput(event) {
+  const value = event.target.value;
+  searchQuery = value;
+  el.searchClearBtn.classList.toggle('hidden', value.length === 0);
+  if (searchDebounceHandle) {
+    window.clearTimeout(searchDebounceHandle);
+    searchDebounceHandle = null;
+  }
+  if (!value.trim()) {
+    clearSearchResults();
+    return;
+  }
+  searchDebounceHandle = window.setTimeout(() => runSearch(value), 180);
+}
+
+async function runSearch(query) {
+  try {
+    const data = await api(`/api/search?q=${encodeURIComponent(query)}`);
+    if (searchQuery !== query) return;
+    searchResults = data.results || [];
+    searchMatchNodeIds = new Set(searchResults.map((r) => r.nodeId));
+    renderSearchResults();
+    refreshSearchHighlightOnGraph();
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function clearSearchResults() {
+  searchResults = [];
+  searchMatchNodeIds = new Set();
+  el.searchResults.classList.add('hidden');
+  el.searchResults.innerHTML = '';
+  refreshSearchHighlightOnGraph();
+}
+
+function clearSearch() {
+  searchQuery = '';
+  el.searchInput.value = '';
+  el.searchClearBtn.classList.add('hidden');
+  clearSearchResults();
+  el.searchInput.focus();
+}
+
+function refreshSearchHighlightOnGraph() {
+  for (const card of el.nodeLayer.querySelectorAll('.node-card')) {
+    const nodeId = card.dataset.nodeId;
+    card.classList.toggle('search-match', searchMatchNodeIds.has(nodeId));
+  }
+}
+
+function renderSearchResults() {
+  el.searchResults.innerHTML = '';
+  if (!searchQuery.trim()) {
+    el.searchResults.classList.add('hidden');
+    return;
+  }
+  if (searchResults.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'search-empty';
+    empty.textContent = t('searchNoResults');
+    el.searchResults.appendChild(empty);
+    el.searchResults.classList.remove('hidden');
+    return;
+  }
+
+  for (const result of searchResults) {
+    for (const match of result.matches) {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'search-result-item';
+      item.addEventListener('click', () => onSearchResultClick(result.nodeId));
+
+      const title = document.createElement('div');
+      title.className = 'search-result-title';
+      title.textContent = result.nodeTitle;
+
+      const snippet = document.createElement('div');
+      snippet.className = 'search-result-snippet';
+
+      const tag = document.createElement('span');
+      tag.className = `search-result-tag ${match.type}`;
+      tag.textContent = match.type === 'title' ? t('searchTagTitle') : t('searchTagMessage');
+      snippet.appendChild(tag);
+
+      const snippetText = document.createElement('span');
+      appendSnippetWithHighlight(snippetText, match.snippet || '', searchQuery);
+      snippet.appendChild(snippetText);
+
+      item.appendChild(title);
+      item.appendChild(snippet);
+      el.searchResults.appendChild(item);
+    }
+  }
+  el.searchResults.classList.remove('hidden');
+}
+
+function appendSnippetWithHighlight(container, text, query) {
+  const needle = query.trim().toLowerCase();
+  if (!needle) {
+    container.textContent = text;
+    return;
+  }
+  const lower = text.toLowerCase();
+  let cursor = 0;
+  while (cursor < text.length) {
+    const idx = lower.indexOf(needle, cursor);
+    if (idx === -1) {
+      container.appendChild(document.createTextNode(text.slice(cursor)));
+      break;
+    }
+    if (idx > cursor) {
+      container.appendChild(document.createTextNode(text.slice(cursor, idx)));
+    }
+    const mark = document.createElement('mark');
+    mark.className = 'search-result-mark';
+    mark.textContent = text.slice(idx, idx + needle.length);
+    container.appendChild(mark);
+    cursor = idx + needle.length;
+  }
+}
+
+async function onSearchResultClick(nodeId) {
+  try {
+    pendingCenterNodeId = nodeId;
+    await selectNode(nodeId);
+  } catch (error) {
+    showError(error);
+  }
+}
+
+async function mergeSelectedNodes() {
+  if (selectedNodeIds.size < 2) {
+    showError({ message: t('mergeNeedTwo') });
+    return;
+  }
+  if (!allSelectedAreSiblings()) {
+    showError({ message: t('mergeOnlySiblings') });
+    return;
+  }
+  const nodeIds = state.nodes
+    .filter((node) => selectedNodeIds.has(node.id))
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .map((node) => node.id);
+  try {
+    const data = await runUndoable(async () => api('/api/nodes/merge', {
+      method: 'POST',
+      body: JSON.stringify({ nodeIds }),
+    }));
+    state = data.state;
+    const survivorId = data.result?.survivingNode?.id || nodeIds[0];
+    selectedNodeId = survivorId;
+    resetMultiSelection();
+    pendingCenterNodeId = survivorId;
+    await reloadSelectedMessages();
+    renderAll();
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function enterSplitMode() {
+  if (!selectedNodeId) return;
+  if (!messages || messages.length === 0) return;
+  splitMode = true;
+  splitSelectedMessageIds = new Set();
+  renderAll();
+}
+
+function exitSplitMode() {
+  splitMode = false;
+  splitSelectedMessageIds = new Set();
+  renderAll();
+}
+
+function toggleSplitMode() {
+  if (splitMode) {
+    exitSplitMode();
+  } else {
+    enterSplitMode();
+  }
+}
+
+function toggleSplitMessage(messageId) {
+  if (splitSelectedMessageIds.has(messageId)) {
+    splitSelectedMessageIds.delete(messageId);
+  } else {
+    splitSelectedMessageIds.add(messageId);
+  }
+  renderSplitToolbar();
+  refreshMessageCheckboxState();
+}
+
+function refreshMessageCheckboxState() {
+  for (const item of el.messageList.querySelectorAll('.message')) {
+    const id = item.dataset.messageId;
+    const checkbox = item.querySelector('.message-split-checkbox');
+    if (checkbox) {
+      const checked = splitSelectedMessageIds.has(id);
+      checkbox.checked = checked;
+      item.classList.toggle('split-selected', checked);
+    }
+  }
+}
+
+function renderSplitModeButton(node) {
+  const canSplit = Boolean(node) && Array.isArray(messages) && messages.length >= 2;
+  el.splitModeBtn.classList.toggle('hidden', !canSplit);
+  el.splitModeBtn.textContent = splitMode ? '⤺' : '⤴';
+  el.splitModeBtn.classList.toggle('active', splitMode);
+  el.splitModeBtn.title = splitMode ? t('splitModeExit') : t('splitModeEnter');
+  el.splitModeBtn.setAttribute('aria-label', splitMode ? t('splitModeExit') : t('splitModeEnter'));
+}
+
+function renderSplitToolbar() {
+  if (!splitMode) {
+    el.splitToolbar.classList.add('hidden');
+    return;
+  }
+  el.splitToolbar.classList.remove('hidden');
+  el.splitHint.textContent = t('splitHint');
+  el.splitCancelBtn.textContent = t('splitModeExit');
+  el.splitConfirmBtn.textContent = t('splitConfirm');
+  el.splitConfirmBtn.disabled = splitSelectedMessageIds.size === 0;
+}
+
+async function confirmSplit() {
+  if (!selectedNodeId) return;
+  if (splitSelectedMessageIds.size === 0) {
+    showError({ message: t('splitNeedOne') });
+    return;
+  }
+  if (splitSelectedMessageIds.size >= messages.length) {
+    showError({ message: t('splitCannotMoveAll') });
+    return;
+  }
+  const messageIds = messages
+    .filter((message) => splitSelectedMessageIds.has(message.id))
+    .map((message) => message.id);
+  try {
+    const sourceNodeId = selectedNodeId;
+    const data = await runUndoable(async () => api(`/api/nodes/${sourceNodeId}/split`, {
+      method: 'POST',
+      body: JSON.stringify({ messageIds }),
+    }));
+    state = data.state;
+    splitMode = false;
+    splitSelectedMessageIds = new Set();
+    const newNodeId = data.result?.newNode?.id;
+    if (newNodeId) {
+      selectedNodeId = newNodeId;
+      pendingCenterNodeId = newNodeId;
+    }
+    await reloadSelectedMessages();
+    renderAll();
+  } catch (error) {
+    showError(error);
+  }
+}
+
 function handleGlobalKeydown(event) {
   if (isUndoRedoShortcut(event)) {
     if (shouldUseNativeTextUndo(event)) return;
@@ -1474,6 +1856,21 @@ el.threadEdgeToggle.addEventListener('click', toggleThreadSidebar);
 el.newThreadBtn.addEventListener('click', createGraphThread);
 el.selectionModeBtn.addEventListener('click', toggleSelectionMode);
 el.bulkDeleteBtn.addEventListener('click', deleteSelectedNodes);
+el.mergeBtn.addEventListener('click', mergeSelectedNodes);
+el.splitModeBtn.addEventListener('click', toggleSplitMode);
+el.splitCancelBtn.addEventListener('click', exitSplitMode);
+el.splitConfirmBtn.addEventListener('click', confirmSplit);
+el.searchInput.addEventListener('input', handleSearchInput);
+el.searchInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    clearSearch();
+    el.searchInput.blur();
+  }
+});
+el.searchClearBtn.addEventListener('click', clearSearch);
+el.searchPanel.addEventListener('pointerdown', (event) => event.stopPropagation());
+el.searchPanel.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
 el.hideChatBtn.addEventListener('click', () => {
   chatSidebarHidden = true;
   applyChatSidebarState();

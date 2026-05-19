@@ -25,8 +25,16 @@
           </div>
         </div>
         <div id="mode-indicator" class="mode-indicator hidden"></div>
+        <div id="search-panel" class="search-panel">
+          <div class="search-input-row">
+            <input id="search-input" class="search-input" type="text" autocomplete="off" />
+            <button id="search-clear-btn" class="search-clear-button hidden" type="button">×</button>
+          </div>
+          <div id="search-results" class="search-results hidden"></div>
+        </div>
         <div id="selection-toolbar" class="selection-toolbar">
           <button id="selection-mode-btn" class="selection-mode-button" type="button"></button>
+          <button id="merge-btn" class="selection-merge-button hidden" type="button"></button>
           <button id="bulk-delete-btn" class="selection-delete-button" type="button"></button>
           <span id="selection-count" class="selection-count"></span>
         </div>
@@ -39,7 +47,17 @@
             <div id="selected-node-title" class="chat-title"></div>
             <div id="selected-node-meta" class="chat-meta"></div>
           </div>
-          <button id="hide-chat-btn" class="icon-button chat-close-button" type="button">×</button>
+          <div class="chat-header-actions">
+            <button id="split-mode-btn" class="icon-button chat-action-button hidden" type="button"></button>
+            <button id="hide-chat-btn" class="icon-button chat-close-button" type="button">×</button>
+          </div>
+        </div>
+        <div id="split-toolbar" class="split-toolbar hidden">
+          <span id="split-hint" class="split-hint"></span>
+          <div class="split-actions">
+            <button id="split-cancel-btn" class="button" type="button"></button>
+            <button id="split-confirm-btn" class="button primary" type="button"></button>
+          </div>
         </div>
         <div id="message-list" class="message-list"></div>
         <form id="message-form" class="composer">
