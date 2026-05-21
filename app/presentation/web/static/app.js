@@ -161,6 +161,15 @@ const GRAPH_VIEW = {
   gridSize: 28,
 };
 
+const NODE_SIZE = {
+  minWidth: 154,
+  maxWidth: 292,
+  minHeight: 72,
+  maxHeight: 138,
+  autoSiblingGap: 50,
+  autoChildVerticalGap: 92,
+};
+
 const ZOOM_LEVEL_THRESHOLDS = [
   { level: 'compact', max: 0.55 },
   { level: 'medium', max: 0.95 },
@@ -497,6 +506,7 @@ function renderGraph() {
     return;
   }
 
+  applyRelativeNodeSizes();
   const contextHighlight = selectedContextHighlight();
   el.graphViewport.classList.toggle('context-active', contextHighlight.active);
   const layoutById = new Map(state.nodes.map((node) => [node.id, node.layout]));
@@ -542,6 +552,73 @@ function selectedContextHighlight() {
       .map((edge) => edge.id),
   );
   return { active: true, nodeIds, edgeIds };
+}
+
+function applyRelativeNodeSizes() {
+  if (!state?.nodes?.length) return;
+  const weights = state.nodes.map(nodeContentWeight);
+  const minWeight = Math.min(...weights);
+  const maxWeight = Math.max(...weights);
+
+  for (const node of state.nodes) {
+    const ratio = relativeNodeSizeRatio(nodeContentWeight(node), minWeight, maxWeight);
+    const width = Math.round(lerp(NODE_SIZE.minWidth, NODE_SIZE.maxWidth, ratio));
+    const height = Math.round(lerp(NODE_SIZE.minHeight, NODE_SIZE.maxHeight, ratio));
+    const basePosition = node.position || node.layout || { x: 0, y: 0 };
+    node.layout = {
+      ...node.layout,
+      x: Number(basePosition.x) || 0,
+      y: Number(basePosition.y) || 0,
+      width,
+      height,
+    };
+  }
+  alignAutoChildrenByVisualSize();
+}
+
+function nodeContentWeight(node) {
+  if ((node.userMessageCount || 0) < 2) return 0;
+  return Math.sqrt(Math.max(0, node.messageTextLength || 0));
+}
+
+function relativeNodeSizeRatio(weight, minWeight, maxWeight) {
+  if (maxWeight <= 0) return 0;
+  if (maxWeight === minWeight) return 0.48;
+  return clamp((weight - minWeight) / (maxWeight - minWeight), 0, 1) ** 1.45;
+}
+
+function alignAutoChildrenByVisualSize() {
+  const childrenByParentId = new Map();
+  for (const node of state.nodes) {
+    if (!node.parentNodeId) continue;
+    const siblings = childrenByParentId.get(node.parentNodeId) || [];
+    siblings.push(node);
+    childrenByParentId.set(node.parentNodeId, siblings);
+  }
+
+  const parentsByDepth = [...state.nodes].sort((a, b) => (a.depth || 0) - (b.depth || 0));
+  for (const parent of parentsByDepth) {
+    if (!parent.layout) continue;
+    const autoChildren = (childrenByParentId.get(parent.id) || [])
+      .filter((node) => !node.manuallyPositioned && node.layout)
+      .sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')));
+    if (!autoChildren.length) continue;
+
+    const totalWidth = autoChildren.reduce((sum, node) => sum + node.layout.width, 0)
+      + NODE_SIZE.autoSiblingGap * (autoChildren.length - 1);
+    const parentCenterX = parent.layout.x + parent.layout.width / 2;
+    let nextX = parentCenterX - totalWidth / 2;
+    const nextY = parent.layout.y + parent.layout.height + NODE_SIZE.autoChildVerticalGap;
+
+    for (const child of autoChildren) {
+      child.layout = {
+        ...child.layout,
+        x: Math.round(nextX),
+        y: Math.round(nextY),
+      };
+      nextX += child.layout.width + NODE_SIZE.autoSiblingGap;
+    }
+  }
 }
 
 function drawEdge(edge, source, target, contextHighlight = selectedContextHighlight()) {
@@ -597,6 +674,7 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   card.style.left = `${node.layout.x}px`;
   card.style.top = `${node.layout.y}px`;
   card.style.width = `${node.layout.width}px`;
+  card.style.height = `${node.layout.height}px`;
   card.style.minHeight = `${node.layout.height}px`;
   applyDepthColors(card, node.depth || 0);
 
@@ -617,10 +695,6 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   title.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') startNodeTitleEdit(node, title);
   });
-
-  const meta = document.createElement('div');
-  meta.className = 'node-meta';
-  meta.textContent = `${node.messageCount} ${t('messages')} · ${node.childrenCount} ${t('children')}`;
 
   const actions = document.createElement('div');
   actions.className = 'node-actions';
@@ -653,7 +727,6 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   actions.appendChild(deleteButton);
 
   card.appendChild(title);
-  card.appendChild(meta);
   card.appendChild(actions);
   card.dataset.nodeId = node.id;
   card.addEventListener('pointerdown', (event) => beginNodeDrag(event, node, card));
@@ -1009,17 +1082,17 @@ function clamp(value, min, max) {
 function applyDepthColors(element, depth, isEdge = false) {
   const maxDepth = Math.max(0, ...state.nodes.map((node) => node.depth || 0));
   const ratio = maxDepth === 0 ? 0 : clamp(depth / maxDepth, 0, 1);
-  const eased = ratio ** 0.86;
-  const hue = lerp(224, 204, eased);
-  const saturation = lerp(76, 18, eased);
-  const lightness = lerp(91, 99, eased);
-  const secondLightness = Math.min(99, lightness + lerp(4, 0, eased));
-  const borderLightness = lerp(78, 92, eased);
-  const accentLightness = lerp(56, 66, eased);
-  const accentSaturation = lerp(72, 34, eased);
+  const eased = ratio ** 0.78;
+  const hue = (258 - depth * 34 + maxDepth * 5 + 360) % 360;
+  const saturation = lerp(76, 46, eased);
+  const lightness = lerp(88, 94, eased);
+  const secondLightness = Math.min(98, lightness + 4);
+  const borderLightness = lerp(80, 88, eased);
+  const accentLightness = lerp(58, 64, eased);
+  const accentSaturation = lerp(68, 48, eased);
 
   if (isEdge) {
-    element.style.stroke = `hsl(${hue} ${Math.max(28, saturation)}% ${Math.min(84, borderLightness)}%)`;
+    element.style.stroke = `hsl(${hue} ${Math.max(34, saturation - 14)}% ${Math.min(76, borderLightness - 5)}%)`;
     return;
   }
   element.style.setProperty('--depth-accent', `hsl(${hue} ${accentSaturation}% ${accentLightness}%)`);
@@ -1028,7 +1101,7 @@ function applyDepthColors(element, depth, isEdge = false) {
   element.style.setProperty('--depth-muted', '#6b7280');
   element.style.setProperty(
     '--depth-fill',
-    `linear-gradient(135deg, hsl(${hue} ${saturation}% ${lightness}%), hsl(${hue + 8} ${Math.max(24, saturation - 10)}% ${secondLightness}%))`,
+    `linear-gradient(135deg, hsl(${hue} ${saturation}% ${lightness}%), hsl(${hue + 16} ${Math.max(34, saturation - 8)}% ${secondLightness}%))`,
   );
 }
 

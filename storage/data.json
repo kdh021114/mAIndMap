@@ -68,6 +68,47 @@
       "target_node_id": "node_76c3a6eb1a2d",
       "updated_at": "2026-05-19T01:50:30.481313+00:00",
       "user_edited_phrase_locales": {}
+    },
+    "edge_76091ed9e3b2": {
+      "id": "edge_76091ed9e3b2",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_6cd9a7db5cd5",
+      "phrase": {
+        "ko": "구체화"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false
+      },
+      "created_at": "2026-05-20T17:06:51.168803+00:00",
+      "updated_at": "2026-05-20T17:07:02.483025+00:00"
+    },
+    "edge_43482608e2b4": {
+      "id": "edge_43482608e2b4",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_ba6de9e8b1be",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "user_edited_phrase_locales": {},
+      "created_at": "2026-05-21T00:07:04.543957+00:00",
+      "updated_at": "2026-05-21T00:07:04.543957+00:00"
+    },
+    "edge_4a1688ed411a": {
+      "id": "edge_4a1688ed411a",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_5c032e459f2d",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "user_edited_phrase_locales": {},
+      "created_at": "2026-05-21T00:07:07.484843+00:00",
+      "updated_at": "2026-05-21T00:07:07.484843+00:00"
     }
   },
   "graph_threads": {
@@ -89,7 +130,316 @@
       "updated_at": "2026-05-18T11:31:20.679798+00:00"
     }
   },
-  "messages": {},
+  "messages": {
+    "msg_0912566a6f71": {
+      "content": "d",
+      "created_at": "2026-05-20T16:20:25.461918+00:00",
+      "id": "msg_0912566a6f71",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_5dae390a5cb8": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
+      "created_at": "2026-05-20T16:20:24.092861+00:00",
+      "id": "msg_5dae390a5cb8",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_63d9abe8e0a6": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
+      "created_at": "2026-05-20T16:20:26.686393+00:00",
+      "id": "msg_63d9abe8e0a6",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_93966c368523": {
+      "content": "d",
+      "created_at": "2026-05-20T16:20:24.089548+00:00",
+      "id": "msg_93966c368523",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_bb58c7418166": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
+      "created_at": "2026-05-20T16:20:25.464553+00:00",
+      "id": "msg_bb58c7418166",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_c49cd0309cb2": {
+      "content": "d",
+      "created_at": "2026-05-20T16:20:26.683681+00:00",
+      "id": "msg_c49cd0309cb2",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_4ae2976929c7": {
+      "id": "msg_4ae2976929c7",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:36.287959+00:00"
+    },
+    "msg_b155fa47c66f": {
+      "id": "msg_b155fa47c66f",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:36.290843+00:00"
+    },
+    "msg_3420a67870c8": {
+      "id": "msg_3420a67870c8",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:37.027844+00:00"
+    },
+    "msg_470f15c7450e": {
+      "id": "msg_470f15c7450e",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:37.030701+00:00"
+    },
+    "msg_63c301841a69": {
+      "id": "msg_63c301841a69",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:37.858302+00:00"
+    },
+    "msg_c200ec0401c4": {
+      "id": "msg_c200ec0401c4",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:37.860669+00:00"
+    },
+    "msg_be34090877e2": {
+      "id": "msg_be34090877e2",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:38.554382+00:00"
+    },
+    "msg_86fb67d43239": {
+      "id": "msg_86fb67d43239",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:38.557513+00:00"
+    },
+    "msg_99415aabe5c6": {
+      "id": "msg_99415aabe5c6",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:39.267385+00:00"
+    },
+    "msg_894354ab8a11": {
+      "id": "msg_894354ab8a11",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:39.270515+00:00"
+    },
+    "msg_90b5eb3dc9e6": {
+      "id": "msg_90b5eb3dc9e6",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:39.919968+00:00"
+    },
+    "msg_a1c76b6ed172": {
+      "id": "msg_a1c76b6ed172",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:39.922935+00:00"
+    },
+    "msg_a695e05f0cbf": {
+      "id": "msg_a695e05f0cbf",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:40.635174+00:00"
+    },
+    "msg_d0389c904d4b": {
+      "id": "msg_d0389c904d4b",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:40.638303+00:00"
+    },
+    "msg_5f07cd5852c5": {
+      "id": "msg_5f07cd5852c5",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:42.394902+00:00"
+    },
+    "msg_bd536d530ac1": {
+      "id": "msg_bd536d530ac1",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:42.400499+00:00"
+    },
+    "msg_3f9539e2976d": {
+      "id": "msg_3f9539e2976d",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:43.227362+00:00"
+    },
+    "msg_6191c8ea0a4e": {
+      "id": "msg_6191c8ea0a4e",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:43.230684+00:00"
+    },
+    "msg_a822e89e1def": {
+      "id": "msg_a822e89e1def",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:44.196786+00:00"
+    },
+    "msg_47c4990d57cc": {
+      "id": "msg_47c4990d57cc",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:44.200071+00:00"
+    },
+    "msg_7ed46903aa5c": {
+      "id": "msg_7ed46903aa5c",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:51.713585+00:00"
+    },
+    "msg_6c63d3235683": {
+      "id": "msg_6c63d3235683",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:51.717106+00:00"
+    },
+    "msg_2c82495d7278": {
+      "id": "msg_2c82495d7278",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:52.911719+00:00"
+    },
+    "msg_f8acc7b968f9": {
+      "id": "msg_f8acc7b968f9",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:52.915512+00:00"
+    },
+    "msg_8322527a8b04": {
+      "id": "msg_8322527a8b04",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:53.780952+00:00"
+    },
+    "msg_bd0dc03ff5c9": {
+      "id": "msg_bd0dc03ff5c9",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:53.784452+00:00"
+    },
+    "msg_18f79286f218": {
+      "id": "msg_18f79286f218",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:54.485138+00:00"
+    },
+    "msg_a6e5d45d5d38": {
+      "id": "msg_a6e5d45d5d38",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:54.488494+00:00"
+    },
+    "msg_51923fcf5789": {
+      "id": "msg_51923fcf5789",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "user",
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:55.115628+00:00"
+    },
+    "msg_b51383751c88": {
+      "id": "msg_b51383751c88",
+      "thread_id": "thread_4dc433d606b9",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:55.118766+00:00"
+    },
+    "msg_828398d9bfb6": {
+      "id": "msg_828398d9bfb6",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "user",
+      "content": ".",
+      "created_at": "2026-05-20T17:07:02.471721+00:00"
+    },
+    "msg_bb21d82e2389": {
+      "id": "msg_bb21d82e2389",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-20T17:07:02.475410+00:00"
+    },
+    "msg_67d5e20b32a9": {
+      "id": "msg_67d5e20b32a9",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "user",
+      "content": "/",
+      "created_at": "2026-05-20T17:07:04.093371+00:00"
+    },
+    "msg_2b9901b20865": {
+      "id": "msg_2b9901b20865",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: /",
+      "created_at": "2026-05-20T17:07:04.098483+00:00"
+    },
+    "msg_955ea363f746": {
+      "id": "msg_955ea363f746",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "user",
+      "content": ".",
+      "created_at": "2026-05-20T17:07:06.372538+00:00"
+    },
+    "msg_5277e2d08a8c": {
+      "id": "msg_5277e2d08a8c",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-20T17:07:06.375986+00:00"
+    },
+    "msg_ae952340f752": {
+      "id": "msg_ae952340f752",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "user",
+      "content": ".",
+      "created_at": "2026-05-20T17:07:08.545429+00:00"
+    },
+    "msg_622758b0cbde": {
+      "id": "msg_622758b0cbde",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-20T17:07:08.550735+00:00"
+    }
+  },
   "nodes": {
     "node_14534027373a": {
       "created_at": "2026-05-19T01:50:54.333416+00:00",
@@ -215,12 +565,65 @@
         "ko": true
       },
       "position": {
-        "x": 0.0,
-        "y": -28.0
+        "x": -84.0,
+        "y": -84.0
       },
       "manually_positioned": true,
       "created_at": "2026-05-18T12:06:17.532523+00:00",
-      "updated_at": "2026-05-19T02:47:21.069659+00:00"
+      "updated_at": "2026-05-20T16:42:56.382498+00:00"
+    },
+    "node_6cd9a7db5cd5": {
+      "id": "node_6cd9a7db5cd5",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_7aab9ce3b3bf",
+      "parent_node_id": "node_e9c59afd15bc",
+      "title": {
+        "ko": "."
+      },
+      "user_edited_title_locales": {
+        "ko": false
+      },
+      "position": {
+        "x": -28.0,
+        "y": 252.0
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-20T17:06:51.168726+00:00",
+      "updated_at": "2026-05-21T00:07:11.318687+00:00"
+    },
+    "node_ba6de9e8b1be": {
+      "id": "node_ba6de9e8b1be",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_0abcefed33ab",
+      "parent_node_id": "node_e9c59afd15bc",
+      "title": {
+        "ko": "새 대화"
+      },
+      "user_edited_title_locales": {},
+      "position": {
+        "x": -219.0,
+        "y": 66.0
+      },
+      "manually_positioned": false,
+      "created_at": "2026-05-21T00:07:04.543920+00:00",
+      "updated_at": "2026-05-21T00:07:07.485429+00:00"
+    },
+    "node_5c032e459f2d": {
+      "id": "node_5c032e459f2d",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_163396062d4f",
+      "parent_node_id": "node_e9c59afd15bc",
+      "title": {
+        "ko": "새 대화"
+      },
+      "user_edited_title_locales": {},
+      "position": {
+        "x": 51.0,
+        "y": 66.0
+      },
+      "manually_positioned": false,
+      "created_at": "2026-05-21T00:07:07.484816+00:00",
+      "updated_at": "2026-05-21T00:07:07.485443+00:00"
     }
   },
   "settings": {
@@ -244,7 +647,7 @@
       "title": {
         "ko": "그래프 인터페이스 연구"
       },
-      "updated_at": "2026-05-19T01:48:51.681158+00:00"
+      "updated_at": "2026-05-20T16:40:55.118910+00:00"
     },
     "thread_573504d5310a": {
       "created_at": "2026-05-18T12:07:34.191231+00:00",
@@ -290,6 +693,33 @@
         "ko": "NASA-TLX 질문"
       },
       "updated_at": "2026-05-19T01:49:41.485631+00:00"
+    },
+    "thread_7aab9ce3b3bf": {
+      "id": "thread_7aab9ce3b3bf",
+      "title": {
+        "ko": "."
+      },
+      "node_id": "node_6cd9a7db5cd5",
+      "created_at": "2026-05-20T17:06:51.168765+00:00",
+      "updated_at": "2026-05-20T17:07:08.551347+00:00"
+    },
+    "thread_0abcefed33ab": {
+      "id": "thread_0abcefed33ab",
+      "title": {
+        "ko": "새 대화"
+      },
+      "node_id": "node_ba6de9e8b1be",
+      "created_at": "2026-05-21T00:07:04.543941+00:00",
+      "updated_at": "2026-05-21T00:07:04.543941+00:00"
+    },
+    "thread_163396062d4f": {
+      "id": "thread_163396062d4f",
+      "title": {
+        "ko": "새 대화"
+      },
+      "node_id": "node_5c032e459f2d",
+      "created_at": "2026-05-21T00:07:07.484832+00:00",
+      "updated_at": "2026-05-21T00:07:07.484832+00:00"
     }
   }
 }

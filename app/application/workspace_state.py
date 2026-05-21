@@ -34,6 +34,7 @@ class GetWorkspaceStateUseCase:
             if node.parent_node_id in children_count:
                 children_count[node.parent_node_id] += 1
         depths = self._node_depths(nodes)
+        message_stats = self._message_stats(nodes)
 
         return {
             "appTitle": self._app_title,
@@ -63,7 +64,9 @@ class GetWorkspaceStateUseCase:
                     "layout": layout.get(node.id, {"x": 0, "y": 0, "width": 210, "height": 82}),
                     "depth": depths.get(node.id, 0),
                     "childrenCount": children_count.get(node.id, 0),
-                    "messageCount": len(self._chat_repository.list_messages(node.thread_id)),
+                    "messageCount": message_stats[node.id]["count"],
+                    "userMessageCount": message_stats[node.id]["user_count"],
+                    "messageTextLength": message_stats[node.id]["text_length"],
                     "createdAt": node.created_at,
                     "updatedAt": node.updated_at,
                 }
@@ -119,3 +122,14 @@ class GetWorkspaceStateUseCase:
         for node in nodes:
             depth_of(node)
         return depths
+
+    def _message_stats(self, nodes) -> dict[str, dict[str, int]]:
+        stats = {}
+        for node in nodes:
+            messages = self._chat_repository.list_messages(node.thread_id)
+            stats[node.id] = {
+                "count": len(messages),
+                "user_count": sum(1 for message in messages if message.role == "user"),
+                "text_length": sum(len(message.content) for message in messages),
+            }
+        return stats
