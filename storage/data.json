@@ -145,6 +145,14 @@
         "ko": "그래프 스레드 2"
       },
       "updated_at": "2026-05-18T11:31:20.679798+00:00"
+    },
+    "graph_8a8591b15e10": {
+      "id": "graph_8a8591b15e10",
+      "title": {
+        "ko": "그래프 스레드 3"
+      },
+      "created_at": "2026-05-24T06:12:23.909563+00:00",
+      "updated_at": "2026-05-24T06:12:23.909563+00:00"
     }
   },
   "messages": {
@@ -623,6 +631,20 @@
       "role": "assistant",
       "content": "안녕하세요! 싱가포르 여행 관련해서는 어떤 걸 먼저 도와드릴까요? (예: 일정/숙소 구역/관광지 우선순위/항공권 비교)",
       "created_at": "2026-05-24T04:57:14.839662+00:00"
+    },
+    "msg_977fc752a8c4": {
+      "id": "msg_977fc752a8c4",
+      "thread_id": "thread_e30ebb864d60",
+      "role": "user",
+      "content": "싱가포르 여행을 가려고 해. 주요 여행지를 찾아줘",
+      "created_at": "2026-05-24T06:22:07.823007+00:00"
+    },
+    "msg_d6a43a20f689": {
+      "id": "msg_d6a43a20f689",
+      "thread_id": "thread_e30ebb864d60",
+      "role": "assistant",
+      "content": "싱가포르 주요 여행지(첫 방문 추천 코스 기준)로는 아래가 가장 유명해요. ([visitsingapore.org](https://www.visitsingapore.org/experience-singapore/must-dos/?utm_source=openai))\n\n- **마리나 베이 샌즈 & 스카이파크(전망)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai))  \n- **가든스 바이 더 베이(클라우드 포레스트/플라워 돔, 수퍼트리 주변 산책)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Gardens_by_the_Bay?utm_source=openai))  \n- **머라이언 파크(머라이언 동상, 포토 스팟)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Merlion_Park?utm_source=openai))  \n- **센토사 섬(리조트/액티비티, 해변 포함)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai))  \n- **싱가포르 동물원/나이트 사파리(동물 테마)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai))  \n- **싱가포르 보타닉 가든 & 국립 오키드 가든(자연/산책)** ([digilamon.com](https://digilamon.com/destinations/singapore/where-to-go-in-singapore/?utm_source=openai))  \n\n원하는 여행 스타일이 **(1) 쇼핑/도시 야경, (2) 자연·테마파크, (3) 맛집/문화** 중에 뭐에 가까워요? (그리고 며칠 일정인지도 알려주면) 일정에 맞춰 묶어서 추천해드릴게요.\n\nSources:\n- [Must Do’s - Visit Singapore](https://www.visitsingapore.org/experience-singapore/must-dos/?utm_source=openai)\n- [Tourism in Singapore](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai)\n- [Gardens by the Bay](https://en.wikipedia.org/wiki/Gardens_by_the_Bay?utm_source=openai)\n- [Merlion Park](https://en.wikipedia.org/wiki/Merlion_Park?utm_source=openai)\n- [Where to Go in Singapore: 21 Best Places for First-Timers](https://digilamon.com/destinations/singapore/where-to-go-in-singapore/?utm_source=openai)",
+      "created_at": "2026-05-24T06:22:14.662300+00:00"
     }
   },
   "nodes": {
@@ -832,10 +854,29 @@
       "manually_positioned": false,
       "created_at": "2026-05-24T04:56:44.197432+00:00",
       "updated_at": "2026-05-24T04:57:15.680282+00:00"
+    },
+    "node_e938d3df2396": {
+      "id": "node_e938d3df2396",
+      "graph_thread_id": "graph_8a8591b15e10",
+      "thread_id": "thread_e30ebb864d60",
+      "parent_node_id": null,
+      "title": {
+        "ko": "싱가포르 주요 여행지 추천"
+      },
+      "user_edited_title_locales": {
+        "ko": false
+      },
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "manually_positioned": false,
+      "created_at": "2026-05-24T06:21:53.937738+00:00",
+      "updated_at": "2026-05-24T06:22:15.264820+00:00"
     }
   },
   "settings": {
-    "active_graph_thread_id": "graph_e35a962628be",
+    "active_graph_thread_id": "graph_default",
     "locale": "ko"
   },
   "threads": {
@@ -937,6 +978,15 @@
       "node_id": "node_022e47e6b6db",
       "created_at": "2026-05-24T04:56:44.197464+00:00",
       "updated_at": "2026-05-24T04:57:15.685927+00:00"
+    },
+    "thread_e30ebb864d60": {
+      "id": "thread_e30ebb864d60",
+      "title": {
+        "ko": "싱가포르 주요 여행지 추천"
+      },
+      "node_id": "node_e938d3df2396",
+      "created_at": "2026-05-24T06:21:53.937754+00:00",
+      "updated_at": "2026-05-24T06:22:15.272369+00:00"
     }
   }
 }

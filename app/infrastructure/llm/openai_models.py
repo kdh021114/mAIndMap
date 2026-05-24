@@ -15,20 +15,47 @@ class OpenAIChatModel(ChatModel):
         model_name: str,
         *,
         max_output_tokens: int | None,
+        web_search_enabled: bool,
+        web_search_context_size: str,
+        web_search_max_tool_calls: int | None,
+        web_search_tool_choice: str | None,
+        web_search_external_access: bool,
     ):
         self._text_client = text_client
         self._model_name = model_name
         self._max_output_tokens = max_output_tokens
+        self._web_search_enabled = web_search_enabled
+        self._web_search_context_size = web_search_context_size
+        self._web_search_max_tool_calls = web_search_max_tool_calls
+        self._web_search_tool_choice = web_search_tool_choice
+        self._web_search_external_access = web_search_external_access
 
-    def generate_reply(self, *, system_prompt: str, messages: List[Message]) -> str:
+    def generate_reply(
+        self,
+        *,
+        system_prompt: str,
+        messages: List[Message],
+        web_search_enabled: bool = False,
+    ) -> str:
         input_text = self._format_messages(messages)
         reply = self._text_client.complete(
             model=self._model_name,
             instructions=system_prompt,
             input_text=input_text,
             max_output_tokens=self._max_output_tokens,
+            web_search_options=self._web_search_options(web_search_enabled),
         )
         return reply or "I could not generate a response."
+
+    def _web_search_options(self, requested: bool) -> dict | None:
+        if not requested or not self._web_search_enabled:
+            return None
+        return {
+            "search_context_size": self._web_search_context_size,
+            "max_tool_calls": self._web_search_max_tool_calls,
+            "tool_choice": self._web_search_tool_choice,
+            "external_web_access": self._web_search_external_access,
+        }
 
     def _format_messages(self, messages: List[Message]) -> str:
         lines = ["Current selected node conversation:"]

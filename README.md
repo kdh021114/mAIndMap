@@ -114,6 +114,23 @@ OPENAI_LABEL_MAX_OUTPUT_TOKENS = 80
 OPENAI_STORE_RESPONSES = False
 ```
 
+Optional OpenAI web search is exposed in the chat composer as a per-message
+toggle. The app only passes the hosted `web_search` tool when that toggle is on
+and the backend is running in real OpenAI mode:
+
+```python
+OPENAI_WEB_SEARCH_ENABLED = True
+OPENAI_WEB_SEARCH_CONTEXT_SIZE = "low"
+OPENAI_WEB_SEARCH_MAX_TOOL_CALLS = 1
+OPENAI_WEB_SEARCH_TOOL_CHOICE = "required"
+OPENAI_WEB_SEARCH_EXTERNAL_ACCESS = True
+```
+
+Web search can add tool-call and search-content token costs, so keep the context
+size low and tool calls capped unless you intentionally want deeper browsing.
+Set `OPENAI_WEB_SEARCH_TOOL_CHOICE = "auto"` if the toggle should merely allow
+search instead of forcing it.
+
 ## Architecture
 
 ```txt

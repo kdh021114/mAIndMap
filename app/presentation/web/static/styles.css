@@ -1260,7 +1260,14 @@ button, textarea, select {
 .markdown-content p,
 .markdown-content ul,
 .markdown-content ol,
-.markdown-content pre {
+.markdown-content pre,
+.markdown-content blockquote,
+.markdown-content .markdown-table-wrap,
+.markdown-content .markdown-sources,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5 {
   margin: 0;
 }
 
@@ -1270,8 +1277,33 @@ button, textarea, select {
 .markdown-content ul + p,
 .markdown-content ol + p,
 .markdown-content pre + p,
-.markdown-content p + pre {
+.markdown-content p + pre,
+.markdown-content p + blockquote,
+.markdown-content blockquote + p,
+.markdown-content p + .markdown-table-wrap,
+.markdown-content .markdown-table-wrap + p,
+.markdown-content pre + .markdown-table-wrap,
+.markdown-content .markdown-table-wrap + pre,
+.markdown-content p + .markdown-sources,
+.markdown-content ul + .markdown-sources,
+.markdown-content ol + .markdown-sources,
+.markdown-content pre + .markdown-sources,
+.markdown-content blockquote + .markdown-sources,
+.markdown-content .markdown-table-wrap + .markdown-sources,
+.markdown-content h2 + p,
+.markdown-content h3 + p,
+.markdown-content h4 + p,
+.markdown-content h5 + p {
   margin-top: 10px;
+}
+
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5 {
+  font-size: 1em;
+  line-height: 1.35;
+  font-weight: 900;
 }
 
 .markdown-content ul,
@@ -1287,6 +1319,14 @@ button, textarea, select {
   font-weight: 900;
 }
 
+.markdown-content em {
+  font-style: italic;
+}
+
+.markdown-content del {
+  text-decoration-thickness: 1.5px;
+}
+
 .markdown-content code {
   border-radius: 5px;
   background: rgba(15, 23, 42, 0.07);
@@ -1296,12 +1336,99 @@ button, textarea, select {
 }
 
 .markdown-content pre {
+  position: relative;
   max-width: 100%;
   overflow-x: auto;
   border-radius: 8px;
   background: rgba(15, 23, 42, 0.08);
   padding: 9px 10px;
   white-space: pre;
+}
+
+.markdown-content pre[data-language] {
+  padding-top: 24px;
+}
+
+.markdown-content pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid rgba(99, 91, 255, 0.36);
+  padding-left: 10px;
+  color: #475569;
+}
+
+.markdown-content hr {
+  height: 1px;
+  border: 0;
+  background: rgba(148, 163, 184, 0.48);
+  margin: 12px 0;
+}
+
+.markdown-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 8px;
+}
+
+.markdown-content table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+  font-size: 0.93em;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.32);
+  padding: 7px 9px;
+  vertical-align: top;
+}
+
+.markdown-content th {
+  background: rgba(15, 23, 42, 0.05);
+  font-weight: 900;
+}
+
+.markdown-content tr:last-child td {
+  border-bottom: 0;
+}
+
+.markdown-sources {
+  border-top: 1px solid rgba(148, 163, 184, 0.38);
+  padding-top: 9px;
+}
+
+.markdown-sources-title {
+  margin-bottom: 6px;
+  color: #475569;
+  font-size: 0.86em;
+  font-weight: 900;
+}
+
+.markdown-sources-list {
+  margin: 0;
+  padding-left: 1.45em;
+}
+
+.markdown-sources-list li {
+  padding-left: 2px;
+}
+
+.markdown-source-host {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 0.86em;
 }
 
 .markdown-content a {
@@ -1312,12 +1439,88 @@ button, textarea, select {
 }
 
 .composer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.composer-options {
+  display: flex;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.composer-input-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: 10px;
-  padding: 12px;
-  border-top: 1px solid var(--border);
+}
+
+.web-search-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  user-select: none;
+}
+
+.web-search-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.web-search-switch {
+  width: 36px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #e2e8f0;
+  padding: 2px;
+  transition: 140ms ease;
+}
+
+.web-search-switch-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+  transition: 140ms ease;
+}
+
+.web-search-toggle input:checked + .web-search-switch {
+  border-color: rgba(99, 91, 255, 0.38);
+  background: var(--primary);
+}
+
+.web-search-toggle input:checked + .web-search-switch .web-search-switch-thumb {
+  transform: translateX(16px);
+}
+
+.web-search-toggle input:focus-visible + .web-search-switch {
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.16);
+}
+
+.web-search-toggle:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.54;
+}
+
+.web-search-toggle-label {
+  white-space: nowrap;
 }
 
 #message-input {

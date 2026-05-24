@@ -7,13 +7,21 @@ from app.domain.ports import ChatModel, EdgePhraseGenerator, NodeTitleGenerator
 
 
 class MockChatModel(ChatModel):
-    def generate_reply(self, *, system_prompt: str, messages: List[Message]) -> str:
+    def generate_reply(
+        self,
+        *,
+        system_prompt: str,
+        messages: List[Message],
+        web_search_enabled: bool = False,
+    ) -> str:
         last_user = next((m for m in reversed(messages) if m.role == "user"), None)
         if last_user is None:
             return "무엇을 도와드릴까요?"
+        search_note = " 웹검색 토글은 테스트 모드에서는 실제 검색을 호출하지 않습니다." if web_search_enabled else ""
         if any("Respond primarily in English" in system_prompt for _ in [0]):
-            return f"Mock reply: I understand. Let's continue from: {last_user.content[:120]}"
-        return f"모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: {last_user.content[:120]}"
+            suffix = " Web search is not called in mock/test mode." if web_search_enabled else ""
+            return f"Mock reply: I understand. Let's continue from: {last_user.content[:120]}{suffix}"
+        return f"모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: {last_user.content[:120]}{search_note}"
 
 
 class MockNodeTitleGenerator(NodeTitleGenerator):

@@ -92,6 +92,11 @@ def create_app(config_module) -> Flask:
             label_max_output_tokens=config_module.OPENAI_LABEL_MAX_OUTPUT_TOKENS,
             store_responses=config_module.OPENAI_STORE_RESPONSES,
             timeout_seconds=config_module.OPENAI_TIMEOUT_SECONDS,
+            web_search_enabled=getattr(config_module, "OPENAI_WEB_SEARCH_ENABLED", False),
+            web_search_context_size=getattr(config_module, "OPENAI_WEB_SEARCH_CONTEXT_SIZE", "low"),
+            web_search_max_tool_calls=getattr(config_module, "OPENAI_WEB_SEARCH_MAX_TOOL_CALLS", 1),
+            web_search_tool_choice=getattr(config_module, "OPENAI_WEB_SEARCH_TOOL_CHOICE", "auto"),
+            web_search_external_access=getattr(config_module, "OPENAI_WEB_SEARCH_EXTERNAL_ACCESS", True),
             use_mock_when_no_api_key=config_module.USE_MOCK_LLM_WHEN_NO_API_KEY,
             test_mode=config_module.TEST_MODE,
         )
@@ -125,6 +130,7 @@ def create_app(config_module) -> Flask:
             layout_service=layout_service,
             app_title=config_module.APP_TITLE,
             llm_mode=llm_services.mode,
+            web_search_available=llm_services.web_search_available,
         ),
         create_graph_thread=CreateGraphThreadUseCase(
             graph_repository=graph_repository,

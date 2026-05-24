@@ -28,6 +28,11 @@ class LlmConfig:
     label_max_output_tokens: int | None
     store_responses: bool
     timeout_seconds: float | None
+    web_search_enabled: bool
+    web_search_context_size: str
+    web_search_max_tool_calls: int | None
+    web_search_tool_choice: str | None
+    web_search_external_access: bool
     use_mock_when_no_api_key: bool
     test_mode: bool
 
@@ -38,6 +43,7 @@ class LlmServices:
     edge_phrase_generator: EdgePhraseGenerator
     title_generator: NodeTitleGenerator
     mode: str  # "test", "mock", or "openai"
+    web_search_available: bool
 
     @property
     def using_mock(self) -> bool:
@@ -79,6 +85,11 @@ class LlmProviderFactory:
                 text_client,
                 self._config.chat_model,
                 max_output_tokens=self._config.chat_max_output_tokens,
+                web_search_enabled=self._config.web_search_enabled,
+                web_search_context_size=self._config.web_search_context_size,
+                web_search_max_tool_calls=self._config.web_search_max_tool_calls,
+                web_search_tool_choice=self._config.web_search_tool_choice,
+                web_search_external_access=self._config.web_search_external_access,
             ),
             edge_phrase_generator=OpenAIEdgePhraseGenerator(
                 text_client,
@@ -91,6 +102,7 @@ class LlmProviderFactory:
                 max_output_tokens=self._config.label_max_output_tokens,
             ),
             mode="openai",
+            web_search_available=self._config.web_search_enabled,
         )
 
     def _create_local_services(self, *, mode: str) -> LlmServices:
@@ -99,4 +111,5 @@ class LlmProviderFactory:
             edge_phrase_generator=MockEdgePhraseGenerator(),
             title_generator=MockNodeTitleGenerator(),
             mode=mode,
+            web_search_available=False,
         )

@@ -59,6 +59,10 @@ const i18n = {
     splitHint: '새 자식 노드로 분리할 메시지를 선택하세요.',
     splitNeedOne: '최소 하나의 메시지를 선택하세요.',
     splitCannotMoveAll: '모든 메시지를 분리할 수는 없습니다.',
+    webSearch: '웹검색',
+    webSearchReady: '다음 메시지에서 OpenAI 웹검색을 실행합니다.',
+    webSearchUnavailable: 'OpenAI 실사용 모드에서만 웹검색을 사용할 수 있습니다.',
+    sources: '출처',
   },
   en: {
     createRoot: 'Create Root',
@@ -120,6 +124,10 @@ const i18n = {
     splitHint: 'Check the messages to move into a new child node.',
     splitNeedOne: 'Select at least one message.',
     splitCannotMoveAll: 'Cannot split out every message from a node.',
+    webSearch: 'Web search',
+    webSearchReady: 'Run OpenAI web search for the next message.',
+    webSearchUnavailable: 'Web search is available only in real OpenAI mode.',
+    sources: 'Sources',
   },
 };
 
@@ -144,6 +152,7 @@ let threadSidebarHidden = localStorage.getItem('graphChat.threadSidebarHidden') 
 let threadSidebarWidth = Number(localStorage.getItem('graphChat.threadSidebarWidth')) || 286;
 let chatSidebarHidden = localStorage.getItem('graphChat.sidebarHidden') === 'true';
 let chatSidebarWidth = Number(localStorage.getItem('graphChat.sidebarWidth')) || 380;
+let webSearchEnabled = localStorage.getItem('graphChat.webSearchEnabled') === 'true';
 let sidebarResize = null;
 let searchQuery = '';
 let searchResults = [];
@@ -197,6 +206,8 @@ const el = {
   messageForm: document.getElementById('message-form'),
   messageInput: document.getElementById('message-input'),
   sendButton: document.getElementById('send-button'),
+  webSearchToggle: document.getElementById('web-search-toggle'),
+  webSearchToggleLabel: document.getElementById('web-search-toggle-label'),
   selectionToolbar: document.getElementById('selection-toolbar'),
   selectionModeBtn: document.getElementById('selection-mode-btn'),
   bulkDeleteBtn: document.getElementById('bulk-delete-btn'),
@@ -343,6 +354,12 @@ function renderAll() {
   el.sendButton.textContent = isSending ? '...' : '➤';
   el.sendButton.title = isSending ? t('sending') : t('send');
   el.sendButton.setAttribute('aria-label', isSending ? t('sending') : t('send'));
+  const webSearchAvailable = Boolean(state.webSearchAvailable);
+  el.webSearchToggle.checked = webSearchEnabled && webSearchAvailable;
+  el.webSearchToggle.disabled = !webSearchAvailable || isSending;
+  el.webSearchToggleLabel.textContent = t('webSearch');
+  el.webSearchToggle.title = webSearchAvailable ? t('webSearchReady') : t('webSearchUnavailable');
+  el.webSearchToggle.setAttribute('aria-label', t('webSearch'));
   el.modeIndicator.textContent = t('testMode');
   el.modeIndicator.classList.toggle('hidden', state.llmMode !== 'test');
   el.hideChatBtn.title = t('hideChat');
@@ -1446,7 +1463,8 @@ function renderMarkdown(markdown) {
       continue;
     }
 
-    if (line.trim().startsWith('```')) {
+    const fenceMatch = line.trim().match(/^```([A-Za-z0-9_-]+)?\s*$/);
+    if (fenceMatch) {
       const codeLines = [];
       index += 1;
       while (index < lines.length && !lines[index].trim().startsWith('```')) {
@@ -1455,10 +1473,65 @@ function renderMarkdown(markdown) {
       }
       if (index < lines.length) index += 1;
       const pre = document.createElement('pre');
+      if (fenceMatch[1]) pre.dataset.language = fenceMatch[1];
       const code = document.createElement('code');
+      if (fenceMatch[1]) code.dataset.language = fenceMatch[1];
       code.textContent = codeLines.join('\n');
       pre.appendChild(code);
       fragment.appendChild(pre);
+      continue;
+    }
+
+    if (isMarkdownTableStart(lines, index)) {
+      const tableLines = [lines[index], lines[index + 1]];
+      index += 2;
+      while (index < lines.length && lines[index].trim() && looksLikeTableRow(lines[index])) {
+        tableLines.push(lines[index]);
+        index += 1;
+      }
+      fragment.appendChild(renderMarkdownTable(tableLines));
+      continue;
+    }
+
+    if (isSourceHeading(line)) {
+      const sourceLines = [];
+      index += 1;
+      while (index < lines.length && lines[index].trim()) {
+        sourceLines.push(lines[index]);
+        index += 1;
+      }
+      fragment.appendChild(renderSourceSection(sourceLines));
+      continue;
+    }
+
+    const headingMatch = line.match(/^\s{0,3}(#{1,4})\s+(.+?)\s*#*\s*$/);
+    if (headingMatch) {
+      const heading = document.createElement(`h${Math.min(headingMatch[1].length + 1, 5)}`);
+      appendInlineMarkdown(heading, headingMatch[2]);
+      fragment.appendChild(heading);
+      index += 1;
+      continue;
+    }
+
+    if (/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/.test(line)) {
+      fragment.appendChild(document.createElement('hr'));
+      index += 1;
+      continue;
+    }
+
+    if (/^\s{0,3}>\s?/.test(line)) {
+      const quoteLines = [];
+      while (index < lines.length && (/^\s{0,3}>\s?/.test(lines[index]) || !lines[index].trim())) {
+        if (!lines[index].trim()) {
+          quoteLines.push('');
+        } else {
+          quoteLines.push(lines[index].replace(/^\s{0,3}>\s?/, ''));
+        }
+        index += 1;
+      }
+      const quote = document.createElement('blockquote');
+      quote.appendChild(renderMarkdown(quoteLines.join('\n')));
+      fragment.appendChild(quote);
       continue;
     }
 
@@ -1497,6 +1570,11 @@ function renderMarkdown(markdown) {
       const nextLine = lines[index];
       if (
         nextLine.trim().startsWith('```')
+        || isMarkdownTableStart(lines, index)
+        || isSourceHeading(nextLine)
+        || nextLine.match(/^\s{0,3}(#{1,4})\s+(.+?)\s*#*\s*$/)
+        || nextLine.match(/^\s{0,3}>\s?/)
+        || nextLine.match(/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/)
         || nextLine.match(/^\s*[-*•]\s+(.+)$/)
         || nextLine.match(/^\s*\d+[.)]\s+(.+)$/)
       ) {
@@ -1513,24 +1591,195 @@ function renderMarkdown(markdown) {
   return fragment;
 }
 
+function isSourceHeading(line) {
+  return /^\s*(sources?|출처|참고\s*자료)\s*:\s*$/i.test(String(line || ''));
+}
+
+function renderSourceSection(sourceLines) {
+  const section = document.createElement('section');
+  section.className = 'markdown-sources';
+
+  const title = document.createElement('div');
+  title.className = 'markdown-sources-title';
+  title.textContent = t('sources');
+  section.appendChild(title);
+
+  const list = document.createElement('ol');
+  list.className = 'markdown-sources-list';
+  for (const line of sourceLines) {
+    const item = renderSourceItem(line);
+    if (item) list.appendChild(item);
+  }
+
+  if (!list.children.length) {
+    const fallback = document.createElement('p');
+    appendInlineMarkdown(fallback, sourceLines.join('\n'));
+    section.appendChild(fallback);
+    return section;
+  }
+
+  section.appendChild(list);
+  return section;
+}
+
+function renderSourceItem(line) {
+  const cleaned = String(line || '')
+    .trim()
+    .replace(/^[-*•]\s+/, '')
+    .replace(/^\d+[.)]\s+/, '')
+    .trim();
+  if (!cleaned) return null;
+
+  const linkMatch = cleaned.match(/^\[([^\]]+)]\((https?:\/\/[^)\s]+)\)$/);
+  const bareUrlMatch = cleaned.match(/^(https?:\/\/\S+)$/);
+  const item = document.createElement('li');
+
+  if (linkMatch) {
+    item.appendChild(createSafeLink(linkMatch[1], linkMatch[2]));
+    item.appendChild(sourceHost(linkMatch[2]));
+    return item;
+  }
+
+  if (bareUrlMatch) {
+    item.appendChild(createSafeLink(bareUrlMatch[1], bareUrlMatch[1]));
+    item.appendChild(sourceHost(bareUrlMatch[1]));
+    return item;
+  }
+
+  appendInlineMarkdown(item, cleaned);
+  const firstUrl = cleaned.match(/https?:\/\/[^\s<)]+/);
+  if (firstUrl) item.appendChild(sourceHost(firstUrl[0]));
+  return item;
+}
+
+function sourceHost(url) {
+  const host = document.createElement('span');
+  host.className = 'markdown-source-host';
+  try {
+    host.textContent = new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    host.textContent = '';
+  }
+  return host;
+}
+
+function isMarkdownTableStart(lines, index) {
+  return (
+    index + 1 < lines.length
+    && looksLikeTableRow(lines[index])
+    && isTableDivider(lines[index + 1])
+  );
+}
+
+function looksLikeTableRow(line) {
+  const cells = splitTableRow(line);
+  return cells.length >= 2 && String(line || '').includes('|');
+}
+
+function isTableDivider(line) {
+  const cells = splitTableRow(line);
+  return cells.length >= 2 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function splitTableRow(row) {
+  const trimmed = String(row || '').trim().replace(/^\|/, '').replace(/\|$/, '');
+  const cells = [];
+  let current = '';
+  let escaped = false;
+  for (const char of trimmed) {
+    if (char === '\\' && !escaped) {
+      escaped = true;
+      current += char;
+      continue;
+    }
+    if (char === '|' && !escaped) {
+      cells.push(current.trim().replace(/\\\|/g, '|'));
+      current = '';
+      continue;
+    }
+    current += char;
+    escaped = false;
+  }
+  cells.push(current.trim().replace(/\\\|/g, '|'));
+  return cells;
+}
+
+function tableAlignments(dividerLine) {
+  return splitTableRow(dividerLine).map((cell) => {
+    const trimmed = cell.trim();
+    if (trimmed.startsWith(':') && trimmed.endsWith(':')) return 'center';
+    if (trimmed.endsWith(':')) return 'right';
+    return 'left';
+  });
+}
+
+function renderMarkdownTable(tableLines) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'markdown-table-wrap';
+  const table = document.createElement('table');
+  const headerCells = splitTableRow(tableLines[0]);
+  const alignments = tableAlignments(tableLines[1]);
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headerCells.forEach((cell, cellIndex) => {
+    const th = document.createElement('th');
+    th.style.textAlign = alignments[cellIndex] || 'left';
+    appendInlineMarkdown(th, cell);
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  for (const rowLine of tableLines.slice(2)) {
+    const row = document.createElement('tr');
+    const cells = splitTableRow(rowLine);
+    for (let cellIndex = 0; cellIndex < headerCells.length; cellIndex += 1) {
+      const td = document.createElement('td');
+      td.style.textAlign = alignments[cellIndex] || 'left';
+      appendInlineMarkdown(td, cells[cellIndex] || '');
+      row.appendChild(td);
+    }
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+  wrapper.appendChild(table);
+  return wrapper;
+}
+
 function appendInlineMarkdown(parent, text) {
   const source = String(text || '');
-  const tokenPattern = /(\*\*[^*]+?\*\*|`[^`]+?`|\[[^\]]+\]\(https?:\/\/[^)\s]+\)|https?:\/\/[^\s<]+)/g;
+  const tokenPattern = /(!\[[^\]]*]\(https?:\/\/[^)\s]+\)|\[[^\]]+]\(https?:\/\/[^)\s]+\)|\*\*[^*]+?\*\*|__[^_]+?__|~~[^~]+?~~|`[^`]+?`|\*[^*\n]+?\*|_[^_\n]+?_|https?:\/\/[^\s<)]+)/g;
   let cursor = 0;
   for (const match of source.matchAll(tokenPattern)) {
     appendTextWithLineBreaks(parent, source.slice(cursor, match.index));
     const token = match[0];
 
-    if (token.startsWith('**') && token.endsWith('**')) {
+    if (token.startsWith('![')) {
+      const imageMatch = token.match(/^!\[([^\]]*)]\((https?:\/\/[^)\s]+)\)$/);
+      if (imageMatch) {
+        parent.appendChild(createSafeLink(imageMatch[1] || imageMatch[2], imageMatch[2]));
+      } else {
+        appendTextWithLineBreaks(parent, token);
+      }
+    } else if ((token.startsWith('**') && token.endsWith('**')) || (token.startsWith('__') && token.endsWith('__'))) {
       const strong = document.createElement('strong');
-      strong.textContent = token.slice(2, -2);
+      appendInlineMarkdown(strong, token.slice(2, -2));
       parent.appendChild(strong);
+    } else if (token.startsWith('~~') && token.endsWith('~~')) {
+      const deleted = document.createElement('del');
+      appendInlineMarkdown(deleted, token.slice(2, -2));
+      parent.appendChild(deleted);
     } else if (token.startsWith('`') && token.endsWith('`')) {
       const code = document.createElement('code');
       code.textContent = token.slice(1, -1);
       parent.appendChild(code);
+    } else if ((token.startsWith('*') && token.endsWith('*')) || (token.startsWith('_') && token.endsWith('_'))) {
+      const emphasis = document.createElement('em');
+      appendInlineMarkdown(emphasis, token.slice(1, -1));
+      parent.appendChild(emphasis);
     } else if (token.startsWith('[')) {
-      const linkMatch = token.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);
+      const linkMatch = token.match(/^\[([^\]]+)]\((https?:\/\/[^)\s]+)\)$/);
       if (linkMatch) {
         parent.appendChild(createSafeLink(linkMatch[1], linkMatch[2]));
       } else {
@@ -1869,6 +2118,7 @@ async function sendMessage(event) {
   if (!node || isSending) return;
   const content = el.messageInput.value.trim();
   if (!content) return;
+  const useWebSearch = webSearchEnabled && Boolean(state.webSearchAvailable);
 
   try {
     const beforeSnapshot = await workspaceSnapshot();
@@ -1889,7 +2139,7 @@ async function sendMessage(event) {
 
     const data = await api(`/api/nodes/${node.id}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, webSearchEnabled: useWebSearch }),
     });
     state = data.state;
     messages = data.messages;
@@ -2265,6 +2515,11 @@ window.addEventListener('resize', () => {
   applyGraphView();
 });
 el.messageForm.addEventListener('submit', sendMessage);
+el.webSearchToggle.addEventListener('change', () => {
+  webSearchEnabled = el.webSearchToggle.checked;
+  localStorage.setItem('graphChat.webSearchEnabled', String(webSearchEnabled));
+  renderAll();
+});
 el.messageInput.addEventListener('keydown', (event) => {
   if (event.isComposing) return;
   if (event.key === 'Enter' && !event.shiftKey) {

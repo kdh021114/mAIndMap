@@ -14,6 +14,7 @@ class GetWorkspaceStateUseCase:
         layout_service: TreeLayoutService,
         app_title: str,
         llm_mode: str,
+        web_search_available: bool,
     ):
         self._graph_repository = graph_repository
         self._chat_repository = chat_repository
@@ -21,6 +22,7 @@ class GetWorkspaceStateUseCase:
         self._layout_service = layout_service
         self._app_title = app_title
         self._llm_mode = llm_mode
+        self._web_search_available = web_search_available
 
     def execute(self) -> dict:
         locale = self._settings_repository.get_locale()
@@ -41,6 +43,7 @@ class GetWorkspaceStateUseCase:
             "locale": locale,
             "llmMode": self._llm_mode,
             "usingMockLlm": self._llm_mode in {"test", "mock"},
+            "webSearchAvailable": self._web_search_available,
             "activeGraphThreadId": active_graph_thread_id,
             "graphThreads": [
                 self._graph_thread_state(

@@ -69,6 +69,17 @@ OPENAI_LABEL_MAX_OUTPUT_TOKENS = 80
 OPENAI_STORE_RESPONSES = False
 OPENAI_TIMEOUT_SECONDS = 45.0
 
+# Optional web search for chat replies.
+# The UI exposes this as a per-message toggle. Keep the global switch True if
+# you want the toggle to work; turn it False to block web search API use.
+OPENAI_WEB_SEARCH_ENABLED = True
+OPENAI_WEB_SEARCH_CONTEXT_SIZE = "low"  # "low", "medium", or "high"
+OPENAI_WEB_SEARCH_MAX_TOOL_CALLS = 1
+# "required" makes the chat composer toggle mean "search this message".
+# Use "auto" if you only want to allow search and let the model decide.
+OPENAI_WEB_SEARCH_TOOL_CHOICE = "required"
+OPENAI_WEB_SEARCH_EXTERNAL_ACCESS = True
+
 # Keep this False when you specifically want to verify real OpenAI wiring.
 # Set to True only if you want the app to fall back to local mocks without a key.
 # This is ignored when TEST_MODE=True, because test mode always blocks LLM calls.
