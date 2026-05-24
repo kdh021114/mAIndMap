@@ -22,6 +22,12 @@ class LlmConfig:
     chat_model: str
     edge_model: str
     title_model: str
+    reasoning_effort: str | None
+    text_verbosity: str | None
+    chat_max_output_tokens: int | None
+    label_max_output_tokens: int | None
+    store_responses: bool
+    timeout_seconds: float | None
     use_mock_when_no_api_key: bool
     test_mode: bool
 
@@ -58,12 +64,32 @@ class LlmProviderFactory:
                 return self._create_local_services(mode="mock")
             raise RuntimeError("OPENAI_API_KEY is missing. Add it to .env or enable TEST_MODE in config.py.")
 
-        client_factory = OpenAIClientFactory(api_key=self._config.api_key)
-        text_client = OpenAITextClient(client_factory)
+        client_factory = OpenAIClientFactory(
+            api_key=self._config.api_key,
+            timeout_seconds=self._config.timeout_seconds,
+        )
+        text_client = OpenAITextClient(
+            client_factory,
+            reasoning_effort=self._config.reasoning_effort,
+            text_verbosity=self._config.text_verbosity,
+            store_responses=self._config.store_responses,
+        )
         return LlmServices(
-            chat_model=OpenAIChatModel(text_client, self._config.chat_model),
-            edge_phrase_generator=OpenAIEdgePhraseGenerator(text_client, self._config.edge_model),
-            title_generator=OpenAINodeTitleGenerator(text_client, self._config.title_model),
+            chat_model=OpenAIChatModel(
+                text_client,
+                self._config.chat_model,
+                max_output_tokens=self._config.chat_max_output_tokens,
+            ),
+            edge_phrase_generator=OpenAIEdgePhraseGenerator(
+                text_client,
+                self._config.edge_model,
+                max_output_tokens=self._config.label_max_output_tokens,
+            ),
+            title_generator=OpenAINodeTitleGenerator(
+                text_client,
+                self._config.title_model,
+                max_output_tokens=self._config.label_max_output_tokens,
+            ),
             mode="openai",
         )
 

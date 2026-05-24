@@ -480,6 +480,7 @@ function renderGraph() {
   el.edgeLayer.setAttribute('width', '1');
   el.edgeLayer.setAttribute('height', '1');
   el.edgeLayer.setAttribute('viewBox', '0 0 1 1');
+  ensureEdgeArrowMarker();
   el.graphViewport.classList.remove('context-active');
 
   if (state.nodes.length === 0) {
@@ -622,6 +623,7 @@ function alignAutoChildrenByVisualSize() {
 }
 
 function drawEdge(edge, source, target, contextHighlight = selectedContextHighlight()) {
+  ensureEdgeArrowMarker();
   const anchors = edgeAnchors(source, target);
   const { sx, sy, tx, ty, axis, sign } = anchors;
   const distance = axis === 'x' ? Math.abs(tx - sx) : Math.abs(ty - sy);
@@ -632,6 +634,7 @@ function drawEdge(edge, source, target, contextHighlight = selectedContextHighli
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', d);
   path.setAttribute('class', 'edge-path');
+  path.setAttribute('marker-end', 'url(#edge-arrowhead)');
   if (contextHighlight.active) {
     path.classList.add(contextHighlight.edgeIds.has(edge.id) ? 'context-path' : 'context-dimmed');
   }
@@ -659,6 +662,28 @@ function drawEdge(edge, source, target, contextHighlight = selectedContextHighli
     if (event.key === 'Enter') startEdgePhraseEdit(edge, label);
   });
   el.edgeLabelLayer.appendChild(label);
+}
+
+function ensureEdgeArrowMarker() {
+  if (el.edgeLayer.querySelector('#edge-arrowhead')) return;
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'edge-arrowhead');
+  marker.setAttribute('viewBox', '0 0 10 10');
+  marker.setAttribute('refX', '8.5');
+  marker.setAttribute('refY', '5');
+  marker.setAttribute('markerWidth', '5');
+  marker.setAttribute('markerHeight', '5');
+  marker.setAttribute('orient', 'auto');
+  marker.setAttribute('markerUnits', 'strokeWidth');
+
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrow.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+  arrow.setAttribute('fill', 'context-stroke');
+  marker.appendChild(arrow);
+  defs.appendChild(marker);
+  el.edgeLayer.appendChild(defs);
 }
 
 function drawNode(node, contextHighlight = selectedContextHighlight()) {
@@ -1327,7 +1352,9 @@ function renderChatSidebar() {
   el.selectedNodeMeta.textContent = `${node.messageCount} ${t('messages')} · ${node.childrenCount} ${t('children')}`;
   el.messageList.innerHTML = '';
 
-  if (messages.length === 0) {
+  const visibleMessages = messagesForRender(node);
+
+  if (visibleMessages.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
     empty.textContent = t('noMessages');
@@ -1335,12 +1362,19 @@ function renderChatSidebar() {
     return;
   }
 
-  for (const message of messages) {
+  for (const message of visibleMessages) {
     const bubble = document.createElement('div');
     bubble.className = `message ${message.role}`;
-    bubble.dataset.messageId = message.id;
+    if (message.pending) {
+      bubble.classList.add('pending');
+      bubble.setAttribute('role', 'status');
+      bubble.setAttribute('aria-live', 'polite');
+    } else {
+      bubble.dataset.messageId = message.id;
+    }
 
-    if (splitMode) {
+    if (splitMode && !message.pending) {
+      bubble.classList.add('has-split-control');
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.className = 'message-split-checkbox';
@@ -1349,9 +1383,9 @@ function renderChatSidebar() {
       bubble.classList.toggle('split-selected', checkbox.checked);
       bubble.appendChild(checkbox);
 
-      const content = document.createElement('span');
+      const content = document.createElement('div');
       content.className = 'message-content';
-      content.textContent = message.content;
+      appendMessageBody(content, message);
       bubble.appendChild(content);
 
       bubble.addEventListener('click', (event) => {
@@ -1360,11 +1394,171 @@ function renderChatSidebar() {
         toggleSplitMessage(message.id);
       });
     } else {
-      bubble.textContent = message.content;
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      appendMessageBody(content, message);
+      bubble.appendChild(content);
     }
     el.messageList.appendChild(bubble);
   }
   el.messageList.scrollTop = el.messageList.scrollHeight;
+}
+
+function messagesForRender(node) {
+  if (!isSending || !node || node.id !== selectedNodeId) return messages;
+  return [
+    ...messages,
+    {
+      id: 'pending_assistant',
+      role: 'assistant',
+      content: '...',
+      pending: true,
+    },
+  ];
+}
+
+function appendMessageBody(container, message) {
+  if (message.pending) {
+    container.classList.add('typing-indicator');
+    container.textContent = '...';
+    return;
+  }
+
+  if (message.role === 'assistant') {
+    container.classList.add('markdown-content');
+    container.appendChild(renderMarkdown(message.content));
+    return;
+  }
+
+  container.classList.add('plain-text');
+  container.textContent = message.content;
+}
+
+function renderMarkdown(markdown) {
+  const fragment = document.createDocumentFragment();
+  const lines = String(markdown || '').replace(/\r\n?/g, '\n').split('\n');
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    if (line.trim().startsWith('```')) {
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !lines[index].trim().startsWith('```')) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+      const pre = document.createElement('pre');
+      const code = document.createElement('code');
+      code.textContent = codeLines.join('\n');
+      pre.appendChild(code);
+      fragment.appendChild(pre);
+      continue;
+    }
+
+    const unorderedMatch = line.match(/^\s*[-*•]\s+(.+)$/);
+    if (unorderedMatch) {
+      const list = document.createElement('ul');
+      while (index < lines.length) {
+        const match = lines[index].match(/^\s*[-*•]\s+(.+)$/);
+        if (!match) break;
+        const item = document.createElement('li');
+        appendInlineMarkdown(item, match[1]);
+        list.appendChild(item);
+        index += 1;
+      }
+      fragment.appendChild(list);
+      continue;
+    }
+
+    const orderedMatch = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (orderedMatch) {
+      const list = document.createElement('ol');
+      while (index < lines.length) {
+        const match = lines[index].match(/^\s*\d+[.)]\s+(.+)$/);
+        if (!match) break;
+        const item = document.createElement('li');
+        appendInlineMarkdown(item, match[1]);
+        list.appendChild(item);
+        index += 1;
+      }
+      fragment.appendChild(list);
+      continue;
+    }
+
+    const paragraphLines = [];
+    while (index < lines.length && lines[index].trim()) {
+      const nextLine = lines[index];
+      if (
+        nextLine.trim().startsWith('```')
+        || nextLine.match(/^\s*[-*•]\s+(.+)$/)
+        || nextLine.match(/^\s*\d+[.)]\s+(.+)$/)
+      ) {
+        break;
+      }
+      paragraphLines.push(nextLine);
+      index += 1;
+    }
+    const paragraph = document.createElement('p');
+    appendInlineMarkdown(paragraph, paragraphLines.join('\n'));
+    fragment.appendChild(paragraph);
+  }
+
+  return fragment;
+}
+
+function appendInlineMarkdown(parent, text) {
+  const source = String(text || '');
+  const tokenPattern = /(\*\*[^*]+?\*\*|`[^`]+?`|\[[^\]]+\]\(https?:\/\/[^)\s]+\)|https?:\/\/[^\s<]+)/g;
+  let cursor = 0;
+  for (const match of source.matchAll(tokenPattern)) {
+    appendTextWithLineBreaks(parent, source.slice(cursor, match.index));
+    const token = match[0];
+
+    if (token.startsWith('**') && token.endsWith('**')) {
+      const strong = document.createElement('strong');
+      strong.textContent = token.slice(2, -2);
+      parent.appendChild(strong);
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      const code = document.createElement('code');
+      code.textContent = token.slice(1, -1);
+      parent.appendChild(code);
+    } else if (token.startsWith('[')) {
+      const linkMatch = token.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);
+      if (linkMatch) {
+        parent.appendChild(createSafeLink(linkMatch[1], linkMatch[2]));
+      } else {
+        appendTextWithLineBreaks(parent, token);
+      }
+    } else {
+      parent.appendChild(createSafeLink(token, token));
+    }
+    cursor = match.index + token.length;
+  }
+  appendTextWithLineBreaks(parent, source.slice(cursor));
+}
+
+function appendTextWithLineBreaks(parent, text) {
+  const parts = String(text || '').split('\n');
+  parts.forEach((part, index) => {
+    if (index > 0) parent.appendChild(document.createElement('br'));
+    if (part) parent.appendChild(document.createTextNode(part));
+  });
+}
+
+function createSafeLink(label, href) {
+  const link = document.createElement('a');
+  link.textContent = label;
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  return link;
 }
 
 function applyChatSidebarState() {

@@ -41,6 +41,21 @@
         "ko": true
       }
     },
+    "edge_4a1688ed411a": {
+      "created_at": "2026-05-21T00:07:07.484843+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_4a1688ed411a",
+      "phrase": {
+        "ko": "구체화"
+      },
+      "phrase_generated_by": "ai",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_5c032e459f2d",
+      "updated_at": "2026-05-21T00:33:50.438124+00:00",
+      "user_edited_phrase_locales": {
+        "ko": false
+      }
+    },
     "edge_62b43c33cd77": {
       "created_at": "2026-05-18T12:07:34.191244+00:00",
       "graph_thread_id": "graph_default",
@@ -69,11 +84,24 @@
       "updated_at": "2026-05-19T01:50:30.481313+00:00",
       "user_edited_phrase_locales": {}
     },
-    "edge_76091ed9e3b2": {
-      "id": "edge_76091ed9e3b2",
-      "graph_thread_id": "graph_default",
-      "source_node_id": "node_e9c59afd15bc",
-      "target_node_id": "node_6cd9a7db5cd5",
+    "edge_ee3bcdef581a": {
+      "id": "edge_ee3bcdef581a",
+      "graph_thread_id": "graph_e35a962628be",
+      "source_node_id": "node_a535cde06467",
+      "target_node_id": "node_9d352642d3c0",
+      "phrase": {
+        "ko": "조건 확인"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {},
+      "created_at": "2026-05-23T05:31:19.593065+00:00",
+      "updated_at": "2026-05-23T05:31:19.593065+00:00"
+    },
+    "edge_7b49b1a6d7ea": {
+      "id": "edge_7b49b1a6d7ea",
+      "graph_thread_id": "graph_e35a962628be",
+      "source_node_id": "node_a535cde06467",
+      "target_node_id": "node_822da2070004",
       "phrase": {
         "ko": "구체화"
       },
@@ -81,34 +109,23 @@
       "user_edited_phrase_locales": {
         "ko": false
       },
-      "created_at": "2026-05-20T17:06:51.168803+00:00",
-      "updated_at": "2026-05-20T17:07:02.483025+00:00"
+      "created_at": "2026-05-23T05:31:57.447748+00:00",
+      "updated_at": "2026-05-23T05:32:22.156306+00:00"
     },
-    "edge_43482608e2b4": {
-      "id": "edge_43482608e2b4",
-      "graph_thread_id": "graph_default",
-      "source_node_id": "node_e9c59afd15bc",
-      "target_node_id": "node_ba6de9e8b1be",
+    "edge_e4c531c890cb": {
+      "id": "edge_e4c531c890cb",
+      "graph_thread_id": "graph_e35a962628be",
+      "source_node_id": "node_822da2070004",
+      "target_node_id": "node_022e47e6b6db",
       "phrase": {
-        "ko": "새 분기"
+        "ko": "대안"
       },
-      "phrase_generated_by": "system",
-      "user_edited_phrase_locales": {},
-      "created_at": "2026-05-21T00:07:04.543957+00:00",
-      "updated_at": "2026-05-21T00:07:04.543957+00:00"
-    },
-    "edge_4a1688ed411a": {
-      "id": "edge_4a1688ed411a",
-      "graph_thread_id": "graph_default",
-      "source_node_id": "node_e9c59afd15bc",
-      "target_node_id": "node_5c032e459f2d",
-      "phrase": {
-        "ko": "새 분기"
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false
       },
-      "phrase_generated_by": "system",
-      "user_edited_phrase_locales": {},
-      "created_at": "2026-05-21T00:07:07.484843+00:00",
-      "updated_at": "2026-05-21T00:07:07.484843+00:00"
+      "created_at": "2026-05-24T04:56:44.197479+00:00",
+      "updated_at": "2026-05-24T04:57:16.805644+00:00"
     }
   },
   "graph_threads": {
@@ -131,6 +148,20 @@
     }
   },
   "messages": {
+    "msg_0591bf786e13": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:51.525271+00:00",
+      "id": "msg_0591bf786e13",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_08dc4a3474fb": {
+      "content": "안녕",
+      "created_at": "2026-05-23T05:25:38.923681+00:00",
+      "id": "msg_08dc4a3474fb",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
     "msg_0912566a6f71": {
       "content": "d",
       "created_at": "2026-05-20T16:20:25.461918+00:00",
@@ -138,11 +169,116 @@
       "role": "user",
       "thread_id": "thread_4dc433d606b9"
     },
+    "msg_125cbf78d105": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:01.691172+00:00",
+      "id": "msg_125cbf78d105",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_173b9daa7b76": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:52.961645+00:00",
+      "id": "msg_173b9daa7b76",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_18f79286f218": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:54.485138+00:00",
+      "id": "msg_18f79286f218",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_1f0d98f70cb2": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:56.177553+00:00",
+      "id": "msg_1f0d98f70cb2",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_2c82495d7278": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:52.911719+00:00",
+      "id": "msg_2c82495d7278",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_3420a67870c8": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:37.027844+00:00",
+      "id": "msg_3420a67870c8",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_3f9539e2976d": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:43.227362+00:00",
+      "id": "msg_3f9539e2976d",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_470f15c7450e": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:37.030701+00:00",
+      "id": "msg_470f15c7450e",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_47c4990d57cc": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:44.200071+00:00",
+      "id": "msg_47c4990d57cc",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_4ae2976929c7": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:36.287959+00:00",
+      "id": "msg_4ae2976929c7",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_51923fcf5789": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:55.115628+00:00",
+      "id": "msg_51923fcf5789",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_54df6a3bf511": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:02.817844+00:00",
+      "id": "msg_54df6a3bf511",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
     "msg_5dae390a5cb8": {
       "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
       "created_at": "2026-05-20T16:20:24.092861+00:00",
       "id": "msg_5dae390a5cb8",
       "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_5f07cd5852c5": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:42.394902+00:00",
+      "id": "msg_5f07cd5852c5",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_6191c8ea0a4e": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:43.230684+00:00",
+      "id": "msg_6191c8ea0a4e",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_63c301841a69": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:37.858302+00:00",
+      "id": "msg_63c301841a69",
+      "role": "user",
       "thread_id": "thread_4dc433d606b9"
     },
     "msg_63d9abe8e0a6": {
@@ -152,6 +288,76 @@
       "role": "assistant",
       "thread_id": "thread_4dc433d606b9"
     },
+    "msg_6c63d3235683": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:51.717106+00:00",
+      "id": "msg_6c63d3235683",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_7ed46903aa5c": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:51.713585+00:00",
+      "id": "msg_7ed46903aa5c",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_7f8e7fc6dfde": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:08.363912+00:00",
+      "id": "msg_7f8e7fc6dfde",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_8322527a8b04": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:53.780952+00:00",
+      "id": "msg_8322527a8b04",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_8638ea159449": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:00.665306+00:00",
+      "id": "msg_8638ea159449",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_86fb67d43239": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:38.557513+00:00",
+      "id": "msg_86fb67d43239",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_8896ad2306ce": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:08.367332+00:00",
+      "id": "msg_8896ad2306ce",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_894354ab8a11": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:39.270515+00:00",
+      "id": "msg_894354ab8a11",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_89699be75e12": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:56.172678+00:00",
+      "id": "msg_89699be75e12",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_90b5eb3dc9e6": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:39.919968+00:00",
+      "id": "msg_90b5eb3dc9e6",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
     "msg_93966c368523": {
       "content": "d",
       "created_at": "2026-05-20T16:20:24.089548+00:00",
@@ -159,10 +365,122 @@
       "role": "user",
       "thread_id": "thread_4dc433d606b9"
     },
+    "msg_93c024f2696a": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:52.957325+00:00",
+      "id": "msg_93c024f2696a",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_968e75e702db": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:01.695874+00:00",
+      "id": "msg_968e75e702db",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_96f366f9296a": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:00.670151+00:00",
+      "id": "msg_96f366f9296a",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_99415aabe5c6": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:39.267385+00:00",
+      "id": "msg_99415aabe5c6",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_a1c76b6ed172": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:39.922935+00:00",
+      "id": "msg_a1c76b6ed172",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_a695e05f0cbf": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:40.635174+00:00",
+      "id": "msg_a695e05f0cbf",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_a6e5d45d5d38": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:54.488494+00:00",
+      "id": "msg_a6e5d45d5d38",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_a822e89e1def": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:44.196786+00:00",
+      "id": "msg_a822e89e1def",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_b155fa47c66f": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:36.290843+00:00",
+      "id": "msg_b155fa47c66f",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_b51383751c88": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:55.118766+00:00",
+      "id": "msg_b51383751c88",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_b6cef99270e3": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:54.750121+00:00",
+      "id": "msg_b6cef99270e3",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_b87a84617bf2": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:02.822047+00:00",
+      "id": "msg_b87a84617bf2",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
     "msg_bb58c7418166": {
       "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
       "created_at": "2026-05-20T16:20:25.464553+00:00",
       "id": "msg_bb58c7418166",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_bd0dc03ff5c9": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:53.784452+00:00",
+      "id": "msg_bd0dc03ff5c9",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_bd536d530ac1": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:42.400499+00:00",
+      "id": "msg_bd536d530ac1",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_be34090877e2": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:38.554382+00:00",
+      "id": "msg_be34090877e2",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_c200ec0401c4": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:37.860669+00:00",
+      "id": "msg_c200ec0401c4",
       "role": "assistant",
       "thread_id": "thread_4dc433d606b9"
     },
@@ -173,271 +491,138 @@
       "role": "user",
       "thread_id": "thread_4dc433d606b9"
     },
-    "msg_4ae2976929c7": {
-      "id": "msg_4ae2976929c7",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_c74910b97796": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:51.520553+00:00",
+      "id": "msg_c74910b97796",
       "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:36.287959+00:00"
+      "thread_id": "thread_163396062d4f"
     },
-    "msg_b155fa47c66f": {
-      "id": "msg_b155fa47c66f",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_cac70b787f9f": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:07.317604+00:00",
+      "id": "msg_cac70b787f9f",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:36.290843+00:00"
-    },
-    "msg_3420a67870c8": {
-      "id": "msg_3420a67870c8",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:37.027844+00:00"
-    },
-    "msg_470f15c7450e": {
-      "id": "msg_470f15c7450e",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:37.030701+00:00"
-    },
-    "msg_63c301841a69": {
-      "id": "msg_63c301841a69",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:37.858302+00:00"
-    },
-    "msg_c200ec0401c4": {
-      "id": "msg_c200ec0401c4",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:37.860669+00:00"
-    },
-    "msg_be34090877e2": {
-      "id": "msg_be34090877e2",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:38.554382+00:00"
-    },
-    "msg_86fb67d43239": {
-      "id": "msg_86fb67d43239",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:38.557513+00:00"
-    },
-    "msg_99415aabe5c6": {
-      "id": "msg_99415aabe5c6",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:39.267385+00:00"
-    },
-    "msg_894354ab8a11": {
-      "id": "msg_894354ab8a11",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:39.270515+00:00"
-    },
-    "msg_90b5eb3dc9e6": {
-      "id": "msg_90b5eb3dc9e6",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:39.919968+00:00"
-    },
-    "msg_a1c76b6ed172": {
-      "id": "msg_a1c76b6ed172",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:39.922935+00:00"
-    },
-    "msg_a695e05f0cbf": {
-      "id": "msg_a695e05f0cbf",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:40.635174+00:00"
+      "thread_id": "thread_4dc433d606b9"
     },
     "msg_d0389c904d4b": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:40.638303+00:00",
       "id": "msg_d0389c904d4b",
-      "thread_id": "thread_4dc433d606b9",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:40.638303+00:00"
+      "thread_id": "thread_4dc433d606b9"
     },
-    "msg_5f07cd5852c5": {
-      "id": "msg_5f07cd5852c5",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:42.394902+00:00"
-    },
-    "msg_bd536d530ac1": {
-      "id": "msg_bd536d530ac1",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_d34852caa0e5": {
+      "content": "안녕하세요! 이어서 무엇을 도와드릴까요?",
+      "created_at": "2026-05-23T05:25:42.782013+00:00",
+      "id": "msg_d34852caa0e5",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:42.400499+00:00"
+      "thread_id": "thread_4dc433d606b9"
     },
-    "msg_3f9539e2976d": {
-      "id": "msg_3f9539e2976d",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:43.227362+00:00"
-    },
-    "msg_6191c8ea0a4e": {
-      "id": "msg_6191c8ea0a4e",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_e05d97a0967f": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:50.431811+00:00",
+      "id": "msg_e05d97a0967f",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:43.230684+00:00"
+      "thread_id": "thread_163396062d4f"
     },
-    "msg_a822e89e1def": {
-      "id": "msg_a822e89e1def",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_e92cceb58f85": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:07.314332+00:00",
+      "id": "msg_e92cceb58f85",
       "role": "user",
-      "content": "ㅇ",
-      "created_at": "2026-05-20T16:37:44.196786+00:00"
+      "thread_id": "thread_4dc433d606b9"
     },
-    "msg_47c4990d57cc": {
-      "id": "msg_47c4990d57cc",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
-      "created_at": "2026-05-20T16:37:44.200071+00:00"
-    },
-    "msg_7ed46903aa5c": {
-      "id": "msg_7ed46903aa5c",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_f0f234cb1541": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:54.745796+00:00",
+      "id": "msg_f0f234cb1541",
       "role": "user",
-      "content": "ㅣ",
-      "created_at": "2026-05-20T16:40:51.713585+00:00"
+      "thread_id": "thread_163396062d4f"
     },
-    "msg_6c63d3235683": {
-      "id": "msg_6c63d3235683",
-      "thread_id": "thread_4dc433d606b9",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
-      "created_at": "2026-05-20T16:40:51.717106+00:00"
-    },
-    "msg_2c82495d7278": {
-      "id": "msg_2c82495d7278",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_f4ddc3b60a87": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:50.426641+00:00",
+      "id": "msg_f4ddc3b60a87",
       "role": "user",
-      "content": "ㅣ",
-      "created_at": "2026-05-20T16:40:52.911719+00:00"
+      "thread_id": "thread_163396062d4f"
     },
     "msg_f8acc7b968f9": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:52.915512+00:00",
       "id": "msg_f8acc7b968f9",
-      "thread_id": "thread_4dc433d606b9",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
-      "created_at": "2026-05-20T16:40:52.915512+00:00"
+      "thread_id": "thread_4dc433d606b9"
     },
-    "msg_8322527a8b04": {
-      "id": "msg_8322527a8b04",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_b74bd7777b61": {
+      "id": "msg_b74bd7777b61",
+      "thread_id": "thread_565903ef4057",
       "role": "user",
-      "content": "ㅣ",
-      "created_at": "2026-05-20T16:40:53.780952+00:00"
+      "content": "8월에 싱가포르 여행 계획을 짜보려고 해. 뭐부터 시작하는게 좋을까",
+      "created_at": "2026-05-23T05:26:32.994774+00:00"
     },
-    "msg_bd0dc03ff5c9": {
-      "id": "msg_bd0dc03ff5c9",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_1d6a6e639e8e": {
+      "id": "msg_1d6a6e639e8e",
+      "thread_id": "thread_565903ef4057",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
-      "created_at": "2026-05-20T16:40:53.784452+00:00"
+      "content": "8월 싱가포르 여행은 **가장 먼저 “여행 일정/일수”와 “숙소 위치(구역)”**를 정하는 게 좋아요.\n\n1) **며칠 일정인지(예: 3박4일, 5박6일)** 확정  \n2) 그에 맞춰 **동선 좋은 숙소 구역**부터 후보 2~3개로 추리기(예: 마리나베이/오차드/차이나타운/센토사 등)  \n3) 다음으로 **관심사(쇼핑·맛집·자연/관광지·야경·아이동반 여부)**에 따라 “우선순위”를 나눠서 일정에 배치\n\n먼저 **총 몇 박 며칠** 생각 중이고, 여행 목적이 뭐에 더 가까워요? (맛집/쇼핑/관광/자연/휴양 등)",
+      "created_at": "2026-05-23T05:26:35.388066+00:00"
     },
-    "msg_18f79286f218": {
-      "id": "msg_18f79286f218",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_64ddc70c17e1": {
+      "id": "msg_64ddc70c17e1",
+      "thread_id": "thread_1c931361cdd3",
       "role": "user",
-      "content": "ㅣ",
-      "created_at": "2026-05-20T16:40:54.485138+00:00"
+      "content": "너 혹시 인터넷 검색도 되니?",
+      "created_at": "2026-05-23T05:27:25.335781+00:00"
     },
-    "msg_a6e5d45d5d38": {
-      "id": "msg_a6e5d45d5d38",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_9619079de7e3": {
+      "id": "msg_9619079de7e3",
+      "thread_id": "thread_1c931361cdd3",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
-      "created_at": "2026-05-20T16:40:54.488494+00:00"
+      "content": "직접 인터넷 검색(실시간 웹 검색)은 제가 여기서는 할 수 없어요. 대신 **싱가포르 여행 기본 정보/일정 구성 방식**은 알려줄 수 있고, 네가 찾은 링크나 검색 결과(또는 대략적인 정보)를 붙여주면 그걸 바탕으로 **선택/비교/일정 짜기**는 도와줄게요.\n\n일단 몇 박 며칠 + 여행 목적(맛집/쇼핑/관광/자연/휴양 중 어디가 더 커?)부터 알려줄래요?",
+      "created_at": "2026-05-23T05:27:27.311205+00:00"
     },
-    "msg_51923fcf5789": {
-      "id": "msg_51923fcf5789",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_8ad71e323d05": {
+      "id": "msg_8ad71e323d05",
+      "thread_id": "thread_565903ef4057",
       "role": "user",
-      "content": "ㅣ",
-      "created_at": "2026-05-20T16:40:55.115628+00:00"
+      "content": "https://www.trip.com/flights/to-singapore/airfares-sin?locale=en_xx&curr=usd&allianceid=742331&sid=4137765&ppcid=adid-680362050905_akid-kwl-3500001_adgid-162290191384&utm_source=google&utm_medium=cpc&utm_campaign=20754138684&gad_source=1&gad_campaignid=20754138684&gbraid=0AAAAABn2eFJHtHIj8257qVYwaiYmKr_Iy&gclid=Cj0KCQjw_b_QBhCSARIsAP6hR4fYRoWD048ebIk_KnECyoKs1sJ9gNRbxC_p0vlDIEIjDWUlmI6ZxAQaAtG1EALw_wcB\n\n이 링크 타고 들어가서 여러 정보를 정리해봐",
+      "created_at": "2026-05-23T05:28:27.910648+00:00"
     },
-    "msg_b51383751c88": {
-      "id": "msg_b51383751c88",
-      "thread_id": "thread_4dc433d606b9",
+    "msg_9674adcfb6b8": {
+      "id": "msg_9674adcfb6b8",
+      "thread_id": "thread_565903ef4057",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
-      "created_at": "2026-05-20T16:40:55.118766+00:00"
+      "content": "링크 내용은 제가 **직접 접속해서 확인(실시간 검색/탐색)할 수는 없어요.** 대신 네가 그 페이지에서 보고 있는 핵심 정보(표/요금/조건)를 그대로 붙여주면, 그걸 바탕으로 정리하고 비교해줄게요.\n\n우선 아래 중 가능한 걸 보내줘(스크린샷이어도 OK, 텍스트면 더 좋아요):\n\n1) 출발 도시/공항 + 도착(싱가포르) 공항  \n2) 날짜(왕복이면 출발/귀국 날짜) 또는 대략 주간  \n3) 인원(성인/아동) + 편도/왕복 여부  \n4) 항공권 옵션 3~5개(가격, 항공사, 경유 횟수, 대략 비행시간, 수하물 포함 여부)  \n5) “가장 원하는 조건” (최저가/직항/시간 짧게/수하물 포함 등)\n\n그 정보 주면:\n- 옵션별 **장단점 비교표**\n- “최저가 vs 최적(시간/환승/리스크)” 추천 1~2개\n- 8월 기준 일정 짜기(어느 요일 출발이 유리한지 관점)  \n까지 정리해줄게요.",
+      "created_at": "2026-05-23T05:28:31.628464+00:00"
     },
-    "msg_828398d9bfb6": {
-      "id": "msg_828398d9bfb6",
-      "thread_id": "thread_7aab9ce3b3bf",
+    "msg_40741c760211": {
+      "id": "msg_40741c760211",
+      "thread_id": "thread_11b4d896dac7",
       "role": "user",
-      "content": ".",
-      "created_at": "2026-05-20T17:07:02.471721+00:00"
+      "content": "싱가포르의 유명한 관광지는 어떤 곳이 있지?",
+      "created_at": "2026-05-23T05:32:15.001542+00:00"
     },
-    "msg_bb21d82e2389": {
-      "id": "msg_bb21d82e2389",
-      "thread_id": "thread_7aab9ce3b3bf",
+    "msg_2bb3aa4f1a4f": {
+      "id": "msg_2bb3aa4f1a4f",
+      "thread_id": "thread_11b4d896dac7",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
-      "created_at": "2026-05-20T17:07:02.475410+00:00"
+      "content": "싱가포르 유명 관광지는 보통 아래처럼 많이 가요.\n\n- **마리나 베이 샌즈(Marina Bay Sands)**: 전망대(스카이파크)와 주변 야경\n- **가든스 바이 더 베이(Gardens by the Bay)**: **슈퍼트리**와 돔(플라워 돔/클라우드 돔)\n- **머라이언 파크(Merlion Park)**: 상징 조형물 + 해안 산책\n- **센토사 섬(Sentosa)**: 리조트/해변/테마파크(유니버설 스튜디오 등)\n- **차이나타운(Chinatown)**: 거리 구경, 먹거리, 사원/마켓 분위기\n- **리틀 인디아(Little India)**: 인도풍 거리와 야시장/상점\n- **아랍 스트리트 & 술탄 모스크(Arab Street & Sultan Mosque)**: 중동풍 거리, 사진 포인트\n- **클락키(Clarke Quay)**: 강변 산책, 야경/바 분위기\n- **호커센터 & 라우 파아 새트(Lau Pa Sat)**: 싱가포르식 로컬 먹는 맛집 코스\n- **부기스(Bugis) / 오차드 로드(Orchard Road)**: 쇼핑 중심지\n\n원하는 스타일이 **야경/자연(가든)/테마파크/도시구경/맛집** 중에 뭐에 더 가까워요? 그쪽 기준으로 “우선순위 5곳”으로 묶어줄게요.",
+      "created_at": "2026-05-23T05:32:18.529831+00:00"
     },
-    "msg_67d5e20b32a9": {
-      "id": "msg_67d5e20b32a9",
-      "thread_id": "thread_7aab9ce3b3bf",
+    "msg_fd166f714db5": {
+      "id": "msg_fd166f714db5",
+      "thread_id": "thread_6e8d7f75e8d2",
       "role": "user",
-      "content": "/",
-      "created_at": "2026-05-20T17:07:04.093371+00:00"
+      "content": "안녕",
+      "created_at": "2026-05-24T04:57:11.673756+00:00"
     },
-    "msg_2b9901b20865": {
-      "id": "msg_2b9901b20865",
-      "thread_id": "thread_7aab9ce3b3bf",
+    "msg_e730ff8f04bd": {
+      "id": "msg_e730ff8f04bd",
+      "thread_id": "thread_6e8d7f75e8d2",
       "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: /",
-      "created_at": "2026-05-20T17:07:04.098483+00:00"
-    },
-    "msg_955ea363f746": {
-      "id": "msg_955ea363f746",
-      "thread_id": "thread_7aab9ce3b3bf",
-      "role": "user",
-      "content": ".",
-      "created_at": "2026-05-20T17:07:06.372538+00:00"
-    },
-    "msg_5277e2d08a8c": {
-      "id": "msg_5277e2d08a8c",
-      "thread_id": "thread_7aab9ce3b3bf",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
-      "created_at": "2026-05-20T17:07:06.375986+00:00"
-    },
-    "msg_ae952340f752": {
-      "id": "msg_ae952340f752",
-      "thread_id": "thread_7aab9ce3b3bf",
-      "role": "user",
-      "content": ".",
-      "created_at": "2026-05-20T17:07:08.545429+00:00"
-    },
-    "msg_622758b0cbde": {
-      "id": "msg_622758b0cbde",
-      "thread_id": "thread_7aab9ce3b3bf",
-      "role": "assistant",
-      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
-      "created_at": "2026-05-20T17:07:08.550735+00:00"
+      "content": "안녕하세요! 싱가포르 여행 관련해서는 어떤 걸 먼저 도와드릴까요? (예: 일정/숙소 구역/관광지 우선순위/항공권 비교)",
+      "created_at": "2026-05-24T04:57:14.839662+00:00"
     }
   },
   "nodes": {
@@ -460,22 +645,24 @@
         "ko": true
       }
     },
-    "node_42abb12caa42": {
-      "created_at": "2026-05-19T01:45:00.677797+00:00",
-      "graph_thread_id": "graph_e35a962628be",
-      "id": "node_42abb12caa42",
+    "node_5c032e459f2d": {
+      "created_at": "2026-05-21T00:07:07.484816+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_5c032e459f2d",
       "manually_positioned": false,
-      "parent_node_id": null,
+      "parent_node_id": "node_e9c59afd15bc",
       "position": {
-        "x": 0,
-        "y": 0
+        "x": 51,
+        "y": 66
       },
-      "thread_id": "thread_a33064073f7e",
+      "thread_id": "thread_163396062d4f",
       "title": {
-        "ko": "시작 대화"
+        "ko": "발표 내용 정리"
       },
-      "updated_at": "2026-05-19T01:45:00.677797+00:00",
-      "user_edited_title_locales": {}
+      "updated_at": "2026-05-21T00:34:23.663990+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
     },
     "node_76c3a6eb1a2d": {
       "created_at": "2026-05-19T01:50:30.481267+00:00",
@@ -554,80 +741,101 @@
       }
     },
     "node_e9c59afd15bc": {
-      "id": "node_e9c59afd15bc",
+      "created_at": "2026-05-18T12:06:17.532523+00:00",
       "graph_thread_id": "graph_default",
-      "thread_id": "thread_4dc433d606b9",
+      "id": "node_e9c59afd15bc",
+      "manually_positioned": true,
       "parent_node_id": null,
+      "position": {
+        "x": -84,
+        "y": -84
+      },
+      "thread_id": "thread_4dc433d606b9",
       "title": {
         "ko": "그래프 인터페이스 연구"
       },
+      "updated_at": "2026-05-20T16:42:56.382498+00:00",
       "user_edited_title_locales": {
         "ko": true
-      },
-      "position": {
-        "x": -84.0,
-        "y": -84.0
-      },
-      "manually_positioned": true,
-      "created_at": "2026-05-18T12:06:17.532523+00:00",
-      "updated_at": "2026-05-20T16:42:56.382498+00:00"
+      }
     },
-    "node_6cd9a7db5cd5": {
-      "id": "node_6cd9a7db5cd5",
-      "graph_thread_id": "graph_default",
-      "thread_id": "thread_7aab9ce3b3bf",
-      "parent_node_id": "node_e9c59afd15bc",
+    "node_a535cde06467": {
+      "id": "node_a535cde06467",
+      "graph_thread_id": "graph_e35a962628be",
+      "thread_id": "thread_565903ef4057",
+      "parent_node_id": null,
       "title": {
-        "ko": "."
+        "ko": "8월 싱가포르 여행 계획 시작하기"
       },
       "user_edited_title_locales": {
         "ko": false
       },
       "position": {
-        "x": -28.0,
-        "y": 252.0
+        "x": 0.0,
+        "y": 0.0
+      },
+      "manually_positioned": false,
+      "created_at": "2026-05-23T05:26:02.941923+00:00",
+      "updated_at": "2026-05-23T05:26:36.257267+00:00"
+    },
+    "node_9d352642d3c0": {
+      "id": "node_9d352642d3c0",
+      "graph_thread_id": "graph_e35a962628be",
+      "thread_id": "thread_1c931361cdd3",
+      "parent_node_id": "node_a535cde06467",
+      "title": {
+        "ko": "인터넷 검색 가능 여부"
+      },
+      "user_edited_title_locales": {},
+      "position": {
+        "x": 224.0,
+        "y": 308.0
       },
       "manually_positioned": true,
-      "created_at": "2026-05-20T17:06:51.168726+00:00",
-      "updated_at": "2026-05-21T00:07:11.318687+00:00"
+      "created_at": "2026-05-23T05:31:18.784238+00:00",
+      "updated_at": "2026-05-23T05:31:38.061777+00:00"
     },
-    "node_ba6de9e8b1be": {
-      "id": "node_ba6de9e8b1be",
-      "graph_thread_id": "graph_default",
-      "thread_id": "thread_0abcefed33ab",
-      "parent_node_id": "node_e9c59afd15bc",
+    "node_822da2070004": {
+      "id": "node_822da2070004",
+      "graph_thread_id": "graph_e35a962628be",
+      "thread_id": "thread_11b4d896dac7",
+      "parent_node_id": "node_a535cde06467",
       "title": {
-        "ko": "새 대화"
+        "ko": "싱가포르 유명 관광지 소개"
       },
-      "user_edited_title_locales": {},
+      "user_edited_title_locales": {
+        "ko": false
+      },
       "position": {
-        "x": -219.0,
-        "y": 66.0
+        "x": -140.0,
+        "y": 308.0
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-23T05:31:57.447716+00:00",
+      "updated_at": "2026-05-24T04:56:26.324971+00:00"
+    },
+    "node_022e47e6b6db": {
+      "id": "node_022e47e6b6db",
+      "graph_thread_id": "graph_e35a962628be",
+      "thread_id": "thread_6e8d7f75e8d2",
+      "parent_node_id": "node_822da2070004",
+      "title": {
+        "ko": "인사하기"
+      },
+      "user_edited_title_locales": {
+        "ko": false
+      },
+      "position": {
+        "x": -140.0,
+        "y": 458.0
       },
       "manually_positioned": false,
-      "created_at": "2026-05-21T00:07:04.543920+00:00",
-      "updated_at": "2026-05-21T00:07:07.485429+00:00"
-    },
-    "node_5c032e459f2d": {
-      "id": "node_5c032e459f2d",
-      "graph_thread_id": "graph_default",
-      "thread_id": "thread_163396062d4f",
-      "parent_node_id": "node_e9c59afd15bc",
-      "title": {
-        "ko": "새 대화"
-      },
-      "user_edited_title_locales": {},
-      "position": {
-        "x": 51.0,
-        "y": 66.0
-      },
-      "manually_positioned": false,
-      "created_at": "2026-05-21T00:07:07.484816+00:00",
-      "updated_at": "2026-05-21T00:07:07.485443+00:00"
+      "created_at": "2026-05-24T04:56:44.197432+00:00",
+      "updated_at": "2026-05-24T04:57:15.680282+00:00"
     }
   },
   "settings": {
-    "active_graph_thread_id": "graph_default",
+    "active_graph_thread_id": "graph_e35a962628be",
     "locale": "ko"
   },
   "threads": {
@@ -640,6 +848,15 @@
       },
       "updated_at": "2026-05-19T01:50:48.636988+00:00"
     },
+    "thread_163396062d4f": {
+      "created_at": "2026-05-21T00:07:07.484832+00:00",
+      "id": "thread_163396062d4f",
+      "node_id": "node_5c032e459f2d",
+      "title": {
+        "ko": "발표 내용 정리"
+      },
+      "updated_at": "2026-05-21T00:34:23.666830+00:00"
+    },
     "thread_4dc433d606b9": {
       "created_at": "2026-05-18T12:06:17.532588+00:00",
       "id": "thread_4dc433d606b9",
@@ -647,7 +864,7 @@
       "title": {
         "ko": "그래프 인터페이스 연구"
       },
-      "updated_at": "2026-05-20T16:40:55.118910+00:00"
+      "updated_at": "2026-05-23T05:25:42.782306+00:00"
     },
     "thread_573504d5310a": {
       "created_at": "2026-05-18T12:07:34.191231+00:00",
@@ -667,15 +884,6 @@
       },
       "updated_at": "2026-05-19T01:50:10.404640+00:00"
     },
-    "thread_a33064073f7e": {
-      "created_at": "2026-05-19T01:45:00.677825+00:00",
-      "id": "thread_a33064073f7e",
-      "node_id": "node_42abb12caa42",
-      "title": {
-        "ko": "시작 대화"
-      },
-      "updated_at": "2026-05-19T01:45:00.677825+00:00"
-    },
     "thread_bf1e540ad7d1": {
       "created_at": "2026-05-19T01:50:54.333442+00:00",
       "id": "thread_bf1e540ad7d1",
@@ -694,32 +902,41 @@
       },
       "updated_at": "2026-05-19T01:49:41.485631+00:00"
     },
-    "thread_7aab9ce3b3bf": {
-      "id": "thread_7aab9ce3b3bf",
+    "thread_565903ef4057": {
+      "id": "thread_565903ef4057",
       "title": {
-        "ko": "."
+        "ko": "8월 싱가포르 여행 계획 시작하기"
       },
-      "node_id": "node_6cd9a7db5cd5",
-      "created_at": "2026-05-20T17:06:51.168765+00:00",
-      "updated_at": "2026-05-20T17:07:08.551347+00:00"
+      "node_id": "node_a535cde06467",
+      "created_at": "2026-05-23T05:26:02.941971+00:00",
+      "updated_at": "2026-05-23T05:31:17.978718+00:00"
     },
-    "thread_0abcefed33ab": {
-      "id": "thread_0abcefed33ab",
+    "thread_1c931361cdd3": {
+      "id": "thread_1c931361cdd3",
       "title": {
-        "ko": "새 대화"
+        "ko": "인터넷 검색 가능 여부"
       },
-      "node_id": "node_ba6de9e8b1be",
-      "created_at": "2026-05-21T00:07:04.543941+00:00",
-      "updated_at": "2026-05-21T00:07:04.543941+00:00"
+      "node_id": "node_9d352642d3c0",
+      "created_at": "2026-05-23T05:31:18.784272+00:00",
+      "updated_at": "2026-05-23T05:31:19.606580+00:00"
     },
-    "thread_163396062d4f": {
-      "id": "thread_163396062d4f",
+    "thread_11b4d896dac7": {
+      "id": "thread_11b4d896dac7",
       "title": {
-        "ko": "새 대화"
+        "ko": "싱가포르 유명 관광지 소개"
       },
-      "node_id": "node_5c032e459f2d",
-      "created_at": "2026-05-21T00:07:07.484832+00:00",
-      "updated_at": "2026-05-21T00:07:07.484832+00:00"
+      "node_id": "node_822da2070004",
+      "created_at": "2026-05-23T05:31:57.447736+00:00",
+      "updated_at": "2026-05-23T05:32:19.578996+00:00"
+    },
+    "thread_6e8d7f75e8d2": {
+      "id": "thread_6e8d7f75e8d2",
+      "title": {
+        "ko": "인사하기"
+      },
+      "node_id": "node_022e47e6b6db",
+      "created_at": "2026-05-24T04:56:44.197464+00:00",
+      "updated_at": "2026-05-24T04:57:15.685927+00:00"
     }
   }
 }

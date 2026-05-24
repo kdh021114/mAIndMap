@@ -27,10 +27,9 @@ DEBUG = True
 # Test mode
 # -----------------------------------------------------------------------------
 # True  -> never call OpenAI, even when OPENAI_API_KEY exists.
-#          Deterministic local test doubles are injected through the LLM factory.
-# False -> use OpenAI when OPENAI_API_KEY is available; otherwise optionally use
-#          fallback mocks depending on USE_MOCK_LLM_WHEN_NO_API_KEY.
-TEST_MODE = True
+#          Use this for local UI/data-flow checks with deterministic test doubles.
+# False -> use OpenAI when OPENAI_API_KEY is available.
+TEST_MODE = False
 
 # -----------------------------------------------------------------------------
 # Storage
@@ -51,17 +50,29 @@ OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
 OPENAI_API_KEY = os.environ.get(OPENAI_API_KEY_ENV, "")
 
 # The main model used for normal conversation in the chat sidebar.
-OPENAI_CHAT_MODEL = "gpt-5.5"
+# gpt-5.4-nano is the lowest-cost GPT-5.4-class model and is enough for
+# inexpensive end-to-end API smoke tests.
+OPENAI_CHAT_MODEL = "gpt-5.4-nano"
 
 # Smaller models used only for graph labels/titles.
 # They are deliberately separated from the chat model.
 OPENAI_EDGE_MODEL = "gpt-5.4-nano"
 OPENAI_TITLE_MODEL = "gpt-5.4-nano"
 
-# Keep the prototype runnable even when .env is not configured.
-# Set to False when you want the app to fail fast without an API key.
+# Cost controls for Responses API calls.
+# "none" keeps reasoning-token use low on GPT-5.4-class models. If a future
+# model rejects it, switch to "low" or set this to None.
+OPENAI_REASONING_EFFORT = "none"
+OPENAI_TEXT_VERBOSITY = "low"
+OPENAI_CHAT_MAX_OUTPUT_TOKENS = 512
+OPENAI_LABEL_MAX_OUTPUT_TOKENS = 80
+OPENAI_STORE_RESPONSES = False
+OPENAI_TIMEOUT_SECONDS = 45.0
+
+# Keep this False when you specifically want to verify real OpenAI wiring.
+# Set to True only if you want the app to fall back to local mocks without a key.
 # This is ignored when TEST_MODE=True, because test mode always blocks LLM calls.
-USE_MOCK_LLM_WHEN_NO_API_KEY = True
+USE_MOCK_LLM_WHEN_NO_API_KEY = False
 
 # -----------------------------------------------------------------------------
 # Context policy

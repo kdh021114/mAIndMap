@@ -86,6 +86,12 @@ def create_app(config_module) -> Flask:
             chat_model=config_module.OPENAI_CHAT_MODEL,
             edge_model=config_module.OPENAI_EDGE_MODEL,
             title_model=config_module.OPENAI_TITLE_MODEL,
+            reasoning_effort=config_module.OPENAI_REASONING_EFFORT,
+            text_verbosity=config_module.OPENAI_TEXT_VERBOSITY,
+            chat_max_output_tokens=config_module.OPENAI_CHAT_MAX_OUTPUT_TOKENS,
+            label_max_output_tokens=config_module.OPENAI_LABEL_MAX_OUTPUT_TOKENS,
+            store_responses=config_module.OPENAI_STORE_RESPONSES,
+            timeout_seconds=config_module.OPENAI_TIMEOUT_SECONDS,
             use_mock_when_no_api_key=config_module.USE_MOCK_LLM_WHEN_NO_API_KEY,
             test_mode=config_module.TEST_MODE,
         )
