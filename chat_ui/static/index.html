@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat</title>
+  <link rel="stylesheet" href="/chat-static/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <header class="sidebar-header">
+        <h1 data-i18n="app.title">Chat</h1>
+        <button
+          id="new-conv-btn"
+          type="button"
+          class="primary-btn"
+          data-i18n="sidebar.newChat"
+        >+ 새 대화</button>
+      </header>
+
+      <ul id="conv-list" class="conv-list"></ul>
+      <div
+        id="conv-list-empty"
+        class="conv-list-empty"
+        data-i18n="sidebar.empty"
+        hidden
+      >+ 새 대화로 시작하세요</div>
+
+      <footer class="sidebar-footer">
+        <button
+          id="locale-btn"
+          type="button"
+          class="ghost-btn"
+          data-i18n="sidebar.localeToggle"
+          data-i18n-attr="aria-label"
+          aria-label="언어 전환"
+        >한/영</button>
+      </footer>
+    </aside>
+
+    <main id="chat-pane">
+      <div id="chat-placeholder" data-i18n="chat.empty">대화를 선택하세요</div>
+      <div id="messages" class="messages" hidden></div>
+      <div
+        id="messages-empty"
+        class="messages-empty"
+        data-i18n="chat.emptyMessages"
+        hidden
+      >메시지를 입력해 대화를 시작하세요</div>
+      <form id="composer" class="composer" hidden>
+        <textarea
+          id="composer-input"
+          rows="1"
+          data-i18n-attr="placeholder"
+          data-i18n="chat.placeholder"
+          placeholder="메시지를 입력하세요"
+        ></textarea>
+        <button
+          id="composer-submit"
+          type="submit"
+          class="primary-btn composer-submit"
+          data-i18n="composer.submit"
+        >전송</button>
+      </form>
+    </main>
+
+    <div id="conv-menu" class="conv-menu" role="menu" hidden>
+      <button
+        type="button"
+        class="conv-menu-item"
+        data-action="rename"
+        role="menuitem"
+        data-i18n="menu.rename"
+      >이름 변경</button>
+      <button
+        type="button"
+        class="conv-menu-item conv-menu-item-danger"
+        data-action="delete"
+        role="menuitem"
+        data-i18n="menu.delete"
+      >삭제</button>
+    </div>
+  </div>
+
+  <script src="/chat-static/vendor/marked.min.js"></script>
+  <script src="/chat-static/vendor/dompurify.min.js"></script>
+  <script src="/chat-static/app.js"></script>
+</body>
+</html>

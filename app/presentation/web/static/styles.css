@@ -87,6 +87,7 @@ button, textarea, select {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  padding-top: 46px;
 }
 
 .icon-button {
@@ -132,26 +133,256 @@ button, textarea, select {
     linear-gradient(90deg, rgba(17, 24, 39, 0.025) 1px, transparent 1px);
 }
 
-.mode-indicator {
+.graph-header {
   position: absolute;
-  left: 16px;
-  top: 14px;
-  z-index: 6;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46px;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px 0 16px;
+  border-bottom: 1px solid rgba(217, 224, 234, 0.78);
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02);
+}
+
+.graph-header-left,
+.graph-header-center,
+.graph-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.graph-header-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.graph-header-center {
+  flex: 0 0 auto;
+}
+
+.graph-header-right {
+  flex: 0 0 auto;
+}
+
+.graph-header-title {
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text);
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  cursor: text;
+  outline: none;
+  transition: 120ms ease;
+}
+
+.graph-header-title:hover {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.graph-header-title:focus-visible {
+  border-color: rgba(99, 91, 255, 0.5);
+  background: rgba(99, 91, 255, 0.06);
+}
+
+.graph-header-title.editing {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+.graph-header-title-input {
+  width: 100%;
+  max-width: 260px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  outline: none;
+  padding: 5px 8px;
+}
+
+.graph-header-title-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.16);
+}
+
+.graph-header-stats {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 999px;
+  padding: 4px 9px;
+  white-space: nowrap;
+}
+
+.graph-header-llm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e3a8a;
+  background: rgba(238, 246, 255, 0.85);
+  border: 1px solid rgba(147, 197, 253, 0.7);
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.graph-header-llm-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  flex: 0 0 auto;
+}
+
+.graph-header-llm[data-llm-mode="test"] {
+  color: #c2410c;
+  background: rgba(255, 247, 237, 0.92);
+  border-color: #fed7aa;
+}
+
+.graph-header-llm[data-llm-mode="test"] .graph-header-llm-dot {
+  background: #ea580c;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.18);
+}
+
+.graph-header-llm[data-llm-mode="openai"] {
+  color: #166534;
+  background: rgba(236, 253, 245, 0.92);
+  border-color: #bbf7d0;
+}
+
+.graph-header-llm[data-llm-mode="openai"] .graph-header-llm-dot {
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+}
+
+.mode-indicator {
+  display: inline-flex;
+  align-items: center;
   border: 1px solid #fed7aa;
   border-radius: 999px;
-  background: rgba(255, 247, 237, 0.86);
+  background: rgba(255, 247, 237, 0.92);
   color: #c2410c;
-  padding: 7px 11px;
+  padding: 4px 10px;
   font-size: 12px;
   font-weight: 800;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(12px);
+  box-shadow: none;
   pointer-events: none;
+}
+
+.context-breadcrumb {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: min(640px, calc(100% - 320px));
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #dbe7fb;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+  font-size: 12px;
+  color: #1f2937;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.context-breadcrumb.hidden {
+  display: none;
+}
+
+.context-breadcrumb-segment {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font: inherit;
+  color: #2563eb;
+  cursor: pointer;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.context-breadcrumb-segment:hover {
+  background: rgba(59, 130, 246, 0.10);
+}
+
+.context-breadcrumb-segment:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.context-breadcrumb-segment.selected {
+  color: #ffffff;
+  background: #2563eb;
+  cursor: default;
+  font-weight: 700;
+}
+
+.context-breadcrumb-segment.selected:hover {
+  background: #2563eb;
+}
+
+.context-breadcrumb-sep {
+  color: #94a3b8;
+  font-weight: 700;
+  user-select: none;
+  padding: 0 2px;
+}
+
+.context-breadcrumb-ellipsis {
+  color: #64748b;
+  padding: 0 4px;
+  user-select: none;
+  cursor: help;
+}
+
+@media (max-width: 720px) {
+  .context-breadcrumb {
+    max-width: calc(100% - 120px);
+  }
+  .context-breadcrumb-segment {
+    max-width: 110px;
+  }
 }
 
 .search-panel {
   position: absolute;
-  top: 14px;
+  top: 58px;
   right: 16px;
   z-index: 8;
   width: 280px;
@@ -286,33 +517,192 @@ button, textarea, select {
 }
 
 .node-card.search-match {
-  outline: 2px solid #f59e0b;
+  outline: 3px solid #f59e0b;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
+  box-shadow:
+    0 0 0 5px rgba(245, 158, 11, 0.28),
+    0 0 18px rgba(245, 158, 11, 0.35),
+    var(--shadow);
+  z-index: 2;
+}
+
+.node-card.search-match.search-match-pulse {
+  animation: searchMatchPulse 800ms ease-out 1;
+}
+
+.node-card.search-match.search-match-current {
+  outline-color: #d97706;
+  outline-width: 4px;
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 0 0 9px rgba(217, 119, 6, 0.55),
+    0 0 24px rgba(245, 158, 11, 0.55),
+    var(--shadow);
+  transform: translateY(-1px);
+  z-index: 3;
+}
+
+@keyframes searchMatchPulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(245, 158, 11, 0.85),
+      0 0 0 0 rgba(245, 158, 11, 0.45),
+      var(--shadow);
+  }
+  60% {
+    box-shadow:
+      0 0 0 10px rgba(245, 158, 11, 0.0),
+      0 0 0 18px rgba(245, 158, 11, 0.0),
+      var(--shadow);
+  }
+  100% {
+    box-shadow:
+      0 0 0 5px rgba(245, 158, 11, 0.28),
+      0 0 18px rgba(245, 158, 11, 0.35),
+      var(--shadow);
+  }
+}
+
+.search-nav {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid rgba(217, 224, 234, 0.78);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.search-nav-counter {
+  font-variant-numeric: tabular-nums;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.search-nav-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search-nav-button {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0;
+  transition: 120ms ease;
+}
+
+.search-nav-button:hover {
+  border-color: #f59e0b;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.search-nav-button:active {
+  transform: scale(0.94);
+}
+
+.search-result-item.current {
+  background: #fff7ed;
+  outline: 1px solid #fbbf24;
+}
+
+.search-offscreen-indicator {
+  position: absolute;
+  z-index: 9;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  border-radius: 999px;
+  background: rgba(254, 243, 199, 0.95);
+  color: #b45309;
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: 0 10px 26px rgba(245, 158, 11, 0.35);
+  pointer-events: auto;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition:
+    left 140ms ease,
+    top 140ms ease,
+    right 140ms ease,
+    bottom 140ms ease,
+    opacity 140ms ease;
+  animation: searchOffscreenBob 1500ms ease-in-out infinite;
+}
+
+.search-offscreen-indicator:hover {
+  background: #fde68a;
+  border-color: #d97706;
+  color: #92400e;
+}
+
+@keyframes searchOffscreenBob {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(0, -4px); }
 }
 
 /* Semantic zoom: node detail level varies with view scale.
-   At compact level only a short truncated title shows.
-   At medium level the full title shows but meta/actions are dimmed.
-   At full level everything is visible. */
-#graph-scroll.zoom-compact .node-title {
-  font-size: 13px;
-  margin-bottom: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: break-all;
+   - zoom-compact: shrinks to a chip (no title text, hide meta/preview, keep
+     a colored pill driven by depth + conversation volume).
+   - zoom-medium (default-ish): title + 1-line meta (msg count + last-updated).
+   - zoom-detailed: title + meta + 1-line preview of the last user message. */
+
+#graph-scroll.zoom-compact .node-card {
+  min-height: 26px !important;
+  padding: 4px 10px 4px 14px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.07);
 }
 
-#graph-scroll.zoom-compact .node-meta {
+#graph-scroll.zoom-compact .node-card .node-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 0;
   display: none;
 }
 
-#graph-scroll.zoom-compact .node-card {
-  padding-top: 12px;
-  padding-bottom: 12px;
+#graph-scroll.zoom-compact .node-card .node-meta,
+#graph-scroll.zoom-compact .node-card .node-preview,
+#graph-scroll.zoom-compact .node-card .node-actions {
+  display: none;
+}
+
+/* Volume bar shrinks to a left dot at compact zoom; remaining card is a chip. */
+#graph-scroll.zoom-compact .node-card::before {
+  top: 50%;
+  bottom: auto;
+  height: 12px;
+  transform: translateY(-50%);
+  width: 4px;
+}
+
+#graph-scroll.zoom-compact .edge-label {
+  opacity: 0;
+  pointer-events: none;
 }
 
 #graph-scroll.zoom-medium .node-title {
@@ -323,30 +713,44 @@ button, textarea, select {
   text-overflow: ellipsis;
 }
 
-#graph-scroll.zoom-medium .node-meta {
-  opacity: 0.65;
+#graph-scroll.zoom-medium .node-preview {
+  display: none;
 }
 
-#graph-scroll.zoom-compact .edge-label {
-  opacity: 0;
-  pointer-events: none;
+/* Detailed: preview is visible. Title can use 2 lines, meta + preview render. */
+#graph-scroll.zoom-detailed .node-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#graph-scroll.zoom-detailed .node-preview {
+  display: block;
+}
+
+#graph-scroll.zoom-detailed .node-preview.empty {
+  display: none;
 }
 
 .selection-toolbar {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  z-index: 7;
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  transform: translateX(-50%);
   border: 1px solid rgba(217, 224, 234, 0.78);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
-  padding: 4px;
-  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  padding: 3px;
+  transition: box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.selection-toolbar.has-selection {
+  border-color: rgba(20, 184, 166, 0.55);
+  box-shadow: 0 6px 18px rgba(20, 184, 166, 0.18);
 }
 
 .selection-mode-button,
@@ -546,6 +950,12 @@ button, textarea, select {
   stroke-width: 3.2;
 }
 
+.edge-path.context-ancestor {
+  stroke: #93c5fd;
+  stroke-width: 2.6;
+  opacity: 0.85;
+}
+
 .edge-path.context-dimmed {
   opacity: 0.13;
 }
@@ -563,12 +973,24 @@ button, textarea, select {
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
   min-width: 28px;
-  transition: opacity 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 140ms ease, border-color 140ms ease, box-shadow 140ms ease,
+    font-size 140ms ease, color 140ms ease;
 }
 
 .edge-label.context-path {
   border-color: #93c5fd;
   box-shadow: 0 8px 20px rgba(37, 99, 235, 0.16);
+}
+
+.edge-label.context-ancestor {
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  background: linear-gradient(135deg, #f5f9ff, #eef4ff);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.10);
+  opacity: 0.92;
 }
 
 .edge-label.context-dimmed {
@@ -577,6 +999,49 @@ button, textarea, select {
 
 .edge-label.editing {
   padding: 3px 6px;
+}
+
+/* Category dot prefix (6x6) - the only colored element so the
+   label background stays subtle. */
+.edge-label-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+  flex: 0 0 6px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.65);
+}
+
+.edge-label-text {
+  display: inline-block;
+}
+
+/* Hide the dot while inline-editing (the input replaces children). */
+.edge-label.editing .edge-label-dot,
+.edge-label.editing .edge-label-text {
+  display: none;
+}
+
+/* Duplicate phrases: dimmer + smaller so unique labels pop. */
+.edge-label.edge-label-duplicate {
+  opacity: 0.4;
+  font-size: 10px;
+  color: #94a3b8;
+  box-shadow: none;
+  padding: 3px 7px;
+}
+
+.edge-label.edge-label-duplicate .edge-label-dot {
+  opacity: 0.6;
+  width: 5px;
+  height: 5px;
+  flex-basis: 5px;
+}
+
+/* User-edited labels keep full styling even if their phrase is duplicated. */
+.edge-label.edge-label-important {
+  font-weight: 600;
 }
 
 .edge-label-input {
@@ -606,16 +1071,29 @@ button, textarea, select {
   overflow: visible;
 }
 
+/* Conversation-volume indicator: a thin colored strip on the left edge of
+   each card. Width is fixed (5px); the strip's vertical span is full-height,
+   while opacity scales with --volume-ratio (set in JS from log(messageCount)).
+   This repurposes the previous decorative left accent so depth coloring still
+   drives the hue. */
 .node-card::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 10px;
-  bottom: 10px;
-  width: 3px;
+  top: 6px;
+  bottom: 6px;
+  width: 5px;
   border-radius: 0 999px 999px 0;
   background: var(--depth-accent, var(--primary));
-  opacity: 0.72;
+  /* Map 0..1 volume to ~0.18..0.95 opacity so even single-message nodes show a hint. */
+  opacity: calc(0.18 + 0.78 * var(--volume-ratio, 0));
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+
+.node-card:not(.has-messages)::before {
+  opacity: 0.16;
+  background: var(--depth-border, var(--border));
 }
 
 .node-card:hover {
@@ -638,6 +1116,23 @@ button, textarea, select {
   opacity: 1;
   border-color: #60a5fa;
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18), var(--shadow);
+}
+
+.node-card.context-ancestor {
+  opacity: 0.78;
+  border-color: #bfdbfe;
+  border-style: dashed;
+  box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.22), var(--shadow);
+}
+
+.node-card.context-ancestor:hover {
+  opacity: 0.95;
+  border-color: #93c5fd;
+}
+
+.node-card.context-ancestor::before {
+  background: #60a5fa;
+  opacity: 0.55;
 }
 
 .node-card.context-current {
@@ -665,11 +1160,11 @@ button, textarea, select {
 }
 
 .node-card.context-dimmed {
-  opacity: 0.28;
+  opacity: 0.22;
 }
 
 .node-card.context-dimmed:hover {
-  opacity: 0.62;
+  opacity: 0.55;
 }
 
 .node-card.multi-selected {
@@ -735,6 +1230,31 @@ button, textarea, select {
   color: var(--depth-muted, var(--muted));
 }
 
+/* Last user message preview snippet. Hidden by default; shown only at
+   zoom-detailed via #graph-scroll.zoom-detailed .node-preview. The fixed
+   max-height + overflow:hidden keeps cards from growing unboundedly. */
+.node-preview {
+  position: relative;
+  z-index: 1;
+  display: none;
+  margin-top: 6px;
+  padding: 5px 7px;
+  max-height: 22px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+  line-height: 1.1;
+  color: var(--depth-muted, var(--muted));
+  background: rgba(255, 255, 255, 0.42);
+  border-radius: 6px;
+  border: 1px dashed rgba(15, 23, 42, 0.08);
+}
+
+.node-preview.empty {
+  display: none;
+}
+
 .node-actions {
   position: absolute;
   right: -14px;
@@ -742,49 +1262,72 @@ button, textarea, select {
   z-index: 4;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
   opacity: 0;
   transform: translate(8px, -50%) scale(0.96);
   pointer-events: none;
-  transition: 140ms ease;
+  transition: opacity 120ms ease, transform 120ms ease;
+  padding-left: 8px;
 }
 
-.node-card:hover .node-actions,
-.node-card.selected .node-actions,
+/* Hover-delayed reveal driven by JS via .show-actions on the card.
+   We also keep focus-within so keyboard tabbing into a chip shows the cluster. */
+.node-card.show-actions .node-actions,
 .node-actions:focus-within {
   opacity: 1;
-  transform: translate(0, -50%) scale(1);
+  transform: translate(4px, -50%) scale(1);
   pointer-events: auto;
 }
 
+/* Suppress chips during drag. Selection-mode suppression is handled in JS,
+   so chips never schedule a reveal while selectionMode is active. */
+.node-card.dragging .node-actions {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(8px, -50%) scale(0.96) !important;
+}
+
 .node-action-button {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   display: grid;
   place-items: center;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.94);
   color: var(--text);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
   cursor: pointer;
-  font-size: 18px;
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 800;
   line-height: 1;
   backdrop-filter: blur(10px);
-  transition: 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 
 .node-action-button:hover {
-  transform: translateY(-1px);
+  transform: scale(1.08);
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
+}
+
+.node-action-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .node-action-button.add {
   color: #0f766e;
 }
 
+.node-action-button.split {
+  color: #4338ca;
+  font-size: 14px;
+}
+
 .node-action-button.delete {
   color: var(--danger);
+  font-size: 13px;
 }
 
 .delete-confirm-popover {
@@ -1242,6 +1785,187 @@ button, textarea, select {
   display: none !important;
 }
 
+/* ==========================================================================
+   Graph control cluster (bottom-right of graph panel)
+   ========================================================================== */
+.graph-controls {
+  position: absolute;
+  bottom: 16px;
+  right: calc(var(--graph-overlay-right-offset, 16px));
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid rgba(217, 224, 234, 0.78);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(12px);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.graph-controls.dragging-active,
+.minimap-panel.dragging-active {
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.graph-control-btn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: 110ms ease;
+  font-family: inherit;
+}
+
+.graph-control-btn:hover {
+  border-color: #b9c5d6;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.graph-control-btn:active {
+  transform: translateY(1px);
+}
+
+.graph-control-btn.graph-control-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.graph-control-btn.graph-control-pct:hover {
+  color: var(--text);
+}
+
+.graph-control-divider {
+  height: 1px;
+  margin: 3px 4px;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+/* ==========================================================================
+   Minimap panel (above the control cluster)
+   ========================================================================== */
+.minimap-panel {
+  /* Sit above the control cluster.
+     Control cluster height = 6 (top pad) + 5*32 (5 buttons) + 4*4 (gaps) + 1 (divider) + 6 (bottom pad) = ~199px.
+     Add 16px (panel's own bottom margin) + 8px gap = anchor at ~16 + 199 + 8 = 223px. */
+  position: absolute;
+  bottom: 232px;
+  right: calc(var(--graph-overlay-right-offset, 16px));
+  z-index: 9;
+  width: 212px;
+  border: 1px solid rgba(217, 224, 234, 0.78);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition: opacity 140ms ease;
+}
+
+.minimap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 6px 12px;
+  border-bottom: 1px solid rgba(217, 224, 234, 0.6);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.minimap-panel.collapsed .minimap-header {
+  border-bottom: 0;
+}
+
+.minimap-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.minimap-toggle-btn {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.minimap-toggle-btn:hover {
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--text);
+}
+
+.minimap-body {
+  position: relative;
+  width: 212px;
+  height: 150px;
+  padding: 6px;
+  cursor: crosshair;
+  user-select: none;
+  touch-action: none;
+}
+
+.minimap-panel.collapsed .minimap-body {
+  display: none;
+}
+
+.minimap-canvas {
+  display: block;
+  width: 200px;
+  height: 138px;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(17, 24, 39, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 24, 39, 0.04) 1px, transparent 1px),
+    #fbfcff;
+  background-size: 20px 20px;
+}
+
+.minimap-viewport {
+  position: absolute;
+  border: 1.5px solid #635bff;
+  background: rgba(99, 91, 255, 0.12);
+  border-radius: 3px;
+  pointer-events: auto;
+  cursor: grab;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  transition: background 100ms ease;
+}
+
+.minimap-viewport:hover {
+  background: rgba(99, 91, 255, 0.2);
+}
+
+.minimap-viewport.dragging {
+  cursor: grabbing;
+  background: rgba(99, 91, 255, 0.28);
+}
+
+
 .toast {
   position: fixed;
   right: 18px;
@@ -1263,4 +1987,96 @@ button, textarea, select {
   .chat-sidebar {
     width: min(var(--chat-sidebar-width), calc(100vw - 18px));
   }
+}
+
+.empty-cta {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 32px;
+  max-width: min(420px, calc(100% - 48px));
+  text-align: center;
+  pointer-events: none;
+}
+
+.empty-cta-heading {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.empty-cta-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.empty-cta-button {
+  margin-top: 8px;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border: 1px solid rgba(99, 91, 255, 0.32);
+  border-radius: 999px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(67, 56, 202, 0.22);
+  transition: 140ms ease;
+}
+
+.empty-cta-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(67, 56, 202, 0.28);
+}
+
+.empty-cta-button:focus-visible {
+  outline: 2px solid #c7d2fe;
+  outline-offset: 2px;
+}
+
+.node-status-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  pointer-events: auto;
+  box-shadow: 0 0 0 2px #ffffff, 0 2px 6px rgba(15, 23, 42, 0.18);
+  z-index: 2;
+}
+
+.node-status-dot.recent {
+  background: #3b82f6;
+}
+
+.node-status-dot.awaiting {
+  background: #f59e0b;
+}
+
+.thread-status-dot {
+  position: absolute;
+  left: 4px;
+  top: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px #ffffff, 0 2px 4px rgba(245, 158, 11, 0.32);
+  pointer-events: none;
+  z-index: 2;
 }

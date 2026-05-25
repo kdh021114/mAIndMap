@@ -1,73 +1,276 @@
 {
   "edges": {
-    "edge_077156bbf55d": {
-      "created_at": "2026-05-19T01:50:54.333465+00:00",
+    "edge_1633492adf3d": {
+      "id": "edge_1633492adf3d",
       "graph_thread_id": "graph_default",
-      "id": "edge_077156bbf55d",
+      "source_node_id": "node_0bd5e0474cdb",
+      "target_node_id": "node_2ec6c7c2f0e2",
       "phrase": {
-        "ko": "새 분기"
+        "ko": "구체화",
+        "en": "Further detail"
       },
-      "phrase_generated_by": "system",
-      "source_node_id": "node_98fa10c1d8e4",
-      "target_node_id": "node_14534027373a",
-      "updated_at": "2026-05-19T01:50:54.333465+00:00",
-      "user_edited_phrase_locales": {}
-    },
-    "edge_10b6632fd6a8": {
-      "created_at": "2026-05-19T01:10:35.914884+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "edge_10b6632fd6a8",
-      "phrase": {
-        "ko": "새 분기"
-      },
-      "phrase_generated_by": "system",
-      "source_node_id": "node_cd0dd6e986ea",
-      "target_node_id": "node_868bbb464e45",
-      "updated_at": "2026-05-19T01:10:35.914884+00:00",
-      "user_edited_phrase_locales": {}
-    },
-    "edge_3e7675ebdf7c": {
-      "created_at": "2026-05-18T12:06:22.636731+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "edge_3e7675ebdf7c",
-      "phrase": {
-        "ko": "구체화"
-      },
-      "phrase_generated_by": "user",
-      "source_node_id": "node_e9c59afd15bc",
-      "target_node_id": "node_98fa10c1d8e4",
-      "updated_at": "2026-05-19T01:49:23.953635+00:00",
+      "phrase_generated_by": "ai",
       "user_edited_phrase_locales": {
-        "ko": true
-      }
-    },
-    "edge_62b43c33cd77": {
-      "created_at": "2026-05-18T12:07:34.191244+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "edge_62b43c33cd77",
-      "phrase": {
-        "ko": "구체화"
+        "ko": false,
+        "en": false
       },
-      "phrase_generated_by": "user",
-      "source_node_id": "node_e9c59afd15bc",
-      "target_node_id": "node_cd0dd6e986ea",
-      "updated_at": "2026-05-19T01:49:26.187506+00:00",
+      "created_at": "2026-05-19T01:47:39.908340+00:00",
+      "updated_at": "2026-05-25T11:32:29.826857+00:00"
+    },
+    "edge_7e751ad0aa49": {
+      "id": "edge_7e751ad0aa49",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_0bd5e0474cdb",
+      "target_node_id": "node_ff0dc3b2b7fe",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
       "user_edited_phrase_locales": {
-        "ko": true
-      }
-    },
-    "edge_bbf04850db37": {
-      "created_at": "2026-05-19T01:50:30.481313+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "edge_bbf04850db37",
-      "phrase": {
-        "ko": "새 분기"
+        "ko": false,
+        "en": false
       },
-      "phrase_generated_by": "system",
-      "source_node_id": "node_98fa10c1d8e4",
-      "target_node_id": "node_76c3a6eb1a2d",
-      "updated_at": "2026-05-19T01:50:30.481313+00:00",
-      "user_edited_phrase_locales": {}
+      "created_at": "2026-05-19T01:48:02.958302+00:00",
+      "updated_at": "2026-05-25T11:32:29.830348+00:00"
+    },
+    "edge_3111b131279f": {
+      "id": "edge_3111b131279f",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_0bd5e0474cdb",
+      "target_node_id": "node_1196ace7ce1b",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:48:14.835771+00:00",
+      "updated_at": "2026-05-25T11:32:29.833674+00:00"
+    },
+    "edge_462c3b316b55": {
+      "id": "edge_462c3b316b55",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_ff0dc3b2b7fe",
+      "target_node_id": "node_bf9114c6b882",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:48:43.584280+00:00",
+      "updated_at": "2026-05-25T11:32:29.837453+00:00"
+    },
+    "edge_eac2c3419bc2": {
+      "id": "edge_eac2c3419bc2",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_ff0dc3b2b7fe",
+      "target_node_id": "node_eed266261d5d",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:48:53.674993+00:00",
+      "updated_at": "2026-05-25T11:32:29.840940+00:00"
+    },
+    "edge_06b2d2f0289c": {
+      "id": "edge_06b2d2f0289c",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_eed266261d5d",
+      "target_node_id": "node_329664e29cdd",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:48:59.941089+00:00",
+      "updated_at": "2026-05-25T11:32:29.844198+00:00"
+    },
+    "edge_57cd87aaeffc": {
+      "id": "edge_57cd87aaeffc",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_eed266261d5d",
+      "target_node_id": "node_f757ceb7ce42",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:05.374862+00:00",
+      "updated_at": "2026-05-25T11:32:29.847469+00:00"
+    },
+    "edge_29aedc9fbcd5": {
+      "id": "edge_29aedc9fbcd5",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_eed266261d5d",
+      "target_node_id": "node_105637bd6902",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:13.073700+00:00",
+      "updated_at": "2026-05-25T11:32:29.850795+00:00"
+    },
+    "edge_08354d6e62fc": {
+      "id": "edge_08354d6e62fc",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_1196ace7ce1b",
+      "target_node_id": "node_e4d11010cdd4",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:21.545877+00:00",
+      "updated_at": "2026-05-25T11:32:29.854610+00:00"
+    },
+    "edge_4e142d664002": {
+      "id": "edge_4e142d664002",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_1196ace7ce1b",
+      "target_node_id": "node_99c290b7a4b8",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:28.421467+00:00",
+      "updated_at": "2026-05-25T11:32:29.857978+00:00"
+    },
+    "edge_973f8e2042d9": {
+      "id": "edge_973f8e2042d9",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_1196ace7ce1b",
+      "target_node_id": "node_ec35283df97a",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:36.133712+00:00",
+      "updated_at": "2026-05-25T11:32:29.861239+00:00"
+    },
+    "edge_9226823d75c7": {
+      "id": "edge_9226823d75c7",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_ec35283df97a",
+      "target_node_id": "node_12d1bf1754f8",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:45.116292+00:00",
+      "updated_at": "2026-05-25T11:32:29.864806+00:00"
+    },
+    "edge_5bc5d9b22e3c": {
+      "id": "edge_5bc5d9b22e3c",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_ec35283df97a",
+      "target_node_id": "node_573bf8013c58",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:51.018651+00:00",
+      "updated_at": "2026-05-25T11:32:29.868707+00:00"
+    },
+    "edge_3a9e5e033d66": {
+      "id": "edge_3a9e5e033d66",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_ec35283df97a",
+      "target_node_id": "node_3248eb2409af",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:49:55.791736+00:00",
+      "updated_at": "2026-05-25T11:32:29.872534+00:00"
+    },
+    "edge_7a5b16a8ece4": {
+      "id": "edge_7a5b16a8ece4",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_e4d11010cdd4",
+      "target_node_id": "node_995d88c76b9d",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:50:11.253486+00:00",
+      "updated_at": "2026-05-25T11:32:29.876204+00:00"
+    },
+    "edge_377ea5ec5d26": {
+      "id": "edge_377ea5ec5d26",
+      "graph_thread_id": "graph_default",
+      "source_node_id": "node_e4d11010cdd4",
+      "target_node_id": "node_daba5b765957",
+      "phrase": {
+        "ko": "구체화",
+        "en": "Further detail"
+      },
+      "phrase_generated_by": "ai",
+      "user_edited_phrase_locales": {
+        "ko": false,
+        "en": false
+      },
+      "created_at": "2026-05-19T01:50:17.796861+00:00",
+      "updated_at": "2026-05-25T11:32:29.880019+00:00"
     }
   },
   "graph_threads": {
@@ -87,140 +290,613 @@
         "ko": "그래프 스레드 2"
       },
       "updated_at": "2026-05-18T11:31:20.679798+00:00"
+    },
+    "graph_502de9cf069d": {
+      "id": "graph_502de9cf069d",
+      "title": {
+        "ko": "그래프 스레드 3"
+      },
+      "created_at": "2026-05-25T11:45:14.823399+00:00",
+      "updated_at": "2026-05-25T11:45:14.823399+00:00"
     }
   },
-  "messages": {},
+  "messages": {
+    "msg_adee8d54d91d": {
+      "id": "msg_adee8d54d91d",
+      "thread_id": "thread_9b2acb8951ed",
+      "role": "user",
+      "content": "창업",
+      "created_at": "2026-05-19T01:47:37.937291+00:00"
+    },
+    "msg_d040d2e0d85c": {
+      "id": "msg_d040d2e0d85c",
+      "thread_id": "thread_9b2acb8951ed",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 창업",
+      "created_at": "2026-05-19T01:47:37.941252+00:00"
+    },
+    "msg_26a162301247": {
+      "id": "msg_26a162301247",
+      "thread_id": "thread_8ee2c00f4b6a",
+      "role": "user",
+      "content": "Business Model",
+      "created_at": "2026-05-19T01:48:00.848736+00:00"
+    },
+    "msg_e22d0f612feb": {
+      "id": "msg_e22d0f612feb",
+      "thread_id": "thread_8ee2c00f4b6a",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: Business Model",
+      "created_at": "2026-05-19T01:48:00.855726+00:00"
+    },
+    "msg_86675651225d": {
+      "id": "msg_86675651225d",
+      "thread_id": "thread_07309d9d5eee",
+      "role": "user",
+      "content": "시장 규모",
+      "created_at": "2026-05-19T01:48:11.713178+00:00"
+    },
+    "msg_2ff42ce1cfff": {
+      "id": "msg_2ff42ce1cfff",
+      "thread_id": "thread_07309d9d5eee",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 시장 규모",
+      "created_at": "2026-05-19T01:48:11.718198+00:00"
+    },
+    "msg_f52d91125c8f": {
+      "id": "msg_f52d91125c8f",
+      "thread_id": "thread_7a08c15d61a3",
+      "role": "user",
+      "content": "제약 조건",
+      "created_at": "2026-05-19T01:48:23.977359+00:00"
+    },
+    "msg_62e28c238ecd": {
+      "id": "msg_62e28c238ecd",
+      "thread_id": "thread_7a08c15d61a3",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 제약 조건",
+      "created_at": "2026-05-19T01:48:23.981521+00:00"
+    },
+    "msg_71a1eb897ddb": {
+      "id": "msg_71a1eb897ddb",
+      "thread_id": "thread_9c08e11cc2c8",
+      "role": "user",
+      "content": "국내 시장",
+      "created_at": "2026-05-19T01:48:52.009192+00:00"
+    },
+    "msg_716efb024878": {
+      "id": "msg_716efb024878",
+      "thread_id": "thread_9c08e11cc2c8",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 국내 시장",
+      "created_at": "2026-05-19T01:48:52.012105+00:00"
+    },
+    "msg_ebe9a164cff7": {
+      "id": "msg_ebe9a164cff7",
+      "thread_id": "thread_934bcf78b0f0",
+      "role": "user",
+      "content": "해외 시장",
+      "created_at": "2026-05-19T01:48:57.664642+00:00"
+    },
+    "msg_efe205df4ee1": {
+      "id": "msg_efe205df4ee1",
+      "thread_id": "thread_934bcf78b0f0",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 해외 시장",
+      "created_at": "2026-05-19T01:48:57.669772+00:00"
+    },
+    "msg_d6e4874c584c": {
+      "id": "msg_d6e4874c584c",
+      "thread_id": "thread_f86fd5e0a57c",
+      "role": "user",
+      "content": "유럽",
+      "created_at": "2026-05-19T01:49:03.184434+00:00"
+    },
+    "msg_d74e2e6b5621": {
+      "id": "msg_d74e2e6b5621",
+      "thread_id": "thread_f86fd5e0a57c",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 유럽",
+      "created_at": "2026-05-19T01:49:03.189208+00:00"
+    },
+    "msg_7bbdb48cc4ec": {
+      "id": "msg_7bbdb48cc4ec",
+      "thread_id": "thread_9ab52dfd068b",
+      "role": "user",
+      "content": "미국",
+      "created_at": "2026-05-19T01:49:08.428020+00:00"
+    },
+    "msg_804327e4d862": {
+      "id": "msg_804327e4d862",
+      "thread_id": "thread_9ab52dfd068b",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 미국",
+      "created_at": "2026-05-19T01:49:08.436000+00:00"
+    },
+    "msg_288af731fe0d": {
+      "id": "msg_288af731fe0d",
+      "thread_id": "thread_8ea7a2256f8b",
+      "role": "user",
+      "content": "아시아",
+      "created_at": "2026-05-19T01:49:17.253250+00:00"
+    },
+    "msg_351ae5999732": {
+      "id": "msg_351ae5999732",
+      "thread_id": "thread_8ea7a2256f8b",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 아시아",
+      "created_at": "2026-05-19T01:49:17.263349+00:00"
+    },
+    "msg_2799a6dbd19d": {
+      "id": "msg_2799a6dbd19d",
+      "thread_id": "thread_d63b8df11397",
+      "role": "user",
+      "content": "규제",
+      "created_at": "2026-05-19T01:49:26.038351+00:00"
+    },
+    "msg_e1cf0aa8e054": {
+      "id": "msg_e1cf0aa8e054",
+      "thread_id": "thread_d63b8df11397",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 규제",
+      "created_at": "2026-05-19T01:49:26.042200+00:00"
+    },
+    "msg_7e9b22684b62": {
+      "id": "msg_7e9b22684b62",
+      "thread_id": "thread_7160c37db9ec",
+      "role": "user",
+      "content": "초기 자본",
+      "created_at": "2026-05-19T01:49:34.571024+00:00"
+    },
+    "msg_e8f394a00b12": {
+      "id": "msg_e8f394a00b12",
+      "thread_id": "thread_7160c37db9ec",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 초기 자본",
+      "created_at": "2026-05-19T01:49:34.578389+00:00"
+    },
+    "msg_f8c98e4b1261": {
+      "id": "msg_f8c98e4b1261",
+      "thread_id": "thread_c204bd83b876",
+      "role": "user",
+      "content": "직원",
+      "created_at": "2026-05-19T01:49:43.407371+00:00"
+    },
+    "msg_b53fbfbc7ef6": {
+      "id": "msg_b53fbfbc7ef6",
+      "thread_id": "thread_c204bd83b876",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 직원",
+      "created_at": "2026-05-19T01:49:43.412735+00:00"
+    },
+    "msg_25228223e0fc": {
+      "id": "msg_25228223e0fc",
+      "thread_id": "thread_fcdc4ce7b839",
+      "role": "user",
+      "content": "개발자",
+      "created_at": "2026-05-19T01:49:49.167897+00:00"
+    },
+    "msg_777738cda3a0": {
+      "id": "msg_777738cda3a0",
+      "thread_id": "thread_fcdc4ce7b839",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 개발자",
+      "created_at": "2026-05-19T01:49:49.179483+00:00"
+    },
+    "msg_637547d7090b": {
+      "id": "msg_637547d7090b",
+      "thread_id": "thread_697eab9f4a25",
+      "role": "user",
+      "content": "PM",
+      "created_at": "2026-05-19T01:49:53.993492+00:00"
+    },
+    "msg_39a9e7b0b0aa": {
+      "id": "msg_39a9e7b0b0aa",
+      "thread_id": "thread_697eab9f4a25",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: PM",
+      "created_at": "2026-05-19T01:49:54.000604+00:00"
+    },
+    "msg_0d9d9cd1294b": {
+      "id": "msg_0d9d9cd1294b",
+      "thread_id": "thread_847b48e0549c",
+      "role": "user",
+      "content": "마케팅",
+      "created_at": "2026-05-19T01:50:03.570564+00:00"
+    },
+    "msg_7e385245bd0f": {
+      "id": "msg_7e385245bd0f",
+      "thread_id": "thread_847b48e0549c",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: 마케팅",
+      "created_at": "2026-05-19T01:50:03.582194+00:00"
+    },
+    "msg_bea020b727c7": {
+      "id": "msg_bea020b727c7",
+      "thread_id": "thread_a07930af10c5",
+      "role": "user",
+      "content": "FDA",
+      "created_at": "2026-05-19T01:50:25.666098+00:00"
+    },
+    "msg_576f56fe1a05": {
+      "id": "msg_576f56fe1a05",
+      "thread_id": "thread_a07930af10c5",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: FDA",
+      "created_at": "2026-05-19T01:50:25.677956+00:00"
+    },
+    "msg_bb41bea74d43": {
+      "id": "msg_bb41bea74d43",
+      "thread_id": "thread_63888f14bd0d",
+      "role": "user",
+      "content": "CE",
+      "created_at": "2026-05-19T01:50:36.203595+00:00"
+    },
+    "msg_01c1ff41bfbf": {
+      "id": "msg_01c1ff41bfbf",
+      "thread_id": "thread_63888f14bd0d",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: CE",
+      "created_at": "2026-05-19T01:50:36.215786+00:00"
+    }
+  },
   "nodes": {
-    "node_14534027373a": {
-      "created_at": "2026-05-19T01:50:54.333416+00:00",
+    "node_0bd5e0474cdb": {
+      "id": "node_0bd5e0474cdb",
       "graph_thread_id": "graph_default",
-      "id": "node_14534027373a",
-      "manually_positioned": false,
-      "parent_node_id": "node_98fa10c1d8e4",
-      "position": {
-        "x": -193.56640625,
-        "y": 278.1875
-      },
-      "thread_id": "thread_bf1e540ad7d1",
-      "title": {
-        "ko": "Github 관련 문제 해결"
-      },
-      "updated_at": "2026-05-19T01:51:17.112085+00:00",
-      "user_edited_title_locales": {
-        "ko": true
-      }
-    },
-    "node_42abb12caa42": {
-      "created_at": "2026-05-19T01:45:00.677797+00:00",
-      "graph_thread_id": "graph_e35a962628be",
-      "id": "node_42abb12caa42",
-      "manually_positioned": false,
-      "parent_node_id": null,
-      "position": {
-        "x": 0,
-        "y": 0
-      },
-      "thread_id": "thread_a33064073f7e",
-      "title": {
-        "ko": "시작 대화"
-      },
-      "updated_at": "2026-05-19T01:45:00.677797+00:00",
-      "user_edited_title_locales": {}
-    },
-    "node_76c3a6eb1a2d": {
-      "created_at": "2026-05-19T01:50:30.481267+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "node_76c3a6eb1a2d",
-      "manually_positioned": false,
-      "parent_node_id": "node_98fa10c1d8e4",
-      "position": {
-        "x": -463.56640625,
-        "y": 278.1875
-      },
-      "thread_id": "thread_0ce7ca46ff47",
-      "title": {
-        "ko": "Repository 폴더 구조 설계"
-      },
-      "updated_at": "2026-05-19T01:50:54.333920+00:00",
-      "user_edited_title_locales": {
-        "ko": true
-      }
-    },
-    "node_868bbb464e45": {
-      "created_at": "2026-05-19T01:10:35.914835+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "node_868bbb464e45",
-      "manually_positioned": true,
-      "parent_node_id": "node_cd0dd6e986ea",
-      "position": {
-        "x": 308,
-        "y": 364
-      },
-      "thread_id": "thread_df9ca9721fce",
-      "title": {
-        "ko": "NASA-TLX 질문"
-      },
-      "updated_at": "2026-05-19T02:43:42.419868+00:00",
-      "user_edited_title_locales": {
-        "ko": true
-      }
-    },
-    "node_98fa10c1d8e4": {
-      "created_at": "2026-05-18T12:06:22.636683+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "node_98fa10c1d8e4",
-      "manually_positioned": true,
-      "parent_node_id": "node_e9c59afd15bc",
-      "position": {
-        "x": -328.56640625,
-        "y": 128.1875
-      },
-      "thread_id": "thread_95f66daacb1c",
-      "title": {
-        "ko": "기술적 구현 방안"
-      },
-      "updated_at": "2026-05-19T01:50:10.402464+00:00",
-      "user_edited_title_locales": {
-        "ko": true
-      }
-    },
-    "node_cd0dd6e986ea": {
-      "created_at": "2026-05-18T12:07:34.191212+00:00",
-      "graph_thread_id": "graph_default",
-      "id": "node_cd0dd6e986ea",
-      "manually_positioned": true,
-      "parent_node_id": "node_e9c59afd15bc",
-      "position": {
-        "x": 308,
-        "y": 140
-      },
-      "thread_id": "thread_573504d5310a",
-      "title": {
-        "ko": "User Study"
-      },
-      "updated_at": "2026-05-19T02:42:59.754193+00:00",
-      "user_edited_title_locales": {
-        "ko": true
-      }
-    },
-    "node_e9c59afd15bc": {
-      "id": "node_e9c59afd15bc",
-      "graph_thread_id": "graph_default",
-      "thread_id": "thread_4dc433d606b9",
+      "thread_id": "thread_9b2acb8951ed",
       "parent_node_id": null,
       "title": {
-        "ko": "그래프 인터페이스 연구"
+        "ko": "창업",
+        "en": "창업"
       },
       "user_edited_title_locales": {
-        "ko": true
+        "ko": false,
+        "en": false
       },
       "position": {
-        "x": 0.0,
-        "y": -28.0
+        "x": -20.205170165346033,
+        "y": -352.52734619863134
       },
       "manually_positioned": true,
-      "created_at": "2026-05-18T12:06:17.532523+00:00",
-      "updated_at": "2026-05-19T02:47:21.069659+00:00"
+      "created_at": "2026-05-19T01:47:25.166963+00:00",
+      "updated_at": "2026-05-25T11:32:29.739856+00:00"
+    },
+    "node_2ec6c7c2f0e2": {
+      "id": "node_2ec6c7c2f0e2",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_8ee2c00f4b6a",
+      "parent_node_id": "node_0bd5e0474cdb",
+      "title": {
+        "ko": "Business Model",
+        "en": "Business Model"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": -676.9102338091527,
+        "y": 29.78794550033777
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:47:39.908252+00:00",
+      "updated_at": "2026-05-25T11:32:29.746706+00:00"
+    },
+    "node_ff0dc3b2b7fe": {
+      "id": "node_ff0dc3b2b7fe",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_07309d9d5eee",
+      "parent_node_id": "node_0bd5e0474cdb",
+      "title": {
+        "ko": "시장 규모",
+        "en": "시장 규모"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": -136.46931090636755,
+        "y": -19.86156203858124
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:48:02.958228+00:00",
+      "updated_at": "2026-05-25T11:32:29.752812+00:00"
+    },
+    "node_1196ace7ce1b": {
+      "id": "node_1196ace7ce1b",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_7a08c15d61a3",
+      "parent_node_id": "node_0bd5e0474cdb",
+      "title": {
+        "ko": "제약 조건",
+        "en": "제약 조건"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 759.1721113516146,
+        "y": -146.72324672003646
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:48:14.835689+00:00",
+      "updated_at": "2026-05-25T11:32:29.758343+00:00"
+    },
+    "node_bf9114c6b882": {
+      "id": "node_bf9114c6b882",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_9c08e11cc2c8",
+      "parent_node_id": "node_ff0dc3b2b7fe",
+      "title": {
+        "ko": "국내 시장",
+        "en": "국내 시장"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": -289.71118401867216,
+        "y": 137.29915718364288
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:48:43.584196+00:00",
+      "updated_at": "2026-05-25T11:32:29.763824+00:00"
+    },
+    "node_eed266261d5d": {
+      "id": "node_eed266261d5d",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_934bcf78b0f0",
+      "parent_node_id": "node_ff0dc3b2b7fe",
+      "title": {
+        "ko": "해외 시장",
+        "en": "해외 시장"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": -36.1782188916429,
+        "y": 145.7239582869807
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:48:53.674926+00:00",
+      "updated_at": "2026-05-25T11:32:29.768870+00:00"
+    },
+    "node_329664e29cdd": {
+      "id": "node_329664e29cdd",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_f86fd5e0a57c",
+      "parent_node_id": "node_eed266261d5d",
+      "title": {
+        "ko": "유럽",
+        "en": "유럽"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": -263.83595878149606,
+        "y": 433.07063836036264
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:48:59.941034+00:00",
+      "updated_at": "2026-05-25T11:32:29.773943+00:00"
+    },
+    "node_f757ceb7ce42": {
+      "id": "node_f757ceb7ce42",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_9ab52dfd068b",
+      "parent_node_id": "node_eed266261d5d",
+      "title": {
+        "ko": "미국",
+        "en": "미국"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": -4.514026887826091,
+        "y": 371.38065432575655
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:05.374832+00:00",
+      "updated_at": "2026-05-25T11:32:29.778610+00:00"
+    },
+    "node_105637bd6902": {
+      "id": "node_105637bd6902",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_8ea7a2256f8b",
+      "parent_node_id": "node_eed266261d5d",
+      "title": {
+        "ko": "아시아",
+        "en": "아시아"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 279.1132091128878,
+        "y": 557.117150972152
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:13.073666+00:00",
+      "updated_at": "2026-05-25T11:32:29.783352+00:00"
+    },
+    "node_e4d11010cdd4": {
+      "id": "node_e4d11010cdd4",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_d63b8df11397",
+      "parent_node_id": "node_1196ace7ce1b",
+      "title": {
+        "ko": "규제",
+        "en": "규제"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 553.8369787655267,
+        "y": 187.69131311342534
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:21.545839+00:00",
+      "updated_at": "2026-05-25T11:32:29.787770+00:00"
+    },
+    "node_99c290b7a4b8": {
+      "id": "node_99c290b7a4b8",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_7160c37db9ec",
+      "parent_node_id": "node_1196ace7ce1b",
+      "title": {
+        "ko": "초기 자본",
+        "en": "초기 자본"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 800.5064613991307,
+        "y": 199.4458246322881
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:28.421426+00:00",
+      "updated_at": "2026-05-25T11:32:29.792605+00:00"
+    },
+    "node_ec35283df97a": {
+      "id": "node_ec35283df97a",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_c204bd83b876",
+      "parent_node_id": "node_1196ace7ce1b",
+      "title": {
+        "ko": "직원",
+        "en": "직원"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 1075.9461010879418,
+        "y": 194.95153457581137
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:36.133681+00:00",
+      "updated_at": "2026-05-25T11:32:29.797506+00:00"
+    },
+    "node_12d1bf1754f8": {
+      "id": "node_12d1bf1754f8",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_fcdc4ce7b839",
+      "parent_node_id": "node_ec35283df97a",
+      "title": {
+        "ko": "개발자",
+        "en": "개발자"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 1242.2507430042322,
+        "y": 338.62609846686877
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:45.116255+00:00",
+      "updated_at": "2026-05-25T11:32:29.803017+00:00"
+    },
+    "node_573bf8013c58": {
+      "id": "node_573bf8013c58",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_697eab9f4a25",
+      "parent_node_id": "node_ec35283df97a",
+      "title": {
+        "ko": "PM",
+        "en": "Pm"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 1007.2126862896658,
+        "y": 342.67195334584153
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:51.018629+00:00",
+      "updated_at": "2026-05-25T11:32:29.807447+00:00"
+    },
+    "node_3248eb2409af": {
+      "id": "node_3248eb2409af",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_847b48e0549c",
+      "parent_node_id": "node_ec35283df97a",
+      "title": {
+        "ko": "마케팅",
+        "en": "마케팅"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 1496.2682306195052,
+        "y": 337.5288180283367
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:49:55.791706+00:00",
+      "updated_at": "2026-05-25T11:32:29.811809+00:00"
+    },
+    "node_995d88c76b9d": {
+      "id": "node_995d88c76b9d",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_a07930af10c5",
+      "parent_node_id": "node_e4d11010cdd4",
+      "title": {
+        "ko": "FDA",
+        "en": "Fda"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 762.2304988848002,
+        "y": 530.1930793130966
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:50:11.253444+00:00",
+      "updated_at": "2026-05-25T11:32:29.816299+00:00"
+    },
+    "node_daba5b765957": {
+      "id": "node_daba5b765957",
+      "graph_thread_id": "graph_default",
+      "thread_id": "thread_63888f14bd0d",
+      "parent_node_id": "node_e4d11010cdd4",
+      "title": {
+        "ko": "CE",
+        "en": "Ce"
+      },
+      "user_edited_title_locales": {
+        "ko": false,
+        "en": false
+      },
+      "position": {
+        "x": 513.7108120289924,
+        "y": 533.8891367315795
+      },
+      "manually_positioned": true,
+      "created_at": "2026-05-19T01:50:17.796822+00:00",
+      "updated_at": "2026-05-25T11:32:29.820560+00:00"
     }
   },
   "settings": {
@@ -228,68 +904,211 @@
     "locale": "ko"
   },
   "threads": {
-    "thread_0ce7ca46ff47": {
-      "created_at": "2026-05-19T01:50:30.481291+00:00",
-      "id": "thread_0ce7ca46ff47",
-      "node_id": "node_76c3a6eb1a2d",
+    "thread_9b2acb8951ed": {
+      "id": "thread_9b2acb8951ed",
       "title": {
-        "ko": "Repository 폴더 구조 설계"
+        "ko": "창업",
+        "en": "창업"
       },
-      "updated_at": "2026-05-19T01:50:48.636988+00:00"
+      "node_id": "node_0bd5e0474cdb",
+      "created_at": "2026-05-19T01:47:25.167027+00:00",
+      "updated_at": "2026-05-25T11:32:29.743358+00:00"
     },
-    "thread_4dc433d606b9": {
-      "created_at": "2026-05-18T12:06:17.532588+00:00",
-      "id": "thread_4dc433d606b9",
-      "node_id": "node_e9c59afd15bc",
+    "thread_8ee2c00f4b6a": {
+      "id": "thread_8ee2c00f4b6a",
       "title": {
-        "ko": "그래프 인터페이스 연구"
+        "ko": "Business Model",
+        "en": "Business Model"
       },
-      "updated_at": "2026-05-19T01:48:51.681158+00:00"
+      "node_id": "node_2ec6c7c2f0e2",
+      "created_at": "2026-05-19T01:47:39.908300+00:00",
+      "updated_at": "2026-05-25T11:32:29.749791+00:00"
     },
-    "thread_573504d5310a": {
-      "created_at": "2026-05-18T12:07:34.191231+00:00",
-      "id": "thread_573504d5310a",
-      "node_id": "node_cd0dd6e986ea",
+    "thread_07309d9d5eee": {
+      "id": "thread_07309d9d5eee",
       "title": {
-        "ko": "User Study"
+        "ko": "시장 규모",
+        "en": "시장 규모"
       },
-      "updated_at": "2026-05-19T01:49:14.184717+00:00"
+      "node_id": "node_ff0dc3b2b7fe",
+      "created_at": "2026-05-19T01:48:02.958273+00:00",
+      "updated_at": "2026-05-25T11:32:29.755589+00:00"
     },
-    "thread_95f66daacb1c": {
-      "created_at": "2026-05-18T12:06:22.636710+00:00",
-      "id": "thread_95f66daacb1c",
-      "node_id": "node_98fa10c1d8e4",
+    "thread_7a08c15d61a3": {
+      "id": "thread_7a08c15d61a3",
       "title": {
-        "ko": "기술적 구현 방안"
+        "ko": "제약 조건",
+        "en": "제약 조건"
       },
-      "updated_at": "2026-05-19T01:50:10.404640+00:00"
+      "node_id": "node_1196ace7ce1b",
+      "created_at": "2026-05-19T01:48:14.835737+00:00",
+      "updated_at": "2026-05-25T11:32:29.761079+00:00"
     },
-    "thread_a33064073f7e": {
-      "created_at": "2026-05-19T01:45:00.677825+00:00",
-      "id": "thread_a33064073f7e",
-      "node_id": "node_42abb12caa42",
+    "thread_9c08e11cc2c8": {
+      "id": "thread_9c08e11cc2c8",
       "title": {
-        "ko": "시작 대화"
+        "ko": "국내 시장",
+        "en": "국내 시장"
       },
-      "updated_at": "2026-05-19T01:45:00.677825+00:00"
+      "node_id": "node_bf9114c6b882",
+      "created_at": "2026-05-19T01:48:43.584243+00:00",
+      "updated_at": "2026-05-25T11:32:29.766349+00:00"
     },
-    "thread_bf1e540ad7d1": {
-      "created_at": "2026-05-19T01:50:54.333442+00:00",
-      "id": "thread_bf1e540ad7d1",
-      "node_id": "node_14534027373a",
+    "thread_934bcf78b0f0": {
+      "id": "thread_934bcf78b0f0",
       "title": {
-        "ko": "Github 관련 문제 해결"
+        "ko": "해외 시장",
+        "en": "해외 시장"
       },
-      "updated_at": "2026-05-19T01:51:17.115113+00:00"
+      "node_id": "node_eed266261d5d",
+      "created_at": "2026-05-19T01:48:53.674963+00:00",
+      "updated_at": "2026-05-25T11:32:29.771429+00:00"
     },
-    "thread_df9ca9721fce": {
-      "created_at": "2026-05-19T01:10:35.914866+00:00",
-      "id": "thread_df9ca9721fce",
-      "node_id": "node_868bbb464e45",
+    "thread_f86fd5e0a57c": {
+      "id": "thread_f86fd5e0a57c",
       "title": {
-        "ko": "NASA-TLX 질문"
+        "ko": "유럽",
+        "en": "유럽"
       },
-      "updated_at": "2026-05-19T01:49:41.485631+00:00"
+      "node_id": "node_329664e29cdd",
+      "created_at": "2026-05-19T01:48:59.941064+00:00",
+      "updated_at": "2026-05-25T11:32:29.776338+00:00"
+    },
+    "thread_9ab52dfd068b": {
+      "id": "thread_9ab52dfd068b",
+      "title": {
+        "ko": "미국",
+        "en": "미국"
+      },
+      "node_id": "node_f757ceb7ce42",
+      "created_at": "2026-05-19T01:49:05.374850+00:00",
+      "updated_at": "2026-05-25T11:32:29.781013+00:00"
+    },
+    "thread_8ea7a2256f8b": {
+      "id": "thread_8ea7a2256f8b",
+      "title": {
+        "ko": "아시아",
+        "en": "아시아"
+      },
+      "node_id": "node_105637bd6902",
+      "created_at": "2026-05-19T01:49:13.073686+00:00",
+      "updated_at": "2026-05-25T11:32:29.785576+00:00"
+    },
+    "thread_d63b8df11397": {
+      "id": "thread_d63b8df11397",
+      "title": {
+        "ko": "규제",
+        "en": "규제"
+      },
+      "node_id": "node_e4d11010cdd4",
+      "created_at": "2026-05-19T01:49:21.545861+00:00",
+      "updated_at": "2026-05-25T11:32:29.790006+00:00"
+    },
+    "thread_7160c37db9ec": {
+      "id": "thread_7160c37db9ec",
+      "title": {
+        "ko": "초기 자본",
+        "en": "초기 자본"
+      },
+      "node_id": "node_99c290b7a4b8",
+      "created_at": "2026-05-19T01:49:28.421449+00:00",
+      "updated_at": "2026-05-25T11:32:29.794885+00:00"
+    },
+    "thread_c204bd83b876": {
+      "id": "thread_c204bd83b876",
+      "title": {
+        "ko": "직원",
+        "en": "직원"
+      },
+      "node_id": "node_ec35283df97a",
+      "created_at": "2026-05-19T01:49:36.133701+00:00",
+      "updated_at": "2026-05-25T11:32:29.799745+00:00"
+    },
+    "thread_fcdc4ce7b839": {
+      "id": "thread_fcdc4ce7b839",
+      "title": {
+        "ko": "개발자",
+        "en": "개발자"
+      },
+      "node_id": "node_12d1bf1754f8",
+      "created_at": "2026-05-19T01:49:45.116278+00:00",
+      "updated_at": "2026-05-25T11:32:29.805268+00:00"
+    },
+    "thread_697eab9f4a25": {
+      "id": "thread_697eab9f4a25",
+      "title": {
+        "ko": "PM",
+        "en": "Pm"
+      },
+      "node_id": "node_573bf8013c58",
+      "created_at": "2026-05-19T01:49:51.018643+00:00",
+      "updated_at": "2026-05-25T11:32:29.809566+00:00"
+    },
+    "thread_847b48e0549c": {
+      "id": "thread_847b48e0549c",
+      "title": {
+        "ko": "마케팅",
+        "en": "마케팅"
+      },
+      "node_id": "node_3248eb2409af",
+      "created_at": "2026-05-19T01:49:55.791723+00:00",
+      "updated_at": "2026-05-25T11:32:29.814074+00:00"
+    },
+    "thread_a07930af10c5": {
+      "id": "thread_a07930af10c5",
+      "title": {
+        "ko": "FDA",
+        "en": "Fda"
+      },
+      "node_id": "node_995d88c76b9d",
+      "created_at": "2026-05-19T01:50:11.253466+00:00",
+      "updated_at": "2026-05-25T11:32:29.818451+00:00"
+    },
+    "thread_63888f14bd0d": {
+      "id": "thread_63888f14bd0d",
+      "title": {
+        "ko": "CE",
+        "en": "Ce"
+      },
+      "node_id": "node_daba5b765957",
+      "created_at": "2026-05-19T01:50:17.796848+00:00",
+      "updated_at": "2026-05-25T11:32:29.822685+00:00"
+    }
+  },
+  "conversations": {
+    "conv_677426daf8c2": {
+      "id": "conv_677426daf8c2",
+      "title": {
+        "ko": "새 대화",
+        "en": "New chat"
+      },
+      "created_at": "2026-05-25T11:39:55.045295+00:00",
+      "updated_at": "2026-05-25T11:39:55.045295+00:00"
+    },
+    "conv_31a493a05d94": {
+      "id": "conv_31a493a05d94",
+      "title": {
+        "ko": ".",
+        "en": "New chat"
+      },
+      "created_at": "2026-05-25T11:40:01.873838+00:00",
+      "updated_at": "2026-05-25T11:40:03.471744+00:00"
+    }
+  },
+  "chat_messages": {
+    "cmsg_e835add6d132": {
+      "id": "cmsg_e835add6d132",
+      "conversation_id": "conv_31a493a05d94",
+      "role": "user",
+      "content": ".",
+      "created_at": "2026-05-25T11:40:03.328621+00:00"
+    },
+    "cmsg_ba764feba9ee": {
+      "id": "cmsg_ba764feba9ee",
+      "conversation_id": "conv_31a493a05d94",
+      "role": "assistant",
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-25T11:40:03.468198+00:00"
     }
   }
 }
