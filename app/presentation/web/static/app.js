@@ -1293,14 +1293,11 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   const actions = document.createElement('div');
   actions.className = 'node-actions';
 
-  const actions = createNodeMicroToolbar(node, card);
-
   card.appendChild(title);
   card.appendChild(actions);
   card.dataset.nodeId = node.id;
   card.dataset.threadId = node.threadId;
   card.addEventListener('pointerdown', (event) => beginNodeDrag(event, node, card));
-  attachMicroToolbarHover(card, actions);
   el.nodeLayer.appendChild(card);
   updateNodeStatusDot(card, node);
 }
