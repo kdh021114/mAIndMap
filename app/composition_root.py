@@ -42,6 +42,12 @@ from app.infrastructure.persistence.json_repositories import (
 )
 from app.infrastructure.persistence.json_store import JsonStore
 from app.presentation.web.routes import register_routes
+from chat_ui import register_chat_ui
+from chat_ui.streaming import (
+    MockStreamingChatModel,
+    OpenAIStreamingChatModel,
+    StreamingChatModel,
+)
 
 
 @dataclass(frozen=True)
@@ -101,6 +107,11 @@ def create_app(config_module) -> Flask:
             test_mode=config_module.TEST_MODE,
         )
     ).create_services()
+
+    streaming_chat_model: StreamingChatModel = _build_streaming_chat_model(
+        llm_services=llm_services,
+        config_module=config_module,
+    )
 
     tree_policy = TreeGraphPolicy()
     ancestor_context_builder = AncestorLineageContextBuilder(
@@ -219,4 +230,27 @@ def create_app(config_module) -> Flask:
 
     flask_app = Flask(__name__, static_folder="presentation/web/static", static_url_path="/static")
     register_routes(flask_app, use_cases)
+    register_chat_ui(
+        flask_app,
+        store=store,
+        settings_repository=settings_repository,
+        streaming_chat_model=streaming_chat_model,
+        title_generator=llm_services.title_generator,
+    )
     return flask_app
+
+
+def _build_streaming_chat_model(
+    *,
+    llm_services,
+    config_module,
+) -> StreamingChatModel:
+    if llm_services.using_mock:
+        return MockStreamingChatModel(llm_services.chat_model)
+    # Real-OpenAI path is a deferred skeleton; raises on first stream attempt.
+    from app.infrastructure.llm.openai_client_factory import (
+        OpenAIClientFactory,
+        OpenAITextClient,
+    )
+    text_client = OpenAITextClient(OpenAIClientFactory(api_key=config_module.OPENAI_API_KEY))
+    return OpenAIStreamingChatModel(text_client, config_module.OPENAI_CHAT_MODEL)

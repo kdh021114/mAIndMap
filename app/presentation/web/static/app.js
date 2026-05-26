@@ -50,6 +50,9 @@ const i18n = {
     searchNoResults: '검색 결과가 없습니다.',
     searchTagTitle: '제목',
     searchTagMessage: '메시지',
+    searchPrevMatch: '이전 결과',
+    searchNextMatch: '다음 결과',
+    searchOffscreenHint: '현재 검색 결과로 이동',
     mergeNodes: '병합',
     mergeOnlySiblings: '같은 부모를 가진 형제 노드만 병합할 수 있습니다.',
     mergeNeedTwo: '병합하려면 2개 이상의 노드를 선택하세요.',
@@ -115,6 +118,9 @@ const i18n = {
     searchNoResults: 'No matching nodes or messages.',
     searchTagTitle: 'Title',
     searchTagMessage: 'Message',
+    searchPrevMatch: 'Previous match',
+    searchNextMatch: 'Next match',
+    searchOffscreenHint: 'Jump to current match',
     mergeNodes: 'Merge',
     mergeOnlySiblings: 'Only sibling nodes under the same parent can be merged.',
     mergeNeedTwo: 'Select 2 or more nodes to merge.',
@@ -157,9 +163,21 @@ let sidebarResize = null;
 let searchQuery = '';
 let searchResults = [];
 let searchMatchNodeIds = new Set();
+let searchMatchOrder = [];
+let searchCurrentIndex = -1;
+let previousSearchMatchIds = new Set();
 let searchDebounceHandle = null;
+let searchOffscreenRafHandle = null;
 let splitMode = false;
 let splitSelectedMessageIds = new Set();
+let minimapCollapsed = localStorage.getItem('graph_minimap_collapsed') === 'true';
+let minimapRedrawHandle = null;
+let minimapDrag = null;
+// TODO: no backend rename endpoint for graph threads yet — store local overrides keyed by graphThreadId.
+const localGraphTitleOverrides = new Map();
+let nodeMessagesCache = new Map();
+let freshnessRefreshHandle = null;
+const FRESHNESS_RECENT_WINDOW_MS = 5 * 60 * 1000;
 
 const GRAPH_VIEW = {
   minScale: 0.35,
@@ -180,14 +198,79 @@ const NODE_SIZE = {
 };
 
 const ZOOM_LEVEL_THRESHOLDS = [
-  { level: 'compact', max: 0.55 },
-  { level: 'medium', max: 0.95 },
-  { level: 'full', max: Infinity },
+  { level: 'compact', max: 0.6 },
+  { level: 'medium', max: 1.15 },
+  { level: 'detailed', max: Infinity },
 ];
 
-let currentZoomLevel = 'full';
+let currentZoomLevel = 'medium';
+
+// threadId -> { lastUserPreview: string | null, loaded: boolean }
+const nodePreviewCache = new Map();
+const nodePreviewInflight = new Map();
 
 const HISTORY_LIMIT = 40;
+
+// --- Edge label differentiation ---------------------------------------------
+// Cosmetic-only client-side mapping. Phrases are normalized (lowercase, trimmed)
+// before lookup, so bilingual variants and minor whitespace differ. Categories
+// drive only a 6x6 prefix dot; the label text itself stays subtle.
+const EDGE_PHRASE_CATEGORY_MAP = {
+  // specify / detail -> blue
+  '구체화': 'specify',
+  'specify': 'specify',
+  'detail': 'specify',
+  '상세화': 'specify',
+  // expand / branch -> green
+  '확장': 'expand',
+  'expand': 'expand',
+  'branch': 'expand',
+  '새 분기': 'expand',
+  'new branch': 'expand',
+  // counter / object -> red
+  '반박': 'counter',
+  'counter': 'counter',
+  'object': 'counter',
+  '반대': 'counter',
+  // alternative -> purple
+  '대안': 'alternative',
+  'alternative': 'alternative',
+  'alt': 'alternative',
+};
+const EDGE_CATEGORY_COLORS = {
+  specify: '#3b82f6',     // blue
+  expand: '#10b981',      // green
+  counter: '#ef4444',     // red
+  alternative: '#8b5cf6', // purple
+  default: '#94a3b8',     // gray
+};
+// Phrase appears in current graph this many times before duplicates dim.
+// `> EDGE_DUPLICATE_THRESHOLD` → label considered duplicate (except first hit).
+const EDGE_DUPLICATE_THRESHOLD = 1;
+// Per-render state computed by renderGraph() and consumed by drawEdge().
+let edgePhraseCounts = new Map();         // normalized phrase -> total count
+let edgePhraseFirstSeen = new Map();      // normalized phrase -> first edge.id encountered
+// In-memory fallback flag for "user has edited this label this session".
+// Used when the backend `phraseGeneratedBy` field is absent or stale.
+const locallyUserEditedEdgeIds = new Set();
+
+function normalizeEdgePhraseKey(phrase) {
+  return (phrase || '').trim().toLowerCase();
+}
+
+function categorizeEdgePhrase(phrase) {
+  const key = normalizeEdgePhraseKey(phrase);
+  if (!key) return 'default';
+  return EDGE_PHRASE_CATEGORY_MAP[key] || 'default';
+}
+
+function isEdgeLabelImportant(edge) {
+  if (!edge) return false;
+  if (edge.phraseGeneratedBy === 'user') return true;
+  if (edge._userEdited === true) return true;
+  if (locallyUserEditedEdgeIds.has(edge.id)) return true;
+  return false;
+}
 
 const el = {
   graphViewport: document.getElementById('graph-scroll'),
@@ -221,17 +304,206 @@ const el = {
   searchInput: document.getElementById('search-input'),
   searchClearBtn: document.getElementById('search-clear-btn'),
   searchResults: document.getElementById('search-results'),
+  searchNav: document.getElementById('search-nav'),
+  searchNavCounter: document.getElementById('search-nav-counter'),
+  searchNavPrev: document.getElementById('search-nav-prev'),
+  searchNavNext: document.getElementById('search-nav-next'),
+  searchOffscreenIndicator: document.getElementById('search-offscreen-indicator'),
+  graphPanel: document.querySelector('.graph-panel'),
   mergeBtn: document.getElementById('merge-btn'),
   splitModeBtn: document.getElementById('split-mode-btn'),
   splitToolbar: document.getElementById('split-toolbar'),
   splitHint: document.getElementById('split-hint'),
   splitCancelBtn: document.getElementById('split-cancel-btn'),
   splitConfirmBtn: document.getElementById('split-confirm-btn'),
+  graphControls: document.getElementById('graph-controls'),
+  zoomInBtn: document.getElementById('zoom-in-btn'),
+  zoomOutBtn: document.getElementById('zoom-out-btn'),
+  zoomPctBtn: document.getElementById('zoom-pct-btn'),
+  fitViewBtn: document.getElementById('fit-view-btn'),
+  centerRootBtn: document.getElementById('center-root-btn'),
+  minimapPanel: document.getElementById('minimap-panel'),
+  minimapBody: document.getElementById('minimap-body'),
+  minimapCanvas: document.getElementById('minimap-canvas'),
+  minimapViewport: document.getElementById('minimap-viewport'),
+  minimapToggleBtn: document.getElementById('minimap-toggle-btn'),
+  graphHeader: document.getElementById('graph-header'),
+  graphHeaderTitle: document.getElementById('graph-header-title'),
+  graphHeaderStats: document.getElementById('graph-header-stats'),
+  graphHeaderLlm: document.getElementById('graph-header-llm'),
+  graphHeaderLlmLabel: document.getElementById('graph-header-llm-label'),
+  contextBreadcrumb: document.getElementById('context-breadcrumb'),
 };
 
 function t(key) {
   const locale = state?.locale || 'ko';
   return i18n[locale]?.[key] || i18n.ko[key] || key;
+}
+
+function parseTimestamp(value) {
+  if (!value) return null;
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function isNodeRecent(node) {
+  if (!node) return false;
+  const ts = parseTimestamp(node.updatedAt) || parseTimestamp(node.createdAt);
+  if (ts === null) return false;
+  return Date.now() - ts <= FRESHNESS_RECENT_WINDOW_MS;
+}
+
+function cachedMessagesForNode(node) {
+  if (!node) return null;
+  if (node.id === selectedNodeId && Array.isArray(messages)) return messages;
+  return nodeMessagesCache.has(node.id) ? nodeMessagesCache.get(node.id) : null;
+}
+
+function isNodeAwaitingReply(node) {
+  if (!node) return false;
+  const msgs = cachedMessagesForNode(node);
+  if (!msgs || msgs.length === 0) return false;
+  const last = msgs[msgs.length - 1];
+  return last && last.role === 'user';
+}
+
+function threadHasAwaitingReply(graphThreadId) {
+  if (!state) return false;
+  for (const node of state.nodes || []) {
+    if (node.graphThreadId !== graphThreadId) continue;
+    if (isNodeAwaitingReply(node)) return true;
+  }
+  return false;
+}
+
+async function refreshNodeMessagesCache() {
+  if (!state) return;
+  const nodes = state.nodes || [];
+  const validIds = new Set(nodes.map((n) => n.id));
+  for (const key of [...nodeMessagesCache.keys()]) {
+    if (!validIds.has(key)) nodeMessagesCache.delete(key);
+  }
+  const targets = nodes.filter((n) => {
+    if (n.id === selectedNodeId) return false;
+    if (n.messageCount === 0) {
+      nodeMessagesCache.set(n.id, []);
+      return false;
+    }
+    return !nodeMessagesCache.has(n.id);
+  });
+  if (targets.length === 0) {
+    refreshFreshnessUi();
+    return;
+  }
+  await Promise.all(
+    targets.map(async (node) => {
+      try {
+        const msgs = await api(`/api/threads/${node.threadId}/messages`);
+        nodeMessagesCache.set(node.id, Array.isArray(msgs) ? msgs : []);
+      } catch (err) {
+        // best-effort: leave uncached on failure
+      }
+    }),
+  );
+  refreshFreshnessUi();
+}
+
+function scheduleFreshnessRefresh() {
+  if (freshnessRefreshHandle) return;
+  freshnessRefreshHandle = setTimeout(() => {
+    freshnessRefreshHandle = null;
+    refreshNodeMessagesCache();
+  }, 60);
+}
+
+function refreshFreshnessUi() {
+  if (!state) return;
+  for (const node of state.nodes || []) {
+    const card = el.nodeLayer.querySelector(`.node-card[data-node-id="${node.id}"]`);
+    if (card) {
+      updateNodeStatusDot(card, node);
+    }
+  }
+  refreshThreadFreshnessDots();
+}
+
+function updateNodeStatusDot(card, node) {
+  const existing = card.querySelector('.node-status-dot');
+  const awaiting = isNodeAwaitingReply(node);
+  const recent = !awaiting && isNodeRecent(node);
+  if (!awaiting && !recent) {
+    if (existing) existing.remove();
+    return;
+  }
+  const dot = existing || document.createElement('span');
+  dot.className = `node-status-dot ${awaiting ? 'awaiting' : 'recent'}`;
+  dot.title = awaiting ? t('dotAwaiting') : t('dotRecent');
+  dot.setAttribute('aria-label', awaiting ? t('dotAwaiting') : t('dotRecent'));
+  if (!existing) card.appendChild(dot);
+}
+
+function ensureEmptyCta() {
+  let cta = document.getElementById('empty-cta');
+  if (cta) return cta;
+  cta = document.createElement('div');
+  cta.id = 'empty-cta';
+  cta.className = 'empty-cta hidden';
+
+  const heading = document.createElement('h2');
+  heading.className = 'empty-cta-heading';
+  heading.id = 'empty-cta-heading';
+
+  const sub = document.createElement('p');
+  sub.className = 'empty-cta-sub';
+  sub.id = 'empty-cta-sub';
+
+  const btn = document.createElement('button');
+  btn.id = 'empty-cta-button';
+  btn.className = 'empty-cta-button';
+  btn.type = 'button';
+  btn.addEventListener('pointerdown', (event) => event.stopPropagation());
+  btn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    createRoot();
+  });
+
+  cta.appendChild(heading);
+  cta.appendChild(sub);
+  cta.appendChild(btn);
+  el.graphViewport.appendChild(cta);
+  return cta;
+}
+
+function showEmptyCta() {
+  const cta = ensureEmptyCta();
+  cta.querySelector('#empty-cta-heading').textContent = t('emptyCtaHeading');
+  cta.querySelector('#empty-cta-sub').textContent = t('emptyCtaSubtext');
+  cta.querySelector('#empty-cta-button').textContent = t('emptyCtaButton');
+  cta.classList.remove('hidden');
+}
+
+function hideEmptyCta() {
+  const cta = document.getElementById('empty-cta');
+  if (cta) cta.classList.add('hidden');
+}
+
+function refreshThreadFreshnessDots() {
+  if (!el.threadList) return;
+  const items = el.threadList.querySelectorAll('.thread-item');
+  items.forEach((item) => {
+    const threadId = item.dataset.graphThreadId;
+    const existing = item.querySelector(':scope > .thread-status-dot');
+    const awaiting = threadId ? threadHasAwaitingReply(threadId) : false;
+    if (!awaiting) {
+      if (existing) existing.remove();
+      return;
+    }
+    const dot = existing || document.createElement('span');
+    dot.className = 'thread-status-dot';
+    dot.title = t('dotAwaiting');
+    dot.setAttribute('aria-label', t('dotAwaiting'));
+    if (!existing) item.appendChild(dot);
+  });
 }
 
 function llmModeLabel() {
@@ -299,6 +571,9 @@ function restoreUiState(uiState) {
 async function reloadSelectedMessages() {
   const node = getSelectedNode();
   messages = node ? await api(`/api/threads/${node.threadId}/messages`) : [];
+  if (node) {
+    nodeMessagesCache.set(node.id, Array.isArray(messages) ? [...messages] : []);
+  }
 }
 
 async function restoreHistorySnapshot(snapshot, uiState) {
@@ -361,7 +636,7 @@ function renderAll() {
   el.webSearchToggle.title = webSearchAvailable ? t('webSearchReady') : t('webSearchUnavailable');
   el.webSearchToggle.setAttribute('aria-label', t('webSearch'));
   el.modeIndicator.textContent = t('testMode');
-  el.modeIndicator.classList.toggle('hidden', state.llmMode !== 'test');
+  el.modeIndicator.classList.add('hidden');
   el.hideChatBtn.title = t('hideChat');
   el.hideChatBtn.setAttribute('aria-label', t('hideChat'));
   el.newThreadBtn.title = t('newGraphThread');
@@ -369,6 +644,7 @@ function renderAll() {
   el.messageInput.disabled = !selectedNodeId || isSending;
   el.sendButton.disabled = !selectedNodeId || isSending;
   renderSelectionToolbar();
+  renderGraphHeader();
 
   renderThreadSidebar();
   renderGraph();
@@ -376,6 +652,26 @@ function renderAll() {
   applyThreadSidebarState();
   applyChatSidebarState();
   applySearchPlaceholder();
+  applyGraphControlsLocalization();
+  applyMinimapState();
+  scheduleMinimapRedraw();
+  // Re-sync match order with the (possibly updated) node set,
+  // since renderAll runs after state changes (e.g. node create/delete).
+  if (searchMatchNodeIds.size > 0) {
+    const prevId = searchMatchOrder[searchCurrentIndex] ?? null;
+    searchMatchOrder = buildMatchOrder();
+    if (searchMatchOrder.length === 0) {
+      searchCurrentIndex = -1;
+    } else if (prevId && searchMatchOrder.includes(prevId)) {
+      searchCurrentIndex = searchMatchOrder.indexOf(prevId);
+    } else {
+      searchCurrentIndex = clamp(searchCurrentIndex, 0, searchMatchOrder.length - 1);
+    }
+    renderSearchNav();
+  }
+  updateOffscreenIndicator();
+  refreshThreadFreshnessDots();
+  scheduleFreshnessRefresh();
 }
 
 function reconcileSelectionWithState() {
@@ -413,6 +709,90 @@ function renderSelectionToolbar() {
   el.selectionToolbar.classList.toggle('has-selection', selectedCount > 0);
 }
 
+function activeGraphThread() {
+  if (!state) return null;
+  const threads = state.graphThreads || [];
+  return threads.find((thread) => thread.id === state.activeGraphThreadId) || threads[0] || null;
+}
+
+function activeGraphDisplayTitle() {
+  const thread = activeGraphThread();
+  if (!thread) return t('untitledGraph');
+  if (localGraphTitleOverrides.has(thread.id)) {
+    return localGraphTitleOverrides.get(thread.id);
+  }
+  return thread.displayTitle || t('untitledGraph');
+}
+
+function renderGraphHeader() {
+  if (!el.graphHeader || !el.graphHeaderTitle) return;
+  const thread = activeGraphThread();
+  const title = activeGraphDisplayTitle();
+  el.graphHeaderTitle.textContent = title;
+  el.graphHeaderTitle.title = t('editGraphTitle');
+  el.graphHeaderTitle.setAttribute('aria-label', t('editGraphTitle'));
+
+  const nodeCount = thread ? thread.nodeCount : (state?.nodes?.length || 0);
+  const messageCount = thread
+    ? thread.messageCount
+    : (state?.nodes || []).reduce((sum, node) => sum + (node.messageCount || 0), 0);
+  el.graphHeaderStats.textContent = `${nodeCount} ${t('nodes')} · ${messageCount} ${t('messages')}`;
+
+  if (el.graphHeaderLlmLabel) el.graphHeaderLlmLabel.textContent = llmModeLabel();
+  if (el.graphHeaderLlm) {
+    el.graphHeaderLlm.dataset.llmMode = state?.llmMode || 'mock';
+  }
+}
+
+function startGraphHeaderTitleEdit() {
+  const titleElement = el.graphHeaderTitle;
+  if (!titleElement || titleElement.querySelector('input')) return;
+  const thread = activeGraphThread();
+  const currentTitle = activeGraphDisplayTitle();
+
+  const input = document.createElement('input');
+  input.className = 'graph-header-title-input';
+  input.value = currentTitle;
+  input.setAttribute('aria-label', t('editGraphTitle'));
+  titleElement.classList.add('editing');
+  titleElement.replaceChildren(input);
+  input.focus();
+  input.select();
+
+  let finished = false;
+  const finish = (shouldSave) => {
+    if (finished) return;
+    finished = true;
+    const nextTitle = input.value.trim();
+    titleElement.classList.remove('editing');
+
+    if (!shouldSave || !nextTitle || nextTitle === currentTitle) {
+      titleElement.textContent = currentTitle;
+      return;
+    }
+
+    // TODO: backend graph-thread rename endpoint not implemented yet — apply UI-only override.
+    if (thread) {
+      localGraphTitleOverrides.set(thread.id, nextTitle);
+    }
+    titleElement.textContent = nextTitle;
+  };
+
+  input.addEventListener('pointerdown', (event) => event.stopPropagation());
+  input.addEventListener('keydown', (event) => {
+    event.stopPropagation();
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      finish(true);
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      finish(false);
+    }
+  });
+  input.addEventListener('blur', () => finish(true));
+}
+
 function allSelectedAreSiblings() {
   if (!state || selectedNodeIds.size < 2) return false;
   const nodes = state.nodes.filter((node) => selectedNodeIds.has(node.id));
@@ -427,6 +807,7 @@ function renderThreadSidebar() {
   for (const graphThread of state.graphThreads || []) {
     const item = document.createElement('article');
     item.className = 'thread-item';
+    item.dataset.graphThreadId = graphThread.id;
     if (graphThread.id === state.activeGraphThreadId) item.classList.add('active');
 
     const content = document.createElement('button');
@@ -499,25 +880,10 @@ function renderGraph() {
   el.edgeLayer.setAttribute('viewBox', '0 0 1 1');
   ensureEdgeArrowMarker();
   el.graphViewport.classList.remove('context-active');
+  hideContextBreadcrumb();
 
   if (state.nodes.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'graph-empty';
-    empty.style.position = 'absolute';
-    empty.style.left = '0px';
-    empty.style.top = '0px';
-
-    const createButton = document.createElement('button');
-    createButton.className = 'create-root-button';
-    createButton.type = 'button';
-    createButton.textContent = '+';
-    createButton.title = t('createRootHint');
-    createButton.setAttribute('aria-label', t('createRootHint'));
-    createButton.addEventListener('pointerdown', (event) => event.stopPropagation());
-    createButton.addEventListener('click', createRoot);
-    empty.appendChild(createButton);
-
-    el.nodeLayer.appendChild(empty);
+    showEmptyCta();
     centerViewOnPoint(0, 0);
     hasCenteredGraph = true;
     applyGraphView();
@@ -527,7 +893,22 @@ function renderGraph() {
   applyRelativeNodeSizes();
   const contextHighlight = selectedContextHighlight();
   el.graphViewport.classList.toggle('context-active', contextHighlight.active);
+  renderContextBreadcrumb(contextHighlight);
   const layoutById = new Map(state.nodes.map((node) => [node.id, node.layout]));
+
+  // Build phrase frequency table for duplicate dimming. Important labels
+  // (user-edited) are excluded from the duplicate pool so they always win.
+  edgePhraseCounts = new Map();
+  edgePhraseFirstSeen = new Map();
+  for (const edge of state.edges) {
+    if (isEdgeLabelImportant(edge)) continue;
+    const key = normalizeEdgePhraseKey(edge.displayPhrase);
+    if (!key) continue;
+    edgePhraseCounts.set(key, (edgePhraseCounts.get(key) || 0) + 1);
+    if (!edgePhraseFirstSeen.has(key)) {
+      edgePhraseFirstSeen.set(key, edge.id);
+    }
+  }
 
   for (const edge of state.edges) {
     const source = layoutById.get(edge.sourceNodeId);
@@ -551,25 +932,133 @@ function renderGraph() {
 }
 
 function selectedContextHighlight() {
-  const empty = { active: false, nodeIds: new Set(), edgeIds: new Set() };
+  const empty = {
+    active: false,
+    nodeIds: new Set(),
+    edgeIds: new Set(),
+    ancestorNodeIds: new Set(),
+    ancestorEdgeIds: new Set(),
+    lineage: [],
+  };
   if (!selectedNodeId || selectionMode || selectedNodeIds.size > 0) return empty;
 
   const nodesById = new Map(state.nodes.map((node) => [node.id, node]));
-  let node = nodesById.get(selectedNodeId);
-  if (!node) return empty;
+  const selectedNode = nodesById.get(selectedNodeId);
+  if (!selectedNode) return empty;
 
-  const nodeIds = new Set();
-  while (node) {
-    nodeIds.add(node.id);
-    node = node.parentNodeId ? nodesById.get(node.parentNodeId) : null;
+  // Walk parent chain from selected upward.
+  const chain = [];
+  let cursor = selectedNode;
+  while (cursor) {
+    chain.push(cursor);
+    cursor = cursor.parentNodeId ? nodesById.get(cursor.parentNodeId) : null;
   }
+  // lineage is ordered root -> ... -> parent -> selected.
+  const lineage = chain.slice().reverse();
+
+  const nodeIds = new Set(lineage.map((node) => node.id));
+  const ancestorNodeIds = new Set(lineage.slice(0, -1).map((node) => node.id));
 
   const edgeIds = new Set(
     state.edges
       .filter((edge) => nodeIds.has(edge.sourceNodeId) && nodeIds.has(edge.targetNodeId))
       .map((edge) => edge.id),
   );
-  return { active: true, nodeIds, edgeIds };
+  // Ancestor edges connect two nodes whose deeper end is itself an ancestor (i.e. not the selected node).
+  // Practically: an edge is "ancestor" when both endpoints are ancestors OR the edge target is an ancestor.
+  // Since the lineage chain is linear, ancestor edges are all lineage edges except the one terminating in the selected node.
+  const ancestorEdgeIds = new Set(
+    state.edges
+      .filter(
+        (edge) =>
+          nodeIds.has(edge.sourceNodeId) &&
+          nodeIds.has(edge.targetNodeId) &&
+          edge.targetNodeId !== selectedNodeId,
+      )
+      .map((edge) => edge.id),
+  );
+  return { active: true, nodeIds, edgeIds, ancestorNodeIds, ancestorEdgeIds, lineage };
+}
+
+function hideContextBreadcrumb() {
+  if (!el.contextBreadcrumb) return;
+  el.contextBreadcrumb.classList.add('hidden');
+  el.contextBreadcrumb.innerHTML = '';
+}
+
+function renderContextBreadcrumb(contextHighlight) {
+  if (!el.contextBreadcrumb) return;
+  if (!contextHighlight.active || contextHighlight.lineage.length === 0) {
+    hideContextBreadcrumb();
+    return;
+  }
+
+  el.contextBreadcrumb.classList.remove('hidden');
+  el.contextBreadcrumb.setAttribute('aria-label', t('contextBreadcrumbLabel'));
+  // Prevent canvas panning/zoom hijacking when interacting with the breadcrumb.
+  el.contextBreadcrumb.onpointerdown = (event) => event.stopPropagation();
+  el.contextBreadcrumb.onwheel = (event) => event.stopPropagation();
+
+  const segments = contextHighlight.lineage;
+  // If more than 4 segments, collapse the middle with an ellipsis: root › … › parent › selected.
+  const useEllipsis = segments.length > 4;
+  const displaySegments = useEllipsis
+    ? [
+        { node: segments[0], kind: 'ancestor' },
+        { node: null, kind: 'ellipsis' },
+        { node: segments[segments.length - 2], kind: 'ancestor' },
+        { node: segments[segments.length - 1], kind: 'selected' },
+      ]
+    : segments.map((node, idx) => ({
+        node,
+        kind: idx === segments.length - 1 ? 'selected' : 'ancestor',
+      }));
+
+  el.contextBreadcrumb.innerHTML = '';
+  displaySegments.forEach((segment, idx) => {
+    if (idx > 0) {
+      const sep = document.createElement('span');
+      sep.className = 'context-breadcrumb-sep';
+      sep.setAttribute('aria-hidden', 'true');
+      sep.textContent = '›';
+      el.contextBreadcrumb.appendChild(sep);
+    }
+    if (segment.kind === 'ellipsis') {
+      const ellipsis = document.createElement('span');
+      ellipsis.className = 'context-breadcrumb-ellipsis';
+      ellipsis.textContent = '…';
+      ellipsis.title = t('contextBreadcrumbEllipsis');
+      el.contextBreadcrumb.appendChild(ellipsis);
+      return;
+    }
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'context-breadcrumb-segment';
+    if (segment.kind === 'selected') button.classList.add('selected');
+    button.textContent = segment.node.displayTitle || t('contextBreadcrumbRoot');
+    button.title = segment.kind === 'selected'
+      ? segment.node.displayTitle
+      : t('contextBreadcrumbTooltip');
+    button.setAttribute('aria-current', segment.kind === 'selected' ? 'true' : 'false');
+    if (segment.kind !== 'selected') {
+      button.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        try {
+          resetMultiSelection();
+          await selectNode(segment.node.id);
+        } catch (error) {
+          showError(error);
+        }
+      });
+    } else {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+    }
+    el.contextBreadcrumb.appendChild(button);
+  });
 }
 
 function applyRelativeNodeSizes() {
@@ -653,7 +1142,14 @@ function drawEdge(edge, source, target, contextHighlight = selectedContextHighli
   path.setAttribute('class', 'edge-path');
   path.setAttribute('marker-end', 'url(#edge-arrowhead)');
   if (contextHighlight.active) {
-    path.classList.add(contextHighlight.edgeIds.has(edge.id) ? 'context-path' : 'context-dimmed');
+    if (contextHighlight.edgeIds.has(edge.id)) {
+      path.classList.add('context-path');
+      if (contextHighlight.ancestorEdgeIds.has(edge.id)) {
+        path.classList.add('context-ancestor');
+      }
+    } else {
+      path.classList.add('context-dimmed');
+    }
   }
   const targetNode = state.nodes.find((node) => node.id === edge.targetNodeId);
   applyDepthColors(path, targetNode?.depth || 0, true);
@@ -662,17 +1158,55 @@ function drawEdge(edge, source, target, contextHighlight = selectedContextHighli
   const label = document.createElement('div');
   label.className = 'edge-label';
   if (contextHighlight.active) {
-    label.classList.add(contextHighlight.edgeIds.has(edge.id) ? 'context-path' : 'context-dimmed');
+    if (contextHighlight.edgeIds.has(edge.id)) {
+      label.classList.add('context-path');
+      if (contextHighlight.ancestorEdgeIds.has(edge.id)) {
+        label.classList.add('context-ancestor');
+      }
+    } else {
+      label.classList.add('context-dimmed');
+    }
   }
   label.tabIndex = 0;
   label.setAttribute('role', 'button');
-  label.textContent = edge.displayPhrase || '...';
   label.title = t('editRelation');
   applyDepthColors(label, targetNode?.depth || 0);
   const lx = (sx + tx) / 2;
   const ly = (sy + ty) / 2;
   label.style.left = `${lx}px`;
   label.style.top = `${ly}px`;
+
+  // --- Edge label differentiation: category dot + duplicate dimming ---------
+  const phraseText = edge.displayPhrase || '...';
+  const phraseKey = normalizeEdgePhraseKey(edge.displayPhrase);
+  const important = isEdgeLabelImportant(edge);
+  const totalForPhrase = phraseKey ? (edgePhraseCounts.get(phraseKey) || 0) : 0;
+  const firstId = phraseKey ? edgePhraseFirstSeen.get(phraseKey) : null;
+  const isDuplicate =
+    !important &&
+    totalForPhrase > EDGE_DUPLICATE_THRESHOLD &&
+    firstId !== edge.id;
+
+  const category = categorizeEdgePhrase(edge.displayPhrase);
+  const dotColor = EDGE_CATEGORY_COLORS[category] || EDGE_CATEGORY_COLORS.default;
+
+  if (category !== 'default') {
+    label.classList.add(`edge-category-${category}`);
+  }
+  if (important) label.classList.add('edge-label-important');
+  if (isDuplicate) label.classList.add('edge-label-duplicate');
+
+  const dot = document.createElement('span');
+  dot.className = 'edge-label-dot';
+  dot.style.backgroundColor = dotColor;
+  dot.setAttribute('aria-hidden', 'true');
+  label.appendChild(dot);
+
+  const text = document.createElement('span');
+  text.className = 'edge-label-text';
+  text.textContent = phraseText;
+  label.appendChild(text);
+
   label.addEventListener('pointerdown', (event) => event.stopPropagation());
   label.addEventListener('click', () => startEdgePhraseEdit(edge, label));
   label.addEventListener('keydown', (event) => {
@@ -708,9 +1242,21 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   card.className = 'node-card';
   if (node.id === selectedNodeId) card.classList.add('selected');
   if (selectedNodeIds.has(node.id)) card.classList.add('multi-selected');
-  if (searchMatchNodeIds.has(node.id)) card.classList.add('search-match');
+  if (searchMatchNodeIds.has(node.id)) {
+    card.classList.add('search-match');
+    if (searchMatchOrder[searchCurrentIndex] === node.id) {
+      card.classList.add('search-match-current');
+    }
+  }
   if (contextHighlight.active) {
-    card.classList.add(contextHighlight.nodeIds.has(node.id) ? 'context-path' : 'context-dimmed');
+    if (contextHighlight.nodeIds.has(node.id)) {
+      card.classList.add('context-path');
+      if (contextHighlight.ancestorNodeIds.has(node.id)) {
+        card.classList.add('context-ancestor');
+      }
+    } else {
+      card.classList.add('context-dimmed');
+    }
     if (node.id === selectedNodeId) card.classList.add('context-current');
   }
   card.style.left = `${node.layout.x}px`;
@@ -719,6 +1265,12 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   card.style.height = `${node.layout.height}px`;
   card.style.minHeight = `${node.layout.height}px`;
   applyDepthColors(card, node.depth || 0);
+
+  // Conversation volume indicator (left edge strip + colored chip dot for compact mode).
+  // Drives CSS via --volume-ratio (0-1, log-scaled by message count).
+  const volumeRatio = conversationVolumeRatio(node.messageCount);
+  card.style.setProperty('--volume-ratio', volumeRatio.toFixed(3));
+  card.classList.toggle('has-messages', node.messageCount > 0);
 
   const title = document.createElement('div');
   title.className = 'node-title';
@@ -741,38 +1293,143 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   const actions = document.createElement('div');
   actions.className = 'node-actions';
 
-  const addButton = document.createElement('button');
-  addButton.className = 'node-action-button add';
-  addButton.type = 'button';
-  addButton.textContent = '+';
-  addButton.title = t('addChild');
-  addButton.setAttribute('aria-label', t('addChild'));
-  addButton.addEventListener('pointerdown', (event) => event.stopPropagation());
-  addButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-    addChildForNode(node.id);
-  });
-
-  const deleteButton = document.createElement('button');
-  deleteButton.className = 'node-action-button delete';
-  deleteButton.type = 'button';
-  deleteButton.textContent = '−';
-  deleteButton.title = t('deleteNode');
-  deleteButton.setAttribute('aria-label', t('deleteNode'));
-  deleteButton.addEventListener('pointerdown', (event) => event.stopPropagation());
-  deleteButton.addEventListener('click', (event) => {
-    event.stopPropagation();
-    requestDeleteNode(node.id);
-  });
-
-  actions.appendChild(addButton);
-  actions.appendChild(deleteButton);
-
   card.appendChild(title);
   card.appendChild(actions);
   card.dataset.nodeId = node.id;
+  card.dataset.threadId = node.threadId;
   card.addEventListener('pointerdown', (event) => beginNodeDrag(event, node, card));
   el.nodeLayer.appendChild(card);
+  updateNodeStatusDot(card, node);
+}
+
+const NODE_TOOLBAR_SHOW_DELAY_MS = 130;
+const NODE_TOOLBAR_HIDE_GRACE_MS = 140;
+
+function createNodeMicroToolbar(node, card) {
+  const actions = document.createElement('div');
+  actions.className = 'node-actions';
+  actions.setAttribute('role', 'toolbar');
+  actions.setAttribute('aria-label', t('nodeActions'));
+
+  const addButton = createNodeChip({
+    className: 'node-action-button add',
+    label: '+',
+    title: t('addChild'),
+    onClick: () => addChildForNode(node.id),
+  });
+
+  const splitButton = createNodeChip({
+    className: 'node-action-button split',
+    label: '⇕',
+    title: t('splitNode'),
+    onClick: () => triggerSplitForNode(node.id),
+  });
+
+  const deleteButton = createNodeChip({
+    className: 'node-action-button delete',
+    label: '🗑',
+    title: t('deleteNode'),
+    onClick: () => requestDeleteNode(node.id),
+  });
+
+  actions.appendChild(addButton);
+  actions.appendChild(splitButton);
+  actions.appendChild(deleteButton);
+  return actions;
+}
+
+function createNodeChip({ className, label, title, onClick }) {
+  const button = document.createElement('button');
+  button.className = className;
+  button.type = 'button';
+  button.textContent = label;
+  button.title = title;
+  button.setAttribute('aria-label', title);
+  button.tabIndex = 0;
+  // Stop both pointerdown (prevents drag begin / card pointerdown propagation)
+  // and click (prevents card selection) so chip presses never bubble to the card.
+  button.addEventListener('pointerdown', (event) => event.stopPropagation());
+  button.addEventListener('mousedown', (event) => event.stopPropagation());
+  button.addEventListener('click', (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+    onClick();
+  });
+  return button;
+}
+
+function attachMicroToolbarHover(card, actions) {
+  let showTimer = null;
+  let hideTimer = null;
+
+  const cancelTimers = () => {
+    if (showTimer) {
+      clearTimeout(showTimer);
+      showTimer = null;
+    }
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+  };
+
+  const reveal = () => {
+    cancelTimers();
+    // Suppress during multi-selection mode (clutter) or while dragging.
+    if (selectionMode) return;
+    if (card.classList.contains('dragging')) return;
+    card.classList.add('show-actions');
+  };
+
+  const hide = () => {
+    cancelTimers();
+    card.classList.remove('show-actions');
+  };
+
+  const scheduleShow = () => {
+    if (selectionMode) return;
+    if (card.classList.contains('dragging')) return;
+    if (card.classList.contains('show-actions')) return;
+    cancelTimers();
+    showTimer = setTimeout(reveal, NODE_TOOLBAR_SHOW_DELAY_MS);
+  };
+
+  const scheduleHide = () => {
+    cancelTimers();
+    hideTimer = setTimeout(hide, NODE_TOOLBAR_HIDE_GRACE_MS);
+  };
+
+  card.addEventListener('pointerenter', scheduleShow);
+  card.addEventListener('pointerleave', scheduleHide);
+  actions.addEventListener('pointerenter', () => {
+    cancelTimers();
+    reveal();
+  });
+  actions.addEventListener('pointerleave', scheduleHide);
+
+  // Keyboard accessibility: reveal while a chip has focus, hide on full blur.
+  actions.addEventListener('focusin', reveal);
+  actions.addEventListener('focusout', (event) => {
+    if (actions.contains(event.relatedTarget)) return;
+    if (card.contains(event.relatedTarget)) return;
+    scheduleHide();
+  });
+}
+
+async function triggerSplitForNode(nodeId) {
+  try {
+    if (nodeId !== selectedNodeId) {
+      resetMultiSelection();
+      await selectNode(nodeId);
+    }
+    if (!Array.isArray(messages) || messages.length === 0) {
+      showError(new Error(t('splitNodeNoMessages')));
+      return;
+    }
+    enterSplitMode();
+  } catch (error) {
+    showError(error);
+  }
 }
 
 function edgeAnchors(source, target) {
@@ -819,21 +1476,113 @@ function applyGraphView() {
   el.graphViewport.style.setProperty('--graph-pan-y', `${graphView.y}px`);
   el.graphViewport.style.setProperty('--graph-scale', graphView.scale);
   applyZoomLevelClass();
+  updateZoomDisplay();
+  scheduleMinimapRedraw();
+  scheduleOffscreenIndicatorUpdate();
+}
+
+function updateZoomDisplay() {
+  if (!el.zoomPctBtn) return;
+  const pct = Math.round(graphView.scale * 100);
+  el.zoomPctBtn.textContent = `${pct}%`;
 }
 
 function applyZoomLevelClass() {
   const nextLevel = computeZoomLevel(graphView.scale);
   if (nextLevel === currentZoomLevel && el.graphViewport.classList.contains(`zoom-${nextLevel}`)) return;
-  el.graphViewport.classList.remove('zoom-compact', 'zoom-medium', 'zoom-full');
+  el.graphViewport.classList.remove('zoom-compact', 'zoom-medium', 'zoom-detailed', 'zoom-full');
   el.graphViewport.classList.add(`zoom-${nextLevel}`);
   currentZoomLevel = nextLevel;
+  if (nextLevel === 'detailed') {
+    ensureDetailedPreviews();
+  }
 }
 
 function computeZoomLevel(scale) {
   for (const tier of ZOOM_LEVEL_THRESHOLDS) {
     if (scale < tier.max) return tier.level;
   }
-  return 'full';
+  return 'detailed';
+}
+
+function ensureDetailedPreviews() {
+  if (!state?.nodes?.length) return;
+  const targets = state.nodes.filter(
+    (node) =>
+      node.messageCount > 0 &&
+      !nodePreviewCache.has(node.threadId) &&
+      !nodePreviewInflight.has(node.threadId),
+  );
+  if (targets.length === 0) {
+    applyPreviewsToCards();
+    return;
+  }
+  for (const node of targets) {
+    const threadId = node.threadId;
+    const promise = api(`/api/threads/${threadId}/messages`)
+      .then((msgs) => {
+        const lastUser = Array.isArray(msgs)
+          ? [...msgs].reverse().find((m) => m && m.role === 'user')
+          : null;
+        nodePreviewCache.set(threadId, {
+          lastUserPreview: lastUser ? lastUser.content : null,
+          loaded: true,
+        });
+      })
+      .catch(() => {
+        nodePreviewCache.set(threadId, { lastUserPreview: null, loaded: true });
+      })
+      .finally(() => {
+        nodePreviewInflight.delete(threadId);
+      });
+    nodePreviewInflight.set(threadId, promise);
+  }
+  Promise.allSettled(targets.map((node) => nodePreviewInflight.get(node.threadId))).then(() => {
+    if (currentZoomLevel === 'detailed') applyPreviewsToCards();
+  });
+}
+
+function applyPreviewsToCards() {
+  if (!el.nodeLayer) return;
+  const cards = el.nodeLayer.querySelectorAll('.node-card[data-thread-id]');
+  cards.forEach((card) => {
+    const threadId = card.dataset.threadId;
+    const previewEl = card.querySelector('.node-preview');
+    if (!previewEl) return;
+    const cached = nodePreviewCache.get(threadId);
+    const text = cached?.lastUserPreview ? truncatePreview(cached.lastUserPreview, 40) : '';
+    previewEl.textContent = text;
+    previewEl.classList.toggle('empty', !text);
+  });
+}
+
+function truncatePreview(text, maxLen) {
+  if (typeof text !== 'string') return '';
+  const collapsed = text.replace(/\s+/g, ' ').trim();
+  if (collapsed.length <= maxLen) return collapsed;
+  return collapsed.slice(0, Math.max(0, maxLen - 1)).trimEnd() + '…';
+}
+
+function formatRelativeTime(iso) {
+  if (!iso) return t('timeNever');
+  const ts = Date.parse(iso);
+  if (Number.isNaN(ts)) return t('timeNever');
+  const diffSec = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (diffSec < 60) return t('timeJustNow');
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return t('timeMinutesAgo').replace('{n}', String(diffMin));
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return t('timeHoursAgo').replace('{n}', String(diffHr));
+  const diffDay = Math.floor(diffHr / 24);
+  return t('timeDaysAgo').replace('{n}', String(diffDay));
+}
+
+function conversationVolumeRatio(messageCount) {
+  const count = Math.max(0, Number(messageCount) || 0);
+  if (count === 0) return 0;
+  // Log-scaled: 1 msg ~ 0.18, 5 msgs ~ 0.55, 20 msgs ~ 0.85, 100+ ~ 1.0
+  const eased = Math.log(count + 1) / Math.log(64);
+  return clamp(eased, 0.12, 1);
 }
 
 function centerViewOnGraph() {
@@ -907,6 +1656,281 @@ function zoomFromCenter(multiplier) {
   });
 }
 
+function resetZoomToHundred() {
+  const rect = el.graphViewport.getBoundingClientRect();
+  zoomAtViewportPoint(1, { x: rect.width / 2, y: rect.height / 2 });
+}
+
+function fitGraphToView() {
+  if (!state?.nodes?.length) return;
+  centerViewOnGraph();
+  applyGraphView();
+}
+
+function findRootNodeId() {
+  if (!state?.nodes?.length) return null;
+  const targets = new Set((state.edges || []).map((edge) => edge.targetNodeId));
+  const root = state.nodes.find((node) => !targets.has(node.id));
+  return root ? root.id : state.nodes[0].id;
+}
+
+function centerOnRootAtHundred() {
+  const rootId = findRootNodeId();
+  if (!rootId) return;
+  graphView.scale = 1;
+  centerViewOnNode(rootId);
+  applyGraphView();
+}
+
+/* ==========================================================================
+   Minimap rendering and interaction
+   ========================================================================== */
+const MINIMAP_PADDING = 8;
+const MINIMAP_CANVAS_W = 200;
+const MINIMAP_CANVAS_H = 138;
+
+function scheduleMinimapRedraw() {
+  if (minimapRedrawHandle) return;
+  minimapRedrawHandle = requestAnimationFrame(() => {
+    minimapRedrawHandle = null;
+    redrawMinimap();
+  });
+}
+
+function minimapWorldBounds() {
+  if (!state?.nodes?.length) {
+    return { x: -200, y: -200, width: 400, height: 400 };
+  }
+  const bounds = graphBounds();
+  // Expand bounds a touch so things aren't flush to the edge.
+  const padX = Math.max(60, bounds.width * 0.06);
+  const padY = Math.max(60, bounds.height * 0.06);
+  return {
+    x: bounds.x - padX,
+    y: bounds.y - padY,
+    width: Math.max(1, bounds.width + padX * 2),
+    height: Math.max(1, bounds.height + padY * 2),
+  };
+}
+
+function minimapScale(worldBounds) {
+  const sx = (MINIMAP_CANVAS_W - MINIMAP_PADDING * 2) / worldBounds.width;
+  const sy = (MINIMAP_CANVAS_H - MINIMAP_PADDING * 2) / worldBounds.height;
+  return Math.min(sx, sy);
+}
+
+function minimapWorldToCanvas(worldBounds, scale, wx, wy) {
+  // Centered fit
+  const drawWidth = worldBounds.width * scale;
+  const drawHeight = worldBounds.height * scale;
+  const offsetX = (MINIMAP_CANVAS_W - drawWidth) / 2;
+  const offsetY = (MINIMAP_CANVAS_H - drawHeight) / 2;
+  return {
+    x: offsetX + (wx - worldBounds.x) * scale,
+    y: offsetY + (wy - worldBounds.y) * scale,
+  };
+}
+
+function minimapCanvasToWorld(worldBounds, scale, cx, cy) {
+  const drawWidth = worldBounds.width * scale;
+  const drawHeight = worldBounds.height * scale;
+  const offsetX = (MINIMAP_CANVAS_W - drawWidth) / 2;
+  const offsetY = (MINIMAP_CANVAS_H - drawHeight) / 2;
+  return {
+    x: worldBounds.x + (cx - offsetX) / scale,
+    y: worldBounds.y + (cy - offsetY) / scale,
+  };
+}
+
+function redrawMinimap() {
+  if (!el.minimapCanvas || minimapCollapsed) return;
+  const canvas = el.minimapCanvas;
+  const dpr = window.devicePixelRatio || 1;
+  if (canvas.width !== MINIMAP_CANVAS_W * dpr || canvas.height !== MINIMAP_CANVAS_H * dpr) {
+    canvas.width = MINIMAP_CANVAS_W * dpr;
+    canvas.height = MINIMAP_CANVAS_H * dpr;
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, MINIMAP_CANVAS_W, MINIMAP_CANVAS_H);
+
+  if (!state?.nodes?.length) {
+    drawMinimapViewport(null, null);
+    return;
+  }
+
+  const worldBounds = minimapWorldBounds();
+  const scale = minimapScale(worldBounds);
+
+  // Edges
+  ctx.strokeStyle = 'rgba(99, 91, 255, 0.32)';
+  ctx.lineWidth = 0.75;
+  const layoutById = new Map(state.nodes.map((node) => [node.id, node.layout]));
+  for (const edge of state.edges || []) {
+    const s = layoutById.get(edge.sourceNodeId);
+    const t = layoutById.get(edge.targetNodeId);
+    if (!s || !t) continue;
+    const a = minimapWorldToCanvas(worldBounds, scale, s.x + s.width / 2, s.y + s.height / 2);
+    const b = minimapWorldToCanvas(worldBounds, scale, t.x + t.width / 2, t.y + t.height / 2);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+
+  // Nodes
+  for (const node of state.nodes) {
+    const layout = node.layout;
+    const tl = minimapWorldToCanvas(worldBounds, scale, layout.x, layout.y);
+    const br = minimapWorldToCanvas(worldBounds, scale, layout.x + layout.width, layout.y + layout.height);
+    const w = Math.max(2, br.x - tl.x);
+    const h = Math.max(2, br.y - tl.y);
+    const isSelected = node.id === selectedNodeId;
+    ctx.fillStyle = isSelected ? '#635bff' : 'rgba(99, 91, 255, 0.55)';
+    ctx.fillRect(tl.x, tl.y, w, h);
+  }
+
+  drawMinimapViewport(worldBounds, scale);
+}
+
+function drawMinimapViewport(worldBounds, scale) {
+  if (!el.minimapViewport) return;
+  if (!worldBounds || !scale) {
+    el.minimapViewport.style.display = 'none';
+    return;
+  }
+  const viewportRect = el.graphViewport.getBoundingClientRect();
+  // World coords of the visible viewport corners
+  const worldTLX = -graphView.x / graphView.scale;
+  const worldTLY = -graphView.y / graphView.scale;
+  const worldBRX = worldTLX + viewportRect.width / graphView.scale;
+  const worldBRY = worldTLY + viewportRect.height / graphView.scale;
+
+  const tl = minimapWorldToCanvas(worldBounds, scale, worldTLX, worldTLY);
+  const br = minimapWorldToCanvas(worldBounds, scale, worldBRX, worldBRY);
+  // The minimap body has 6px padding; the canvas inside is offset by that.
+  const padOffsetX = 6;
+  const padOffsetY = 6;
+  const left = padOffsetX + Math.max(0, Math.min(MINIMAP_CANVAS_W, tl.x));
+  const top = padOffsetY + Math.max(0, Math.min(MINIMAP_CANVAS_H, tl.y));
+  const right = padOffsetX + Math.max(0, Math.min(MINIMAP_CANVAS_W, br.x));
+  const bottom = padOffsetY + Math.max(0, Math.min(MINIMAP_CANVAS_H, br.y));
+  const width = Math.max(8, right - left);
+  const height = Math.max(8, bottom - top);
+  el.minimapViewport.style.display = 'block';
+  el.minimapViewport.style.left = `${left}px`;
+  el.minimapViewport.style.top = `${top}px`;
+  el.minimapViewport.style.width = `${width}px`;
+  el.minimapViewport.style.height = `${height}px`;
+}
+
+function applyMinimapState() {
+  if (!el.minimapPanel) return;
+  el.minimapPanel.classList.toggle('collapsed', minimapCollapsed);
+  if (el.minimapToggleBtn) {
+    el.minimapToggleBtn.textContent = minimapCollapsed ? '▴' : '▾';
+    const tip = minimapCollapsed ? t('minimapExpand') : t('minimapCollapse');
+    el.minimapToggleBtn.title = tip;
+    el.minimapToggleBtn.setAttribute('aria-label', tip);
+  }
+  if (!minimapCollapsed) scheduleMinimapRedraw();
+}
+
+function toggleMinimapCollapsed() {
+  minimapCollapsed = !minimapCollapsed;
+  localStorage.setItem('graph_minimap_collapsed', String(minimapCollapsed));
+  applyMinimapState();
+}
+
+function panMainToMinimapPoint(canvasX, canvasY) {
+  if (!state?.nodes?.length) return;
+  const worldBounds = minimapWorldBounds();
+  const scale = minimapScale(worldBounds);
+  const world = minimapCanvasToWorld(worldBounds, scale, canvasX, canvasY);
+  centerViewOnPoint(world.x, world.y);
+  applyGraphView();
+}
+
+function getMinimapLocalPoint(event) {
+  // Convert event clientX/Y to coords inside the canvas (canvas top-left origin)
+  const bodyRect = el.minimapBody.getBoundingClientRect();
+  // Canvas is offset by 6px padding inside body
+  return {
+    x: event.clientX - bodyRect.left - 6,
+    y: event.clientY - bodyRect.top - 6,
+  };
+}
+
+function beginMinimapDrag(event) {
+  if (event.button !== 0) return;
+  if (!state?.nodes?.length) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const target = event.target;
+  const isOnViewport = target && target.id === 'minimap-viewport';
+  const point = getMinimapLocalPoint(event);
+  minimapDrag = {
+    pointerId: event.pointerId,
+    mode: isOnViewport ? 'drag' : 'jump',
+  };
+  el.minimapBody.setPointerCapture?.(event.pointerId);
+  el.minimapViewport.classList.add('dragging');
+  // For 'jump' mode immediately center there; subsequent moves will pan continuously
+  panMainToMinimapPoint(point.x, point.y);
+}
+
+function updateMinimapDrag(event) {
+  if (!minimapDrag || event.pointerId !== minimapDrag.pointerId) return;
+  event.preventDefault();
+  const point = getMinimapLocalPoint(event);
+  panMainToMinimapPoint(point.x, point.y);
+}
+
+function endMinimapDrag(event) {
+  if (!minimapDrag || event.pointerId !== minimapDrag.pointerId) return;
+  minimapDrag = null;
+  el.minimapViewport.classList.remove('dragging');
+  if (el.minimapBody.hasPointerCapture?.(event.pointerId)) {
+    el.minimapBody.releasePointerCapture(event.pointerId);
+  }
+}
+
+function applyGraphControlsLocalization() {
+  if (el.zoomInBtn) {
+    el.zoomInBtn.title = t('zoomIn');
+    el.zoomInBtn.setAttribute('aria-label', t('zoomIn'));
+  }
+  if (el.zoomOutBtn) {
+    el.zoomOutBtn.title = t('zoomOut');
+    el.zoomOutBtn.setAttribute('aria-label', t('zoomOut'));
+  }
+  if (el.zoomPctBtn) {
+    el.zoomPctBtn.title = t('zoomReset');
+    el.zoomPctBtn.setAttribute('aria-label', t('zoomReset'));
+  }
+  if (el.fitViewBtn) {
+    el.fitViewBtn.title = t('fitToView');
+    el.fitViewBtn.setAttribute('aria-label', t('fitToView'));
+  }
+  if (el.centerRootBtn) {
+    el.centerRootBtn.title = t('centerOnRoot');
+    el.centerRootBtn.setAttribute('aria-label', t('centerOnRoot'));
+  }
+}
+
+function updateOverlayRightOffset() {
+  // Controls live inside .graph-panel which spans the full workspace.
+  // The chat sidebar overlays the right side of the graph panel, so we
+  // shift the controls left when the sidebar is visible.
+  const right = chatSidebarHidden ? 16 : (chatSidebarWidth + 16);
+  document.documentElement.style.setProperty('--graph-overlay-right-offset', `${right}px`);
+}
+
+function setDraggingAffordance(active) {
+  el.graphControls?.classList.toggle('dragging-active', active);
+  el.minimapPanel?.classList.toggle('dragging-active', active);
+}
+
 function beginPan(event) {
   if (event.button !== 0) return;
   if (event.target.closest?.('.node-card, .edge-label')) return;
@@ -941,6 +1965,10 @@ function endPan(event) {
     el.graphViewport.releasePointerCapture(event.pointerId);
   }
   if (wasClick) {
+    if (state && (!state.nodes || state.nodes.length === 0)) {
+      createRoot();
+      return;
+    }
     clearNodeSelectionAndCollapseChat();
   }
 }
@@ -984,6 +2012,7 @@ function beginNodeDrag(event, node, card) {
   for (const item of dragItems) {
     item.card?.classList.add('dragging');
   }
+  setDraggingAffordance(true);
   card.setPointerCapture(event.pointerId);
 }
 
@@ -1038,6 +2067,7 @@ async function endNodeDrag(event) {
   if (!nodeDrag || event.pointerId !== nodeDrag.pointerId) return;
   const drag = nodeDrag;
   nodeDrag = null;
+  setDraggingAffordance(false);
   for (const item of drag.items) {
     item.card?.classList.remove('dragging');
   }
@@ -1109,6 +2139,21 @@ function redrawEdges() {
   el.edgeLabelLayer.innerHTML = '';
   const contextHighlight = selectedContextHighlight();
   const layoutById = new Map(state.nodes.map((node) => [node.id, node.layout]));
+
+  // Recompute phrase frequency table so duplicate dimming stays consistent
+  // when edges are redrawn outside of a full renderGraph() pass.
+  edgePhraseCounts = new Map();
+  edgePhraseFirstSeen = new Map();
+  for (const edge of state.edges) {
+    if (isEdgeLabelImportant(edge)) continue;
+    const key = normalizeEdgePhraseKey(edge.displayPhrase);
+    if (!key) continue;
+    edgePhraseCounts.set(key, (edgePhraseCounts.get(key) || 0) + 1);
+    if (!edgePhraseFirstSeen.has(key)) {
+      edgePhraseFirstSeen.set(key, edge.id);
+    }
+  }
+
   for (const edge of state.edges) {
     const source = layoutById.get(edge.sourceNodeId);
     const target = layoutById.get(edge.targetNodeId);
@@ -1251,6 +2296,21 @@ function startEdgePhraseEdit(edge, labelElement) {
   input.focus();
   input.select();
 
+  const restoreLabel = () => {
+    // Rebuild the label content so the category dot survives a cancelled edit
+    // without forcing a full re-render.
+    const category = categorizeEdgePhrase(edge.displayPhrase);
+    const dotColor = EDGE_CATEGORY_COLORS[category] || EDGE_CATEGORY_COLORS.default;
+    const dot = document.createElement('span');
+    dot.className = 'edge-label-dot';
+    dot.style.backgroundColor = dotColor;
+    dot.setAttribute('aria-hidden', 'true');
+    const text = document.createElement('span');
+    text.className = 'edge-label-text';
+    text.textContent = edge.displayPhrase || '...';
+    labelElement.replaceChildren(dot, text);
+  };
+
   let finished = false;
   const finish = async (shouldSave) => {
     if (finished) return;
@@ -1259,9 +2319,14 @@ function startEdgePhraseEdit(edge, labelElement) {
     labelElement.classList.remove('editing');
 
     if (!shouldSave || !nextPhrase || nextPhrase === (edge.displayPhrase || '')) {
-      labelElement.textContent = edge.displayPhrase || '...';
+      restoreLabel();
       return;
     }
+
+    // Mark this edge as user-edited locally so duplicate dimming spares it
+    // even if the server response lags or omits the flag.
+    locallyUserEditedEdgeIds.add(edge.id);
+    edge._userEdited = true;
 
     try {
       const data = await runUndoable(async () => {
@@ -1276,7 +2341,7 @@ function startEdgePhraseEdit(edge, labelElement) {
       renderAll();
     } catch (error) {
       showError(error);
-      labelElement.textContent = edge.displayPhrase || '...';
+      restoreLabel();
     }
   };
 
@@ -1305,6 +2370,7 @@ async function selectNode(nodeId) {
   const node = getSelectedNode();
   if (!node) return;
   messages = await api(`/api/threads/${node.threadId}/messages`);
+  nodeMessagesCache.set(node.id, Array.isArray(messages) ? [...messages] : []);
   renderAll();
 }
 
@@ -1819,8 +2885,12 @@ function applyChatSidebarState() {
   el.chatEdgeToggle.title = chatSidebarHidden ? t('showChat') : t('hideChat');
   el.chatEdgeToggle.setAttribute('aria-label', chatSidebarHidden ? t('showChat') : t('hideChat'));
   el.chatEdgeToggle.style.right = chatSidebarHidden ? '0px' : `${width}px`;
+  if (el.graphHeader) {
+    el.graphHeader.style.right = chatSidebarHidden ? '0px' : `${width}px`;
+  }
   localStorage.setItem('graphChat.sidebarHidden', String(chatSidebarHidden));
   localStorage.setItem('graphChat.sidebarWidth', String(Math.round(width)));
+  updateOverlayRightOffset();
 }
 
 function applyThreadSidebarState() {
@@ -1832,6 +2902,9 @@ function applyThreadSidebarState() {
   el.threadEdgeToggle.title = threadSidebarHidden ? t('showThreads') : t('hideThreads');
   el.threadEdgeToggle.setAttribute('aria-label', threadSidebarHidden ? t('showThreads') : t('hideThreads'));
   el.threadEdgeToggle.style.left = threadSidebarHidden ? '0px' : `${width}px`;
+  if (el.graphHeader) {
+    el.graphHeader.style.left = threadSidebarHidden ? '0px' : `${width}px`;
+  }
   localStorage.setItem('graphChat.threadSidebarHidden', String(threadSidebarHidden));
   localStorage.setItem('graphChat.threadSidebarWidth', String(Math.round(width)));
 }
@@ -1936,6 +3009,7 @@ async function selectGraphThread(graphThreadId) {
     selectedNodeId = null;
     resetMultiSelection();
     messages = [];
+    nodeMessagesCache.clear();
     hasCenteredGraph = false;
     pendingCenterNodeId = null;
     renderAll();
@@ -2144,6 +3218,7 @@ async function sendMessage(event) {
     state = data.state;
     messages = data.messages;
     selectedNodeId = node.id;
+    nodeMessagesCache.set(node.id, Array.isArray(messages) ? [...messages] : []);
     await pushHistoryEntry(beforeSnapshot, beforeUiState);
   } catch (error) {
     showError(error);
@@ -2163,6 +3238,14 @@ function applySearchPlaceholder() {
   el.searchInput.placeholder = t('searchPlaceholder');
   el.searchClearBtn.title = t('searchClear');
   el.searchClearBtn.setAttribute('aria-label', t('searchClear'));
+  el.searchNavPrev.title = t('searchPrevMatch');
+  el.searchNavPrev.setAttribute('aria-label', t('searchPrevMatch'));
+  el.searchNavNext.title = t('searchNextMatch');
+  el.searchNavNext.setAttribute('aria-label', t('searchNextMatch'));
+  if (el.searchOffscreenIndicator) {
+    el.searchOffscreenIndicator.title = t('searchOffscreenHint');
+    el.searchOffscreenIndicator.setAttribute('aria-label', t('searchOffscreenHint'));
+  }
 }
 
 function handleSearchInput(event) {
@@ -2185,20 +3268,48 @@ async function runSearch(query) {
     const data = await api(`/api/search?q=${encodeURIComponent(query)}`);
     if (searchQuery !== query) return;
     searchResults = data.results || [];
+    previousSearchMatchIds = searchMatchNodeIds;
     searchMatchNodeIds = new Set(searchResults.map((r) => r.nodeId));
+    searchMatchOrder = buildMatchOrder();
+    if (searchMatchOrder.length === 0) {
+      searchCurrentIndex = -1;
+    } else if (searchCurrentIndex < 0 || searchCurrentIndex >= searchMatchOrder.length) {
+      searchCurrentIndex = 0;
+    }
     renderSearchResults();
-    refreshSearchHighlightOnGraph();
+    refreshSearchHighlightOnGraph({ pulseNew: true });
+    renderSearchNav();
+    updateOffscreenIndicator();
   } catch (error) {
     showError(error);
   }
 }
 
+function buildMatchOrder() {
+  if (!state?.nodes?.length) return [];
+  const seenInResults = new Set();
+  const orderedIds = [];
+  for (const result of searchResults) {
+    if (searchMatchNodeIds.has(result.nodeId) && !seenInResults.has(result.nodeId)) {
+      seenInResults.add(result.nodeId);
+      orderedIds.push(result.nodeId);
+    }
+  }
+  const knownIds = new Set(state.nodes.map((n) => n.id));
+  return orderedIds.filter((id) => knownIds.has(id));
+}
+
 function clearSearchResults() {
+  previousSearchMatchIds = searchMatchNodeIds;
   searchResults = [];
   searchMatchNodeIds = new Set();
+  searchMatchOrder = [];
+  searchCurrentIndex = -1;
   el.searchResults.classList.add('hidden');
   el.searchResults.innerHTML = '';
   refreshSearchHighlightOnGraph();
+  renderSearchNav();
+  updateOffscreenIndicator();
 }
 
 function clearSearch() {
@@ -2209,11 +3320,185 @@ function clearSearch() {
   el.searchInput.focus();
 }
 
-function refreshSearchHighlightOnGraph() {
+function refreshSearchHighlightOnGraph(options = {}) {
+  const pulseNew = Boolean(options.pulseNew);
+  const currentNodeId = searchMatchOrder[searchCurrentIndex] ?? null;
   for (const card of el.nodeLayer.querySelectorAll('.node-card')) {
     const nodeId = card.dataset.nodeId;
-    card.classList.toggle('search-match', searchMatchNodeIds.has(nodeId));
+    const isMatch = searchMatchNodeIds.has(nodeId);
+    card.classList.toggle('search-match', isMatch);
+    card.classList.toggle('search-match-current', isMatch && nodeId === currentNodeId);
+    if (pulseNew && isMatch && !previousSearchMatchIds.has(nodeId)) {
+      // Trigger a one-shot pulse on newly matched nodes only.
+      card.classList.remove('search-match-pulse');
+      // Force reflow so the animation restarts even if the class lingered.
+      void card.offsetWidth;
+      card.classList.add('search-match-pulse');
+      window.setTimeout(() => card.classList.remove('search-match-pulse'), 820);
+    } else if (!isMatch) {
+      card.classList.remove('search-match-pulse');
+    }
   }
+  previousSearchMatchIds = new Set(searchMatchNodeIds);
+}
+
+function renderSearchNav() {
+  if (!el.searchNav) return;
+  const total = searchMatchOrder.length;
+  if (total === 0) {
+    el.searchNav.classList.add('hidden');
+    return;
+  }
+  const human = total > 0 ? Math.min(searchCurrentIndex + 1, total) : 0;
+  el.searchNavCounter.textContent = `${human} / ${total}`;
+  el.searchNav.classList.remove('hidden');
+}
+
+function gotoMatch(index, options = {}) {
+  if (searchMatchOrder.length === 0) return;
+  const total = searchMatchOrder.length;
+  const normalized = ((index % total) + total) % total;
+  searchCurrentIndex = normalized;
+  const nodeId = searchMatchOrder[normalized];
+  if (!nodeId) return;
+  centerViewOnNode(nodeId);
+  applyGraphView();
+  refreshSearchHighlightOnGraph({ pulseNew: false });
+  renderSearchNav();
+  renderSearchResults();
+  updateOffscreenIndicator();
+  if (options.focusCard) {
+    const card = el.nodeLayer.querySelector(`[data-node-id="${nodeId}"]`);
+    if (card) {
+      card.classList.remove('search-match-pulse');
+      void card.offsetWidth;
+      card.classList.add('search-match-pulse');
+      window.setTimeout(() => card.classList.remove('search-match-pulse'), 820);
+    }
+  }
+}
+
+function gotoNextMatch() {
+  if (searchMatchOrder.length === 0) return;
+  const next = searchCurrentIndex < 0 ? 0 : searchCurrentIndex + 1;
+  gotoMatch(next, { focusCard: true });
+}
+
+function gotoPrevMatch() {
+  if (searchMatchOrder.length === 0) return;
+  const prev = searchCurrentIndex < 0 ? searchMatchOrder.length - 1 : searchCurrentIndex - 1;
+  gotoMatch(prev, { focusCard: true });
+}
+
+function scheduleOffscreenIndicatorUpdate() {
+  if (searchOffscreenRafHandle) return;
+  searchOffscreenRafHandle = window.requestAnimationFrame(() => {
+    searchOffscreenRafHandle = null;
+    updateOffscreenIndicator();
+  });
+}
+
+function updateOffscreenIndicator() {
+  const indicator = el.searchOffscreenIndicator;
+  if (!indicator) return;
+  const panel = el.graphPanel;
+  if (!panel) {
+    indicator.classList.add('hidden');
+    return;
+  }
+  const nodeId = searchMatchOrder[searchCurrentIndex];
+  if (!nodeId) {
+    indicator.classList.add('hidden');
+    return;
+  }
+  const node = state?.nodes?.find((n) => n.id === nodeId);
+  if (!node) {
+    indicator.classList.add('hidden');
+    return;
+  }
+
+  const viewportRect = el.graphViewport.getBoundingClientRect();
+  const panelRect = panel.getBoundingClientRect();
+  const center = centerOf(node.layout);
+  const screenX = center.x * graphView.scale + graphView.x;
+  const screenY = center.y * graphView.scale + graphView.y;
+  const margin = 12;
+  const onScreen =
+    screenX >= margin &&
+    screenX <= viewportRect.width - margin &&
+    screenY >= margin &&
+    screenY <= viewportRect.height - margin;
+
+  if (onScreen) {
+    indicator.classList.add('hidden');
+    return;
+  }
+
+  // Compute the visible region inside the graph panel that is NOT covered by
+  // the open thread / chat sidebars. The indicator sits on the edge of that
+  // region so it never ends up underneath a sidebar.
+  const threadRect = el.threadSidebar && !el.threadSidebar.classList.contains('collapsed')
+    ? el.threadSidebar.getBoundingClientRect()
+    : null;
+  const chatRect = el.chatSidebar && !el.chatSidebar.classList.contains('collapsed')
+    ? el.chatSidebar.getBoundingClientRect()
+    : null;
+  const leftInset = threadRect ? Math.max(0, threadRect.right - panelRect.left) : 0;
+  const rightInset = chatRect ? Math.max(0, panelRect.right - chatRect.left) : 0;
+  const visibleLeft = leftInset;
+  const visibleRight = panelRect.width - rightInset;
+  const visibleTop = 0;
+  const visibleBottom = panelRect.height;
+  const visibleW = Math.max(1, visibleRight - visibleLeft);
+  const visibleH = Math.max(1, visibleBottom - visibleTop);
+
+  // Direction is measured from the center of the visible region.
+  const viewCenter = {
+    x: visibleLeft + visibleW / 2,
+    y: visibleTop + visibleH / 2,
+  };
+  const dx = screenX - viewCenter.x;
+  const dy = screenY - viewCenter.y;
+
+  const edgePad = 14;
+  const indicatorSize = 36;
+  let edgeX;
+  let edgeY;
+  let arrow;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0) {
+      edgeX = visibleRight - edgePad - indicatorSize;
+      arrow = '→';
+    } else {
+      edgeX = visibleLeft + edgePad;
+      arrow = '←';
+    }
+    const projectedY = viewCenter.y + (dy * (edgeX + indicatorSize / 2 - viewCenter.x)) / (dx || 1);
+    edgeY = clamp(
+      projectedY - indicatorSize / 2,
+      visibleTop + edgePad,
+      visibleBottom - edgePad - indicatorSize,
+    );
+  } else {
+    if (dy > 0) {
+      edgeY = visibleBottom - edgePad - indicatorSize;
+      arrow = '↓';
+    } else {
+      edgeY = visibleTop + edgePad;
+      arrow = '↑';
+    }
+    const projectedX = viewCenter.x + (dx * (edgeY + indicatorSize / 2 - viewCenter.y)) / (dy || 1);
+    edgeX = clamp(
+      projectedX - indicatorSize / 2,
+      visibleLeft + edgePad,
+      visibleRight - edgePad - indicatorSize,
+    );
+  }
+
+  indicator.textContent = arrow;
+  indicator.style.left = `${edgeX}px`;
+  indicator.style.top = `${edgeY}px`;
+  indicator.classList.remove('hidden');
 }
 
 function renderSearchResults() {
@@ -2231,11 +3516,16 @@ function renderSearchResults() {
     return;
   }
 
+  const currentNodeId = searchMatchOrder[searchCurrentIndex] ?? null;
   for (const result of searchResults) {
     for (const match of result.matches) {
       const item = document.createElement('button');
       item.type = 'button';
       item.className = 'search-result-item';
+      item.dataset.nodeId = result.nodeId;
+      if (result.nodeId === currentNodeId) {
+        item.classList.add('current');
+      }
       item.addEventListener('click', () => onSearchResultClick(result.nodeId));
 
       const title = document.createElement('div');
@@ -2289,8 +3579,15 @@ function appendSnippetWithHighlight(container, text, query) {
 
 async function onSearchResultClick(nodeId) {
   try {
+    const idx = searchMatchOrder.indexOf(nodeId);
+    if (idx >= 0) {
+      searchCurrentIndex = idx;
+    }
     pendingCenterNodeId = nodeId;
     await selectNode(nodeId);
+    refreshSearchHighlightOnGraph({ pulseNew: false });
+    renderSearchNav();
+    updateOffscreenIndicator();
   } catch (error) {
     showError(error);
   }
@@ -2465,6 +3762,24 @@ function isTextEditingTarget(target) {
   return Boolean(target?.closest?.('input, textarea, select, [contenteditable="true"]'));
 }
 
+if (el.graphHeaderTitle) {
+  el.graphHeaderTitle.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.graphHeaderTitle.addEventListener('click', (event) => {
+    event.stopPropagation();
+    startGraphHeaderTitleEdit();
+  });
+  el.graphHeaderTitle.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      startGraphHeaderTitleEdit();
+    }
+  });
+}
+if (el.graphHeader) {
+  // Prevent clicks/pan-start on header from reaching the canvas below.
+  el.graphHeader.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.graphHeader.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
+}
 el.chatEdgeToggle.addEventListener('click', toggleChatSidebar);
 el.threadEdgeToggle.addEventListener('click', toggleThreadSidebar);
 el.newThreadBtn.addEventListener('click', createGraphThread);
@@ -2480,9 +3795,54 @@ el.searchInput.addEventListener('keydown', (event) => {
     event.preventDefault();
     clearSearch();
     el.searchInput.blur();
+    return;
+  }
+  if (event.isComposing) return;
+  if (event.key === 'Enter') {
+    if (searchMatchOrder.length === 0) return;
+    event.preventDefault();
+    if (event.shiftKey) {
+      gotoPrevMatch();
+    } else {
+      gotoNextMatch();
+    }
+    return;
+  }
+  if (event.key === 'ArrowDown') {
+    if (searchMatchOrder.length === 0) return;
+    event.preventDefault();
+    gotoNextMatch();
+    return;
+  }
+  if (event.key === 'ArrowUp') {
+    if (searchMatchOrder.length === 0) return;
+    event.preventDefault();
+    gotoPrevMatch();
+    return;
   }
 });
 el.searchClearBtn.addEventListener('click', clearSearch);
+el.searchNavPrev.addEventListener('click', (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  gotoPrevMatch();
+});
+el.searchNavNext.addEventListener('click', (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  gotoNextMatch();
+});
+el.searchOffscreenIndicator.addEventListener('click', (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (searchMatchOrder.length === 0 || searchCurrentIndex < 0) return;
+  const nodeId = searchMatchOrder[searchCurrentIndex];
+  if (!nodeId) return;
+  centerViewOnNode(nodeId);
+  applyGraphView();
+  updateOffscreenIndicator();
+});
+el.searchOffscreenIndicator.addEventListener('pointerdown', (event) => event.stopPropagation());
 el.searchPanel.addEventListener('pointerdown', (event) => event.stopPropagation());
 el.searchPanel.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
 el.hideChatBtn.addEventListener('click', () => {
@@ -2510,6 +3870,7 @@ document.addEventListener('pointercancel', endSidebarResize);
 window.addEventListener('resize', () => {
   applyChatSidebarState();
   applyThreadSidebarState();
+  scheduleMinimapRedraw();
   if (!state?.nodes.length) return;
   centerViewOnGraph();
   applyGraphView();
@@ -2527,5 +3888,59 @@ el.messageInput.addEventListener('keydown', (event) => {
     el.messageForm.requestSubmit();
   }
 });
+
+// Graph control cluster: zoom in/out, reset, fit, center on root.
+if (el.zoomInBtn) {
+  el.zoomInBtn.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.zoomInBtn.addEventListener('click', () => zoomFromCenter(GRAPH_VIEW.zoomStep));
+}
+if (el.zoomOutBtn) {
+  el.zoomOutBtn.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.zoomOutBtn.addEventListener('click', () => zoomFromCenter(1 / GRAPH_VIEW.zoomStep));
+}
+if (el.zoomPctBtn) {
+  el.zoomPctBtn.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.zoomPctBtn.addEventListener('click', resetZoomToHundred);
+}
+if (el.fitViewBtn) {
+  el.fitViewBtn.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.fitViewBtn.addEventListener('click', fitGraphToView);
+}
+if (el.centerRootBtn) {
+  el.centerRootBtn.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.centerRootBtn.addEventListener('click', centerOnRootAtHundred);
+}
+if (el.graphControls) {
+  el.graphControls.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
+}
+
+// Minimap interactions: collapse toggle, click-to-pan, drag-to-pan.
+if (el.minimapToggleBtn) {
+  el.minimapToggleBtn.addEventListener('pointerdown', (event) => event.stopPropagation());
+  el.minimapToggleBtn.addEventListener('click', toggleMinimapCollapsed);
+}
+if (el.minimapBody) {
+  el.minimapBody.addEventListener('pointerdown', beginMinimapDrag);
+  el.minimapBody.addEventListener('pointermove', updateMinimapDrag);
+  el.minimapBody.addEventListener('pointerup', endMinimapDrag);
+  el.minimapBody.addEventListener('pointercancel', endMinimapDrag);
+  el.minimapBody.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
+}
+if (el.minimapPanel) {
+  el.minimapPanel.addEventListener('pointerdown', (event) => event.stopPropagation());
+}
+
+applyGraphControlsLocalization();
+applyMinimapState();
+updateOverlayRightOffset();
+updateZoomDisplay();
+Object.defineProperty(window, 'state', { get: () => state });
+Object.defineProperty(window, 'messages', {
+  get: () => messages,
+  set: (value) => { messages = value; },
+});
+Object.defineProperty(window, 'selectedNodeId', { get: () => selectedNodeId });
+Object.defineProperty(window, 'nodeMessagesCache', { get: () => nodeMessagesCache });
+window.refreshFreshnessUi = refreshFreshnessUi;
 
 loadState().catch(showError);

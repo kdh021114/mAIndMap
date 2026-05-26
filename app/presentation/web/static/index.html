@@ -17,6 +17,27 @@
       </aside>
 
       <section class="graph-panel">
+        <div id="graph-header" class="graph-header">
+          <div class="graph-header-left">
+            <div id="graph-header-title" class="graph-header-title" tabindex="0" role="button"></div>
+            <span id="graph-header-stats" class="graph-header-stats"></span>
+          </div>
+          <div class="graph-header-center">
+            <span id="graph-header-llm" class="graph-header-llm">
+              <span class="graph-header-llm-dot" aria-hidden="true"></span>
+              <span id="graph-header-llm-label" class="graph-header-llm-label"></span>
+            </span>
+            <div id="mode-indicator" class="mode-indicator hidden"></div>
+          </div>
+          <div class="graph-header-right">
+            <div id="selection-toolbar" class="selection-toolbar">
+              <button id="selection-mode-btn" class="selection-mode-button" type="button"></button>
+              <button id="merge-btn" class="selection-merge-button hidden" type="button"></button>
+              <button id="bulk-delete-btn" class="selection-delete-button" type="button"></button>
+              <span id="selection-count" class="selection-count"></span>
+            </div>
+          </div>
+        </div>
         <div id="graph-scroll">
           <div id="graph-canvas">
             <svg id="edge-layer"></svg>
@@ -24,19 +45,39 @@
             <div id="node-layer"></div>
           </div>
         </div>
-        <div id="mode-indicator" class="mode-indicator hidden"></div>
+        <nav id="context-breadcrumb" class="context-breadcrumb hidden" aria-label=""></nav>
         <div id="search-panel" class="search-panel">
           <div class="search-input-row">
             <input id="search-input" class="search-input" type="text" autocomplete="off" />
             <button id="search-clear-btn" class="search-clear-button hidden" type="button">×</button>
           </div>
+          <div id="search-nav" class="search-nav hidden">
+            <span id="search-nav-counter" class="search-nav-counter">0 / 0</span>
+            <div class="search-nav-buttons">
+              <button id="search-nav-prev" class="search-nav-button" type="button" title="Previous match" aria-label="Previous match">▲</button>
+              <button id="search-nav-next" class="search-nav-button" type="button" title="Next match" aria-label="Next match">▼</button>
+            </div>
+          </div>
           <div id="search-results" class="search-results hidden"></div>
         </div>
-        <div id="selection-toolbar" class="selection-toolbar">
-          <button id="selection-mode-btn" class="selection-mode-button" type="button"></button>
-          <button id="merge-btn" class="selection-merge-button hidden" type="button"></button>
-          <button id="bulk-delete-btn" class="selection-delete-button" type="button"></button>
-          <span id="selection-count" class="selection-count"></span>
+        <div id="search-offscreen-indicator" class="search-offscreen-indicator hidden" aria-hidden="true"></div>
+        <div id="minimap-panel" class="minimap-panel">
+          <div class="minimap-header">
+            <span class="minimap-title">Map</span>
+            <button id="minimap-toggle-btn" class="minimap-toggle-btn" type="button" title="">▾</button>
+          </div>
+          <div id="minimap-body" class="minimap-body">
+            <canvas id="minimap-canvas" class="minimap-canvas" width="200" height="150"></canvas>
+            <div id="minimap-viewport" class="minimap-viewport"></div>
+          </div>
+        </div>
+        <div id="graph-controls" class="graph-controls">
+          <button id="zoom-in-btn" class="graph-control-btn" type="button" title="">+</button>
+          <button id="zoom-pct-btn" class="graph-control-btn graph-control-pct" type="button" title="">100%</button>
+          <button id="zoom-out-btn" class="graph-control-btn" type="button" title="">−</button>
+          <div class="graph-control-divider" aria-hidden="true"></div>
+          <button id="fit-view-btn" class="graph-control-btn" type="button" title="">⤢</button>
+          <button id="center-root-btn" class="graph-control-btn" type="button" title="">⌖</button>
         </div>
       </section>
 
