@@ -37,30 +37,32 @@ http://127.0.0.1:7860
 
 ## Test mode
 
-`config.py` has a top-level test switch:
-
-```python
-TEST_MODE = True
-```
-
-When `TEST_MODE=True`, OpenAI is never called, even if `.env` contains an API key. The app injects deterministic local test doubles through `app/infrastructure/llm/llm_factory.py`, so you can test graph creation, chat flow, node title generation, edge phrase generation, locale switching, and deletion without spending API calls.
-
-To use OpenAI:
+`config.py` has a top-level test switch. The checked-in default is real OpenAI
+mode for API smoke testing:
 
 ```python
 TEST_MODE = False
 ```
 
-Then set `.env`:
+When `TEST_MODE=True`, OpenAI is never called, even if `.env` contains an API key. The app injects deterministic local test doubles through `app/infrastructure/llm/llm_factory.py`, so you can test graph creation, chat flow, node title generation, edge phrase generation, locale switching, and deletion without spending API calls.
+
+To switch back to local deterministic doubles:
+
+```python
+TEST_MODE = True
+```
+
+For real OpenAI calls, set `.env`:
 
 ```txt
 OPENAI_API_KEY=sk-...
 ```
 
-If `TEST_MODE=False` and no key exists, the app uses local mocks only when this remains true:
+If `TEST_MODE=False` and no key exists, the app fails fast unless this is set
+to true:
 
 ```python
-USE_MOCK_LLM_WHEN_NO_API_KEY = True
+USE_MOCK_LLM_WHEN_NO_API_KEY = False
 ```
 
 ## Context policy
@@ -94,12 +96,40 @@ app/application/context_builder.py
 OpenAI model names are separated in `config.py`:
 
 ```python
-OPENAI_CHAT_MODEL = "gpt-5.5"
+OPENAI_CHAT_MODEL = "gpt-5.4-nano"
 OPENAI_EDGE_MODEL = "gpt-5.4-nano"
 OPENAI_TITLE_MODEL = "gpt-5.4-nano"
 ```
 
 The chat model handles normal conversation. The edge model only creates short phrase-level edge labels. The title model only creates short node titles/summaries from the first prompt.
+For the cheapest end-to-end smoke-test setup, all three are currently set to the same nano model.
+
+Output and reasoning cost controls are also configurable:
+
+```python
+OPENAI_REASONING_EFFORT = "none"
+OPENAI_TEXT_VERBOSITY = "low"
+OPENAI_CHAT_MAX_OUTPUT_TOKENS = 512
+OPENAI_LABEL_MAX_OUTPUT_TOKENS = 80
+OPENAI_STORE_RESPONSES = False
+```
+
+Optional OpenAI web search is exposed in the chat composer as a per-message
+toggle. The app only passes the hosted `web_search` tool when that toggle is on
+and the backend is running in real OpenAI mode:
+
+```python
+OPENAI_WEB_SEARCH_ENABLED = True
+OPENAI_WEB_SEARCH_CONTEXT_SIZE = "low"
+OPENAI_WEB_SEARCH_MAX_TOOL_CALLS = 1
+OPENAI_WEB_SEARCH_TOOL_CHOICE = "required"
+OPENAI_WEB_SEARCH_EXTERNAL_ACCESS = True
+```
+
+Web search can add tool-call and search-content token costs, so keep the context
+size low and tool calls capped unless you intentionally want deeper browsing.
+Set `OPENAI_WEB_SEARCH_TOOL_CHOICE = "auto"` if the toggle should merely allow
+search instead of forcing it.
 
 ## Architecture
 
