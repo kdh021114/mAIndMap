@@ -102,8 +102,19 @@
         </div>
         <div id="message-list" class="message-list"></div>
         <form id="message-form" class="composer">
-          <textarea id="message-input" rows="3"></textarea>
-          <button id="send-button" class="button primary" type="submit"></button>
+          <div class="composer-options">
+            <label class="web-search-toggle">
+              <input id="web-search-toggle" type="checkbox" />
+              <span class="web-search-switch" aria-hidden="true">
+                <span class="web-search-switch-thumb"></span>
+              </span>
+              <span id="web-search-toggle-label" class="web-search-toggle-label"></span>
+            </label>
+          </div>
+          <div class="composer-input-row">
+            <textarea id="message-input" rows="3"></textarea>
+            <button id="send-button" class="button primary" type="submit"></button>
+          </div>
         </form>
       </aside>
 

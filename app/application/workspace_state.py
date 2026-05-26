@@ -14,6 +14,7 @@ class GetWorkspaceStateUseCase:
         layout_service: TreeLayoutService,
         app_title: str,
         llm_mode: str,
+        web_search_available: bool,
     ):
         self._graph_repository = graph_repository
         self._chat_repository = chat_repository
@@ -21,6 +22,7 @@ class GetWorkspaceStateUseCase:
         self._layout_service = layout_service
         self._app_title = app_title
         self._llm_mode = llm_mode
+        self._web_search_available = web_search_available
 
     def execute(self) -> dict:
         locale = self._settings_repository.get_locale()
@@ -34,12 +36,14 @@ class GetWorkspaceStateUseCase:
             if node.parent_node_id in children_count:
                 children_count[node.parent_node_id] += 1
         depths = self._node_depths(nodes)
+        message_stats = self._message_stats(nodes)
 
         return {
             "appTitle": self._app_title,
             "locale": locale,
             "llmMode": self._llm_mode,
             "usingMockLlm": self._llm_mode in {"test", "mock"},
+            "webSearchAvailable": self._web_search_available,
             "activeGraphThreadId": active_graph_thread_id,
             "graphThreads": [
                 self._graph_thread_state(
@@ -63,7 +67,9 @@ class GetWorkspaceStateUseCase:
                     "layout": layout.get(node.id, {"x": 0, "y": 0, "width": 210, "height": 82}),
                     "depth": depths.get(node.id, 0),
                     "childrenCount": children_count.get(node.id, 0),
-                    "messageCount": len(self._chat_repository.list_messages(node.thread_id)),
+                    "messageCount": message_stats[node.id]["count"],
+                    "userMessageCount": message_stats[node.id]["user_count"],
+                    "messageTextLength": message_stats[node.id]["text_length"],
                     "createdAt": node.created_at,
                     "updatedAt": node.updated_at,
                 }
@@ -119,3 +125,14 @@ class GetWorkspaceStateUseCase:
         for node in nodes:
             depth_of(node)
         return depths
+
+    def _message_stats(self, nodes) -> dict[str, dict[str, int]]:
+        stats = {}
+        for node in nodes:
+            messages = self._chat_repository.list_messages(node.thread_id)
+            stats[node.id] = {
+                "count": len(messages),
+                "user_count": sum(1 for message in messages if message.role == "user"),
+                "text_length": sum(len(message.content) for message in messages),
+            }
+        return stats

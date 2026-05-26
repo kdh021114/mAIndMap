@@ -52,7 +52,14 @@ class SendMessageUseCase:
         self._ancestor_context_builder = ancestor_context_builder
         self._current_thread_message_limit = current_thread_message_limit
 
-    def execute(self, *, node_id: str, content: str, locale: str) -> SendMessageResult:
+    def execute(
+        self,
+        *,
+        node_id: str,
+        content: str,
+        locale: str,
+        web_search_enabled: bool = False,
+    ) -> SendMessageResult:
         if not content.strip():
             raise ValueError("Message is empty.")
 
@@ -72,6 +79,7 @@ class SendMessageUseCase:
         assistant_text = self._chat_model.generate_reply(
             system_prompt=system_prompt,
             messages=current_messages,
+            web_search_enabled=web_search_enabled,
         )
         assistant_message = Message.new(
             message_id=create_id("msg"),

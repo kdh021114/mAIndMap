@@ -101,7 +101,13 @@ class SettingsRepository(ABC):
 
 class ChatModel(ABC):
     @abstractmethod
-    def generate_reply(self, *, system_prompt: str, messages: List[Message]) -> str: ...
+    def generate_reply(
+        self,
+        *,
+        system_prompt: str,
+        messages: List[Message],
+        web_search_enabled: bool = False,
+    ) -> str: ...
 
 
 class EdgePhraseGenerator(ABC):

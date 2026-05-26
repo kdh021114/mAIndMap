@@ -62,32 +62,10 @@ const i18n = {
     splitHint: '새 자식 노드로 분리할 메시지를 선택하세요.',
     splitNeedOne: '최소 하나의 메시지를 선택하세요.',
     splitCannotMoveAll: '모든 메시지를 분리할 수는 없습니다.',
-    zoomReset: '확대/축소를 100%로 초기화',
-    fitToView: '그래프 전체에 맞추기',
-    centerOnRoot: '루트 노드로 이동',
-    minimapTitle: '미니맵',
-    minimapCollapse: '미니맵 접기',
-    minimapExpand: '미니맵 펼치기',
-    untitledGraph: '제목 없는 그래프',
-    editGraphTitle: '그래프 제목 편집',
-    contextBreadcrumbLabel: '컨텍스트 경로',
-    contextBreadcrumbTooltip: '이 조상 노드를 선택합니다',
-    contextBreadcrumbRoot: 'Root',
-    contextBreadcrumbEllipsis: '경로가 길어 일부 노드가 숨겨졌습니다',
-    emptyCtaHeading: '새 대화를 시작하세요',
-    emptyCtaSubtext: '캔버스를 클릭해 첫 노드를 만드세요',
-    emptyCtaButton: '첫 노드 만들기',
-    dotRecent: '최근 활동',
-    dotAwaiting: '응답 대기 중',
-    nodeMsgsSuffix: '개 메시지',
-    timeJustNow: '방금',
-    timeMinutesAgo: '{n}분 전',
-    timeHoursAgo: '{n}시간 전',
-    timeDaysAgo: '{n}일 전',
-    timeNever: '대화 없음',
-    splitNode: '노드 분할',
-    splitNodeNoMessages: '분리할 메시지가 없습니다. 먼저 채팅을 보내세요.',
-    nodeActions: '노드 작업',
+    webSearch: '웹검색',
+    webSearchReady: '다음 메시지에서 OpenAI 웹검색을 실행합니다.',
+    webSearchUnavailable: 'OpenAI 실사용 모드에서만 웹검색을 사용할 수 있습니다.',
+    sources: '출처',
   },
   en: {
     createRoot: 'Create Root',
@@ -152,32 +130,10 @@ const i18n = {
     splitHint: 'Check the messages to move into a new child node.',
     splitNeedOne: 'Select at least one message.',
     splitCannotMoveAll: 'Cannot split out every message from a node.',
-    zoomReset: 'Reset zoom to 100%',
-    fitToView: 'Fit graph to view',
-    centerOnRoot: 'Center on root node',
-    minimapTitle: 'Minimap',
-    minimapCollapse: 'Collapse minimap',
-    minimapExpand: 'Expand minimap',
-    untitledGraph: 'Untitled graph',
-    editGraphTitle: 'Edit graph title',
-    contextBreadcrumbLabel: 'Context lineage',
-    contextBreadcrumbTooltip: 'Select this ancestor node',
-    contextBreadcrumbRoot: 'Root',
-    contextBreadcrumbEllipsis: 'Some lineage nodes are hidden to fit',
-    emptyCtaHeading: 'Start a new conversation',
-    emptyCtaSubtext: 'Click anywhere on the canvas to create the first node',
-    emptyCtaButton: 'Create first node',
-    dotRecent: 'Recent activity',
-    dotAwaiting: 'Awaiting reply',
-    nodeMsgsSuffix: 'msgs',
-    timeJustNow: 'just now',
-    timeMinutesAgo: '{n}m ago',
-    timeHoursAgo: '{n}h ago',
-    timeDaysAgo: '{n}d ago',
-    timeNever: 'no chat',
-    splitNode: 'Split node',
-    splitNodeNoMessages: 'No messages to split. Send a chat message first.',
-    nodeActions: 'Node actions',
+    webSearch: 'Web search',
+    webSearchReady: 'Run OpenAI web search for the next message.',
+    webSearchUnavailable: 'Web search is available only in real OpenAI mode.',
+    sources: 'Sources',
   },
 };
 
@@ -202,6 +158,7 @@ let threadSidebarHidden = localStorage.getItem('graphChat.threadSidebarHidden') 
 let threadSidebarWidth = Number(localStorage.getItem('graphChat.threadSidebarWidth')) || 286;
 let chatSidebarHidden = localStorage.getItem('graphChat.sidebarHidden') === 'true';
 let chatSidebarWidth = Number(localStorage.getItem('graphChat.sidebarWidth')) || 380;
+let webSearchEnabled = localStorage.getItem('graphChat.webSearchEnabled') === 'true';
 let sidebarResize = null;
 let searchQuery = '';
 let searchResults = [];
@@ -229,6 +186,15 @@ const GRAPH_VIEW = {
   wheelZoomSpeed: 0.0026,
   dragThreshold: 4,
   gridSize: 28,
+};
+
+const NODE_SIZE = {
+  minWidth: 154,
+  maxWidth: 292,
+  minHeight: 72,
+  maxHeight: 138,
+  autoSiblingGap: 50,
+  autoChildVerticalGap: 92,
 };
 
 const ZOOM_LEVEL_THRESHOLDS = [
@@ -323,6 +289,8 @@ const el = {
   messageForm: document.getElementById('message-form'),
   messageInput: document.getElementById('message-input'),
   sendButton: document.getElementById('send-button'),
+  webSearchToggle: document.getElementById('web-search-toggle'),
+  webSearchToggleLabel: document.getElementById('web-search-toggle-label'),
   selectionToolbar: document.getElementById('selection-toolbar'),
   selectionModeBtn: document.getElementById('selection-mode-btn'),
   bulkDeleteBtn: document.getElementById('bulk-delete-btn'),
@@ -661,8 +629,12 @@ function renderAll() {
   el.sendButton.textContent = isSending ? '...' : '➤';
   el.sendButton.title = isSending ? t('sending') : t('send');
   el.sendButton.setAttribute('aria-label', isSending ? t('sending') : t('send'));
-  // The LLM pill in #graph-header conveys llmMode now; keep #mode-indicator
-  // reserved for future per-action modes (selection/split) — hide for now.
+  const webSearchAvailable = Boolean(state.webSearchAvailable);
+  el.webSearchToggle.checked = webSearchEnabled && webSearchAvailable;
+  el.webSearchToggle.disabled = !webSearchAvailable || isSending;
+  el.webSearchToggleLabel.textContent = t('webSearch');
+  el.webSearchToggle.title = webSearchAvailable ? t('webSearchReady') : t('webSearchUnavailable');
+  el.webSearchToggle.setAttribute('aria-label', t('webSearch'));
   el.modeIndicator.textContent = t('testMode');
   el.modeIndicator.classList.add('hidden');
   el.hideChatBtn.title = t('hideChat');
@@ -906,6 +878,7 @@ function renderGraph() {
   el.edgeLayer.setAttribute('width', '1');
   el.edgeLayer.setAttribute('height', '1');
   el.edgeLayer.setAttribute('viewBox', '0 0 1 1');
+  ensureEdgeArrowMarker();
   el.graphViewport.classList.remove('context-active');
   hideContextBreadcrumb();
 
@@ -917,8 +890,7 @@ function renderGraph() {
     return;
   }
 
-  hideEmptyCta();
-
+  applyRelativeNodeSizes();
   const contextHighlight = selectedContextHighlight();
   el.graphViewport.classList.toggle('context-active', contextHighlight.active);
   renderContextBreadcrumb(contextHighlight);
@@ -1089,7 +1061,75 @@ function renderContextBreadcrumb(contextHighlight) {
   });
 }
 
+function applyRelativeNodeSizes() {
+  if (!state?.nodes?.length) return;
+  const weights = state.nodes.map(nodeContentWeight);
+  const minWeight = Math.min(...weights);
+  const maxWeight = Math.max(...weights);
+
+  for (const node of state.nodes) {
+    const ratio = relativeNodeSizeRatio(nodeContentWeight(node), minWeight, maxWeight);
+    const width = Math.round(lerp(NODE_SIZE.minWidth, NODE_SIZE.maxWidth, ratio));
+    const height = Math.round(lerp(NODE_SIZE.minHeight, NODE_SIZE.maxHeight, ratio));
+    const basePosition = node.position || node.layout || { x: 0, y: 0 };
+    node.layout = {
+      ...node.layout,
+      x: Number(basePosition.x) || 0,
+      y: Number(basePosition.y) || 0,
+      width,
+      height,
+    };
+  }
+  alignAutoChildrenByVisualSize();
+}
+
+function nodeContentWeight(node) {
+  if ((node.userMessageCount || 0) < 2) return 0;
+  return Math.sqrt(Math.max(0, node.messageTextLength || 0));
+}
+
+function relativeNodeSizeRatio(weight, minWeight, maxWeight) {
+  if (maxWeight <= 0) return 0;
+  if (maxWeight === minWeight) return 0.48;
+  return clamp((weight - minWeight) / (maxWeight - minWeight), 0, 1) ** 1.45;
+}
+
+function alignAutoChildrenByVisualSize() {
+  const childrenByParentId = new Map();
+  for (const node of state.nodes) {
+    if (!node.parentNodeId) continue;
+    const siblings = childrenByParentId.get(node.parentNodeId) || [];
+    siblings.push(node);
+    childrenByParentId.set(node.parentNodeId, siblings);
+  }
+
+  const parentsByDepth = [...state.nodes].sort((a, b) => (a.depth || 0) - (b.depth || 0));
+  for (const parent of parentsByDepth) {
+    if (!parent.layout) continue;
+    const autoChildren = (childrenByParentId.get(parent.id) || [])
+      .filter((node) => !node.manuallyPositioned && node.layout)
+      .sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')));
+    if (!autoChildren.length) continue;
+
+    const totalWidth = autoChildren.reduce((sum, node) => sum + node.layout.width, 0)
+      + NODE_SIZE.autoSiblingGap * (autoChildren.length - 1);
+    const parentCenterX = parent.layout.x + parent.layout.width / 2;
+    let nextX = parentCenterX - totalWidth / 2;
+    const nextY = parent.layout.y + parent.layout.height + NODE_SIZE.autoChildVerticalGap;
+
+    for (const child of autoChildren) {
+      child.layout = {
+        ...child.layout,
+        x: Math.round(nextX),
+        y: Math.round(nextY),
+      };
+      nextX += child.layout.width + NODE_SIZE.autoSiblingGap;
+    }
+  }
+}
+
 function drawEdge(edge, source, target, contextHighlight = selectedContextHighlight()) {
+  ensureEdgeArrowMarker();
   const anchors = edgeAnchors(source, target);
   const { sx, sy, tx, ty, axis, sign } = anchors;
   const distance = axis === 'x' ? Math.abs(tx - sx) : Math.abs(ty - sy);
@@ -1100,6 +1140,7 @@ function drawEdge(edge, source, target, contextHighlight = selectedContextHighli
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   path.setAttribute('d', d);
   path.setAttribute('class', 'edge-path');
+  path.setAttribute('marker-end', 'url(#edge-arrowhead)');
   if (contextHighlight.active) {
     if (contextHighlight.edgeIds.has(edge.id)) {
       path.classList.add('context-path');
@@ -1174,6 +1215,28 @@ function drawEdge(edge, source, target, contextHighlight = selectedContextHighli
   el.edgeLabelLayer.appendChild(label);
 }
 
+function ensureEdgeArrowMarker() {
+  if (el.edgeLayer.querySelector('#edge-arrowhead')) return;
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'edge-arrowhead');
+  marker.setAttribute('viewBox', '0 0 10 10');
+  marker.setAttribute('refX', '8.5');
+  marker.setAttribute('refY', '5');
+  marker.setAttribute('markerWidth', '5');
+  marker.setAttribute('markerHeight', '5');
+  marker.setAttribute('orient', 'auto');
+  marker.setAttribute('markerUnits', 'strokeWidth');
+
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrow.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+  arrow.setAttribute('fill', 'context-stroke');
+  marker.appendChild(arrow);
+  defs.appendChild(marker);
+  el.edgeLayer.appendChild(defs);
+}
+
 function drawNode(node, contextHighlight = selectedContextHighlight()) {
   const card = document.createElement('article');
   card.className = 'node-card';
@@ -1199,6 +1262,7 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
   card.style.left = `${node.layout.x}px`;
   card.style.top = `${node.layout.y}px`;
   card.style.width = `${node.layout.width}px`;
+  card.style.height = `${node.layout.height}px`;
   card.style.minHeight = `${node.layout.height}px`;
   applyDepthColors(card, node.depth || 0);
 
@@ -1226,29 +1290,12 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
     if (event.key === 'Enter') startNodeTitleEdit(node, title);
   });
 
-  const meta = document.createElement('div');
-  meta.className = 'node-meta';
-  const msgsLabel = state?.locale === 'en'
-    ? `${node.messageCount} ${t('nodeMsgsSuffix')}`
-    : `${node.messageCount}${t('nodeMsgsSuffix')}`;
-  const relTime = formatRelativeTime(node.updatedAt || node.createdAt);
-  meta.textContent = `${msgsLabel} · ${relTime}`;
-
-  // Preview snippet (last user message) — only visible at zoom-detailed via CSS.
-  const preview = document.createElement('div');
-  preview.className = 'node-preview';
-  const cachedPreview = nodePreviewCache.get(node.threadId);
-  const previewText = cachedPreview?.lastUserPreview
-    ? truncatePreview(cachedPreview.lastUserPreview, 40)
-    : '';
-  preview.textContent = previewText;
-  if (!previewText) preview.classList.add('empty');
+  const actions = document.createElement('div');
+  actions.className = 'node-actions';
 
   const actions = createNodeMicroToolbar(node, card);
 
   card.appendChild(title);
-  card.appendChild(meta);
-  card.appendChild(preview);
   card.appendChild(actions);
   card.dataset.nodeId = node.id;
   card.dataset.threadId = node.threadId;
@@ -2125,17 +2172,17 @@ function clamp(value, min, max) {
 function applyDepthColors(element, depth, isEdge = false) {
   const maxDepth = Math.max(0, ...state.nodes.map((node) => node.depth || 0));
   const ratio = maxDepth === 0 ? 0 : clamp(depth / maxDepth, 0, 1);
-  const eased = ratio ** 0.86;
-  const hue = lerp(224, 204, eased);
-  const saturation = lerp(76, 18, eased);
-  const lightness = lerp(91, 99, eased);
-  const secondLightness = Math.min(99, lightness + lerp(4, 0, eased));
-  const borderLightness = lerp(78, 92, eased);
-  const accentLightness = lerp(56, 66, eased);
-  const accentSaturation = lerp(72, 34, eased);
+  const eased = ratio ** 0.78;
+  const hue = (258 - depth * 34 + maxDepth * 5 + 360) % 360;
+  const saturation = lerp(76, 46, eased);
+  const lightness = lerp(88, 94, eased);
+  const secondLightness = Math.min(98, lightness + 4);
+  const borderLightness = lerp(80, 88, eased);
+  const accentLightness = lerp(58, 64, eased);
+  const accentSaturation = lerp(68, 48, eased);
 
   if (isEdge) {
-    element.style.stroke = `hsl(${hue} ${Math.max(28, saturation)}% ${Math.min(84, borderLightness)}%)`;
+    element.style.stroke = `hsl(${hue} ${Math.max(34, saturation - 14)}% ${Math.min(76, borderLightness - 5)}%)`;
     return;
   }
   element.style.setProperty('--depth-accent', `hsl(${hue} ${accentSaturation}% ${accentLightness}%)`);
@@ -2144,7 +2191,7 @@ function applyDepthColors(element, depth, isEdge = false) {
   element.style.setProperty('--depth-muted', '#6b7280');
   element.style.setProperty(
     '--depth-fill',
-    `linear-gradient(135deg, hsl(${hue} ${saturation}% ${lightness}%), hsl(${hue + 8} ${Math.max(24, saturation - 10)}% ${secondLightness}%))`,
+    `linear-gradient(135deg, hsl(${hue} ${saturation}% ${lightness}%), hsl(${hue + 16} ${Math.max(34, saturation - 8)}% ${secondLightness}%))`,
   );
 }
 
@@ -2391,7 +2438,9 @@ function renderChatSidebar() {
   el.selectedNodeMeta.textContent = `${node.messageCount} ${t('messages')} · ${node.childrenCount} ${t('children')}`;
   el.messageList.innerHTML = '';
 
-  if (messages.length === 0) {
+  const visibleMessages = messagesForRender(node);
+
+  if (visibleMessages.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
     empty.textContent = t('noMessages');
@@ -2399,12 +2448,19 @@ function renderChatSidebar() {
     return;
   }
 
-  for (const message of messages) {
+  for (const message of visibleMessages) {
     const bubble = document.createElement('div');
     bubble.className = `message ${message.role}`;
-    bubble.dataset.messageId = message.id;
+    if (message.pending) {
+      bubble.classList.add('pending');
+      bubble.setAttribute('role', 'status');
+      bubble.setAttribute('aria-live', 'polite');
+    } else {
+      bubble.dataset.messageId = message.id;
+    }
 
-    if (splitMode) {
+    if (splitMode && !message.pending) {
+      bubble.classList.add('has-split-control');
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.className = 'message-split-checkbox';
@@ -2413,9 +2469,9 @@ function renderChatSidebar() {
       bubble.classList.toggle('split-selected', checkbox.checked);
       bubble.appendChild(checkbox);
 
-      const content = document.createElement('span');
+      const content = document.createElement('div');
       content.className = 'message-content';
-      content.textContent = message.content;
+      appendMessageBody(content, message);
       bubble.appendChild(content);
 
       bubble.addEventListener('click', (event) => {
@@ -2424,11 +2480,403 @@ function renderChatSidebar() {
         toggleSplitMessage(message.id);
       });
     } else {
-      bubble.textContent = message.content;
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      appendMessageBody(content, message);
+      bubble.appendChild(content);
     }
     el.messageList.appendChild(bubble);
   }
   el.messageList.scrollTop = el.messageList.scrollHeight;
+}
+
+function messagesForRender(node) {
+  if (!isSending || !node || node.id !== selectedNodeId) return messages;
+  return [
+    ...messages,
+    {
+      id: 'pending_assistant',
+      role: 'assistant',
+      content: '...',
+      pending: true,
+    },
+  ];
+}
+
+function appendMessageBody(container, message) {
+  if (message.pending) {
+    container.classList.add('typing-indicator');
+    container.textContent = '...';
+    return;
+  }
+
+  if (message.role === 'assistant') {
+    container.classList.add('markdown-content');
+    container.appendChild(renderMarkdown(message.content));
+    return;
+  }
+
+  container.classList.add('plain-text');
+  container.textContent = message.content;
+}
+
+function renderMarkdown(markdown) {
+  const fragment = document.createDocumentFragment();
+  const lines = String(markdown || '').replace(/\r\n?/g, '\n').split('\n');
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    const fenceMatch = line.trim().match(/^```([A-Za-z0-9_-]+)?\s*$/);
+    if (fenceMatch) {
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !lines[index].trim().startsWith('```')) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+      const pre = document.createElement('pre');
+      if (fenceMatch[1]) pre.dataset.language = fenceMatch[1];
+      const code = document.createElement('code');
+      if (fenceMatch[1]) code.dataset.language = fenceMatch[1];
+      code.textContent = codeLines.join('\n');
+      pre.appendChild(code);
+      fragment.appendChild(pre);
+      continue;
+    }
+
+    if (isMarkdownTableStart(lines, index)) {
+      const tableLines = [lines[index], lines[index + 1]];
+      index += 2;
+      while (index < lines.length && lines[index].trim() && looksLikeTableRow(lines[index])) {
+        tableLines.push(lines[index]);
+        index += 1;
+      }
+      fragment.appendChild(renderMarkdownTable(tableLines));
+      continue;
+    }
+
+    if (isSourceHeading(line)) {
+      const sourceLines = [];
+      index += 1;
+      while (index < lines.length && lines[index].trim()) {
+        sourceLines.push(lines[index]);
+        index += 1;
+      }
+      fragment.appendChild(renderSourceSection(sourceLines));
+      continue;
+    }
+
+    const headingMatch = line.match(/^\s{0,3}(#{1,4})\s+(.+?)\s*#*\s*$/);
+    if (headingMatch) {
+      const heading = document.createElement(`h${Math.min(headingMatch[1].length + 1, 5)}`);
+      appendInlineMarkdown(heading, headingMatch[2]);
+      fragment.appendChild(heading);
+      index += 1;
+      continue;
+    }
+
+    if (/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/.test(line)) {
+      fragment.appendChild(document.createElement('hr'));
+      index += 1;
+      continue;
+    }
+
+    if (/^\s{0,3}>\s?/.test(line)) {
+      const quoteLines = [];
+      while (index < lines.length && (/^\s{0,3}>\s?/.test(lines[index]) || !lines[index].trim())) {
+        if (!lines[index].trim()) {
+          quoteLines.push('');
+        } else {
+          quoteLines.push(lines[index].replace(/^\s{0,3}>\s?/, ''));
+        }
+        index += 1;
+      }
+      const quote = document.createElement('blockquote');
+      quote.appendChild(renderMarkdown(quoteLines.join('\n')));
+      fragment.appendChild(quote);
+      continue;
+    }
+
+    const unorderedMatch = line.match(/^\s*[-*•]\s+(.+)$/);
+    if (unorderedMatch) {
+      const list = document.createElement('ul');
+      while (index < lines.length) {
+        const match = lines[index].match(/^\s*[-*•]\s+(.+)$/);
+        if (!match) break;
+        const item = document.createElement('li');
+        appendInlineMarkdown(item, match[1]);
+        list.appendChild(item);
+        index += 1;
+      }
+      fragment.appendChild(list);
+      continue;
+    }
+
+    const orderedMatch = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (orderedMatch) {
+      const list = document.createElement('ol');
+      while (index < lines.length) {
+        const match = lines[index].match(/^\s*\d+[.)]\s+(.+)$/);
+        if (!match) break;
+        const item = document.createElement('li');
+        appendInlineMarkdown(item, match[1]);
+        list.appendChild(item);
+        index += 1;
+      }
+      fragment.appendChild(list);
+      continue;
+    }
+
+    const paragraphLines = [];
+    while (index < lines.length && lines[index].trim()) {
+      const nextLine = lines[index];
+      if (
+        nextLine.trim().startsWith('```')
+        || isMarkdownTableStart(lines, index)
+        || isSourceHeading(nextLine)
+        || nextLine.match(/^\s{0,3}(#{1,4})\s+(.+?)\s*#*\s*$/)
+        || nextLine.match(/^\s{0,3}>\s?/)
+        || nextLine.match(/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/)
+        || nextLine.match(/^\s*[-*•]\s+(.+)$/)
+        || nextLine.match(/^\s*\d+[.)]\s+(.+)$/)
+      ) {
+        break;
+      }
+      paragraphLines.push(nextLine);
+      index += 1;
+    }
+    const paragraph = document.createElement('p');
+    appendInlineMarkdown(paragraph, paragraphLines.join('\n'));
+    fragment.appendChild(paragraph);
+  }
+
+  return fragment;
+}
+
+function isSourceHeading(line) {
+  return /^\s*(sources?|출처|참고\s*자료)\s*:\s*$/i.test(String(line || ''));
+}
+
+function renderSourceSection(sourceLines) {
+  const section = document.createElement('section');
+  section.className = 'markdown-sources';
+
+  const title = document.createElement('div');
+  title.className = 'markdown-sources-title';
+  title.textContent = t('sources');
+  section.appendChild(title);
+
+  const list = document.createElement('ol');
+  list.className = 'markdown-sources-list';
+  for (const line of sourceLines) {
+    const item = renderSourceItem(line);
+    if (item) list.appendChild(item);
+  }
+
+  if (!list.children.length) {
+    const fallback = document.createElement('p');
+    appendInlineMarkdown(fallback, sourceLines.join('\n'));
+    section.appendChild(fallback);
+    return section;
+  }
+
+  section.appendChild(list);
+  return section;
+}
+
+function renderSourceItem(line) {
+  const cleaned = String(line || '')
+    .trim()
+    .replace(/^[-*•]\s+/, '')
+    .replace(/^\d+[.)]\s+/, '')
+    .trim();
+  if (!cleaned) return null;
+
+  const linkMatch = cleaned.match(/^\[([^\]]+)]\((https?:\/\/[^)\s]+)\)$/);
+  const bareUrlMatch = cleaned.match(/^(https?:\/\/\S+)$/);
+  const item = document.createElement('li');
+
+  if (linkMatch) {
+    item.appendChild(createSafeLink(linkMatch[1], linkMatch[2]));
+    item.appendChild(sourceHost(linkMatch[2]));
+    return item;
+  }
+
+  if (bareUrlMatch) {
+    item.appendChild(createSafeLink(bareUrlMatch[1], bareUrlMatch[1]));
+    item.appendChild(sourceHost(bareUrlMatch[1]));
+    return item;
+  }
+
+  appendInlineMarkdown(item, cleaned);
+  const firstUrl = cleaned.match(/https?:\/\/[^\s<)]+/);
+  if (firstUrl) item.appendChild(sourceHost(firstUrl[0]));
+  return item;
+}
+
+function sourceHost(url) {
+  const host = document.createElement('span');
+  host.className = 'markdown-source-host';
+  try {
+    host.textContent = new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    host.textContent = '';
+  }
+  return host;
+}
+
+function isMarkdownTableStart(lines, index) {
+  return (
+    index + 1 < lines.length
+    && looksLikeTableRow(lines[index])
+    && isTableDivider(lines[index + 1])
+  );
+}
+
+function looksLikeTableRow(line) {
+  const cells = splitTableRow(line);
+  return cells.length >= 2 && String(line || '').includes('|');
+}
+
+function isTableDivider(line) {
+  const cells = splitTableRow(line);
+  return cells.length >= 2 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function splitTableRow(row) {
+  const trimmed = String(row || '').trim().replace(/^\|/, '').replace(/\|$/, '');
+  const cells = [];
+  let current = '';
+  let escaped = false;
+  for (const char of trimmed) {
+    if (char === '\\' && !escaped) {
+      escaped = true;
+      current += char;
+      continue;
+    }
+    if (char === '|' && !escaped) {
+      cells.push(current.trim().replace(/\\\|/g, '|'));
+      current = '';
+      continue;
+    }
+    current += char;
+    escaped = false;
+  }
+  cells.push(current.trim().replace(/\\\|/g, '|'));
+  return cells;
+}
+
+function tableAlignments(dividerLine) {
+  return splitTableRow(dividerLine).map((cell) => {
+    const trimmed = cell.trim();
+    if (trimmed.startsWith(':') && trimmed.endsWith(':')) return 'center';
+    if (trimmed.endsWith(':')) return 'right';
+    return 'left';
+  });
+}
+
+function renderMarkdownTable(tableLines) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'markdown-table-wrap';
+  const table = document.createElement('table');
+  const headerCells = splitTableRow(tableLines[0]);
+  const alignments = tableAlignments(tableLines[1]);
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headerCells.forEach((cell, cellIndex) => {
+    const th = document.createElement('th');
+    th.style.textAlign = alignments[cellIndex] || 'left';
+    appendInlineMarkdown(th, cell);
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  for (const rowLine of tableLines.slice(2)) {
+    const row = document.createElement('tr');
+    const cells = splitTableRow(rowLine);
+    for (let cellIndex = 0; cellIndex < headerCells.length; cellIndex += 1) {
+      const td = document.createElement('td');
+      td.style.textAlign = alignments[cellIndex] || 'left';
+      appendInlineMarkdown(td, cells[cellIndex] || '');
+      row.appendChild(td);
+    }
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+  wrapper.appendChild(table);
+  return wrapper;
+}
+
+function appendInlineMarkdown(parent, text) {
+  const source = String(text || '');
+  const tokenPattern = /(!\[[^\]]*]\(https?:\/\/[^)\s]+\)|\[[^\]]+]\(https?:\/\/[^)\s]+\)|\*\*[^*]+?\*\*|__[^_]+?__|~~[^~]+?~~|`[^`]+?`|\*[^*\n]+?\*|_[^_\n]+?_|https?:\/\/[^\s<)]+)/g;
+  let cursor = 0;
+  for (const match of source.matchAll(tokenPattern)) {
+    appendTextWithLineBreaks(parent, source.slice(cursor, match.index));
+    const token = match[0];
+
+    if (token.startsWith('![')) {
+      const imageMatch = token.match(/^!\[([^\]]*)]\((https?:\/\/[^)\s]+)\)$/);
+      if (imageMatch) {
+        parent.appendChild(createSafeLink(imageMatch[1] || imageMatch[2], imageMatch[2]));
+      } else {
+        appendTextWithLineBreaks(parent, token);
+      }
+    } else if ((token.startsWith('**') && token.endsWith('**')) || (token.startsWith('__') && token.endsWith('__'))) {
+      const strong = document.createElement('strong');
+      appendInlineMarkdown(strong, token.slice(2, -2));
+      parent.appendChild(strong);
+    } else if (token.startsWith('~~') && token.endsWith('~~')) {
+      const deleted = document.createElement('del');
+      appendInlineMarkdown(deleted, token.slice(2, -2));
+      parent.appendChild(deleted);
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      const code = document.createElement('code');
+      code.textContent = token.slice(1, -1);
+      parent.appendChild(code);
+    } else if ((token.startsWith('*') && token.endsWith('*')) || (token.startsWith('_') && token.endsWith('_'))) {
+      const emphasis = document.createElement('em');
+      appendInlineMarkdown(emphasis, token.slice(1, -1));
+      parent.appendChild(emphasis);
+    } else if (token.startsWith('[')) {
+      const linkMatch = token.match(/^\[([^\]]+)]\((https?:\/\/[^)\s]+)\)$/);
+      if (linkMatch) {
+        parent.appendChild(createSafeLink(linkMatch[1], linkMatch[2]));
+      } else {
+        appendTextWithLineBreaks(parent, token);
+      }
+    } else {
+      parent.appendChild(createSafeLink(token, token));
+    }
+    cursor = match.index + token.length;
+  }
+  appendTextWithLineBreaks(parent, source.slice(cursor));
+}
+
+function appendTextWithLineBreaks(parent, text) {
+  const parts = String(text || '').split('\n');
+  parts.forEach((part, index) => {
+    if (index > 0) parent.appendChild(document.createElement('br'));
+    if (part) parent.appendChild(document.createTextNode(part));
+  });
+}
+
+function createSafeLink(label, href) {
+  const link = document.createElement('a');
+  link.textContent = label;
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  return link;
 }
 
 function applyChatSidebarState() {
@@ -2747,6 +3195,7 @@ async function sendMessage(event) {
   if (!node || isSending) return;
   const content = el.messageInput.value.trim();
   if (!content) return;
+  const useWebSearch = webSearchEnabled && Boolean(state.webSearchAvailable);
 
   try {
     const beforeSnapshot = await workspaceSnapshot();
@@ -2767,7 +3216,7 @@ async function sendMessage(event) {
 
     const data = await api(`/api/nodes/${node.id}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, webSearchEnabled: useWebSearch }),
     });
     state = data.state;
     messages = data.messages;
@@ -3430,6 +3879,11 @@ window.addEventListener('resize', () => {
   applyGraphView();
 });
 el.messageForm.addEventListener('submit', sendMessage);
+el.webSearchToggle.addEventListener('change', () => {
+  webSearchEnabled = el.webSearchToggle.checked;
+  localStorage.setItem('graphChat.webSearchEnabled', String(webSearchEnabled));
+  renderAll();
+});
 el.messageInput.addEventListener('keydown', (event) => {
   if (event.isComposing) return;
   if (event.key === 'Enter' && !event.shiftKey) {

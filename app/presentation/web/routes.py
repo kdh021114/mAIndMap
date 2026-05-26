@@ -147,7 +147,12 @@ def register_routes(app: Flask, use_cases: Any) -> None:
         data = _json_body()
         locale = _current_locale(use_cases)
         content = data.get("content", "")
-        result = use_cases.send_message.execute(node_id=node_id, content=content, locale=locale)
+        result = use_cases.send_message.execute(
+            node_id=node_id,
+            content=content,
+            locale=locale,
+            web_search_enabled=bool(data.get("webSearchEnabled", False)),
+        )
         state = use_cases.get_workspace_state.execute()
         node = next(n for n in state["nodes"] if n["id"] == node_id)
         messages = use_cases.load_thread_messages.execute(thread_id=node["threadId"])
