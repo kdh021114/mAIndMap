@@ -36,6 +36,7 @@ class OpenAIChatModel(ChatModel):
         system_prompt: str,
         messages: List[Message],
         web_search_enabled: bool = False,
+        truncation_notice: str | None = None,
     ) -> str:
         input_text = self._format_messages(messages)
         reply = self._text_client.complete(
@@ -44,6 +45,7 @@ class OpenAIChatModel(ChatModel):
             input_text=input_text,
             max_output_tokens=self._max_output_tokens,
             web_search_options=self._web_search_options(web_search_enabled),
+            truncation_notice=truncation_notice,
         )
         return reply or "I could not generate a response."
 

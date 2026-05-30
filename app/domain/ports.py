@@ -76,6 +76,12 @@ class ChatRepository(ABC):
     def list_messages(self, thread_id: str) -> List[Message]: ...
 
     @abstractmethod
+    def update_message_content(self, message_id: str, content: str) -> Message: ...
+
+    @abstractmethod
+    def delete_messages(self, message_ids: List[str]) -> None: ...
+
+    @abstractmethod
     def count_user_messages(self, thread_id: str) -> int: ...
 
     @abstractmethod
@@ -107,6 +113,7 @@ class ChatModel(ABC):
         system_prompt: str,
         messages: List[Message],
         web_search_enabled: bool = False,
+        truncation_notice: Optional[str] = None,
     ) -> str: ...
 
 

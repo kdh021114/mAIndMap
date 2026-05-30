@@ -4,6 +4,21 @@ const i18n = {
     addChild: '자식 노드 추가',
     renameNode: '노드 제목 수정',
     deleteNode: '노드 삭제',
+    splitNode: '노드 분리',
+    nodeActions: '노드 작업',
+    nodeCreating: '노드를 생성하는 중입니다… 잠시 걸릴 수 있어요.',
+    nodeDeleting: '노드를 삭제하는 중입니다…',
+    editMessage: '수정',
+    deleteMessage: '삭제',
+    saveEdit: '저장 후 재생성',
+    cancelEdit: '취소',
+    deleteExchangeConfirm: '가장 최근 질문과 답변을 삭제할까요?',
+    messageActions: '메시지 작업',
+    showEdgeLabels: '엣지 이름 표시',
+    hideEdgeLabels: '엣지 이름 숨기기',
+    usecaseHintTitle: '💡 어떤 작업에 쓰면 좋을까요?',
+    usecaseHintText: '여행 계획처럼 여러 갈래로 탐색하는 다방면 주제에는 그래프(Tree) 뷰가 강점이에요. 강의 내용 정리처럼 한 줄기로 이어지는 작업은 채팅을 길게 이어가는 선형 방식이 더 편할 수 있어요.',
+    usecaseHintDismiss: '알겠어요',
     deleteConfirmTitle: '삭제할까요?',
     language: '언어',
     graphHint: '노드는 채팅 스레드의 자동 요약 제목입니다. 선택 노드의 채팅은 root부터 직전 부모까지의 한 줄 context만 참조합니다.',
@@ -72,6 +87,21 @@ const i18n = {
     addChild: 'Add Child',
     renameNode: 'Rename Node',
     deleteNode: 'Delete Node',
+    splitNode: 'Split Node',
+    nodeActions: 'Node actions',
+    nodeCreating: 'Creating node… this can take a moment.',
+    nodeDeleting: 'Deleting node…',
+    editMessage: 'Edit',
+    deleteMessage: 'Delete',
+    saveEdit: 'Save & regenerate',
+    cancelEdit: 'Cancel',
+    deleteExchangeConfirm: 'Delete the most recent question and answer?',
+    messageActions: 'Message actions',
+    showEdgeLabels: 'Show edge labels',
+    hideEdgeLabels: 'Hide edge labels',
+    usecaseHintTitle: '💡 Which view fits your task?',
+    usecaseHintText: 'The graph (tree) view shines for multi-faceted topics you explore in several directions, like trip planning. For linear work such as summarizing lecture notes, a long single chat thread is often easier.',
+    usecaseHintDismiss: 'Got it',
     deleteConfirmTitle: 'Delete?',
     language: 'Language',
     graphHint: 'Each node shows an LLM-generated chat-thread title. Chat uses only the selected node plus the root-to-parent lineage context.',
@@ -142,6 +172,15 @@ let selectedNodeId = null;
 let selectedNodeIds = new Set();
 let messages = [];
 let isSending = false;
+// Tracks in-flight node create/delete operations so rapid repeated clicks can't
+// fire duplicate requests while the server round-trip (which can lag noticeably)
+// is still pending. Keys: `add:<parentId>`, `del:<nodeId>`, `del-bulk`. This is
+// module state (not just DOM `disabled`) so the guard survives the full
+// renderAll() DOM rebuild that runs after every graph mutation.
+const nodeOpsInFlight = new Set();
+// Id of the chat message currently open for inline editing (most-recent user
+// message only), or null when no editor is open.
+let editingMessageId = null;
 let selectionMode = false;
 let undoStack = [];
 let redoStack = [];
@@ -171,8 +210,17 @@ let searchOffscreenRafHandle = null;
 let splitMode = false;
 let splitSelectedMessageIds = new Set();
 let minimapCollapsed = localStorage.getItem('graph_minimap_collapsed') === 'true';
+// Edge relation-phrase labels default to OFF: in user testing they added little
+// value for lecture-note tasks and increased clutter. Users can toggle them on.
+let edgeLabelsVisible = localStorage.getItem('graphChat.edgeLabelsVisible') === 'true';
 let minimapRedrawHandle = null;
 let minimapDrag = null;
+// Panel-move drag (distinct from minimapDrag, which pans the main view). When the
+// user drags the minimap by its header, we switch it from the default bottom/right
+// CSS anchor to an explicit left/top position (clamped inside .graph-panel) and
+// remember it in localStorage.
+let minimapPanelDrag = null;
+let minimapPanelPos = readStoredMinimapPos();
 // TODO: no backend rename endpoint for graph threads yet — store local overrides keyed by graphThreadId.
 const localGraphTitleOverrides = new Map();
 let nodeMessagesCache = new Map();
@@ -292,6 +340,11 @@ const el = {
   webSearchToggle: document.getElementById('web-search-toggle'),
   webSearchToggleLabel: document.getElementById('web-search-toggle-label'),
   selectionToolbar: document.getElementById('selection-toolbar'),
+  edgeLabelToggleBtn: document.getElementById('edge-label-toggle-btn'),
+  usecaseHint: document.getElementById('usecase-hint'),
+  usecaseHintTitle: document.getElementById('usecase-hint-title'),
+  usecaseHintText: document.getElementById('usecase-hint-text'),
+  usecaseHintDismiss: document.getElementById('usecase-hint-dismiss'),
   selectionModeBtn: document.getElementById('selection-mode-btn'),
   bulkDeleteBtn: document.getElementById('bulk-delete-btn'),
   selectionCount: document.getElementById('selection-count'),
@@ -327,6 +380,7 @@ const el = {
   minimapCanvas: document.getElementById('minimap-canvas'),
   minimapViewport: document.getElementById('minimap-viewport'),
   minimapToggleBtn: document.getElementById('minimap-toggle-btn'),
+  minimapHeader: document.getElementById('minimap-header'),
   graphHeader: document.getElementById('graph-header'),
   graphHeaderTitle: document.getElementById('graph-header-title'),
   graphHeaderStats: document.getElementById('graph-header-stats'),
@@ -654,6 +708,8 @@ function renderAll() {
   applySearchPlaceholder();
   applyGraphControlsLocalization();
   applyMinimapState();
+  applyEdgeLabelState();
+  applyUsecaseHintText();
   scheduleMinimapRedraw();
   // Re-sync match order with the (possibly updated) node set,
   // since renderAll runs after state changes (e.g. node create/delete).
@@ -1188,19 +1244,12 @@ function drawEdge(edge, source, target, contextHighlight = selectedContextHighli
     firstId !== edge.id;
 
   const category = categorizeEdgePhrase(edge.displayPhrase);
-  const dotColor = EDGE_CATEGORY_COLORS[category] || EDGE_CATEGORY_COLORS.default;
 
   if (category !== 'default') {
     label.classList.add(`edge-category-${category}`);
   }
   if (important) label.classList.add('edge-label-important');
   if (isDuplicate) label.classList.add('edge-label-duplicate');
-
-  const dot = document.createElement('span');
-  dot.className = 'edge-label-dot';
-  dot.style.backgroundColor = dotColor;
-  dot.setAttribute('aria-hidden', 'true');
-  label.appendChild(dot);
 
   const text = document.createElement('span');
   text.className = 'edge-label-text';
@@ -1290,14 +1339,17 @@ function drawNode(node, contextHighlight = selectedContextHighlight()) {
     if (event.key === 'Enter') startNodeTitleEdit(node, title);
   });
 
-  const actions = document.createElement('div');
-  actions.className = 'node-actions';
+  // Build the hover micro-toolbar (add child / split / delete) and wire its
+  // hover-reveal behavior. These were previously defined but never called, so
+  // the per-node add/delete buttons never appeared.
+  const actions = createNodeMicroToolbar(node, card);
 
   card.appendChild(title);
   card.appendChild(actions);
   card.dataset.nodeId = node.id;
   card.dataset.threadId = node.threadId;
   card.addEventListener('pointerdown', (event) => beginNodeDrag(event, node, card));
+  attachMicroToolbarHover(card, actions);
   el.nodeLayer.appendChild(card);
   updateNodeStatusDot(card, node);
 }
@@ -1332,6 +1384,19 @@ function createNodeMicroToolbar(node, card) {
     onClick: () => requestDeleteNode(node.id),
   });
 
+  // Re-apply in-flight loading state after a renderAll() rebuild: if this node's
+  // create/delete request is still pending, show the button as disabled+spinning
+  // so repeated clicks stay visibly blocked (the request itself is also guarded
+  // by nodeOpsInFlight in the handlers).
+  if (nodeOpsInFlight.has(`add:${node.id}`)) {
+    addButton.disabled = true;
+    addButton.classList.add('is-loading');
+  }
+  if (nodeOpsInFlight.has(`del:${node.id}`)) {
+    deleteButton.disabled = true;
+    deleteButton.classList.add('is-loading');
+  }
+
   actions.appendChild(addButton);
   actions.appendChild(splitButton);
   actions.appendChild(deleteButton);
@@ -1350,10 +1415,22 @@ function createNodeChip({ className, label, title, onClick }) {
   // and click (prevents card selection) so chip presses never bubble to the card.
   button.addEventListener('pointerdown', (event) => event.stopPropagation());
   button.addEventListener('mousedown', (event) => event.stopPropagation());
-  button.addEventListener('click', (event) => {
+  button.addEventListener('click', async (event) => {
     event.stopPropagation();
     event.preventDefault();
-    onClick();
+    if (button.disabled) return;
+    // Disable + spin the clicked chip immediately so a slow round-trip can't be
+    // double-fired by repeated clicks. Awaiting onClick keeps it disabled until
+    // the operation settles; if a renderAll() detaches this button meanwhile the
+    // finally still runs harmlessly on the orphaned element.
+    button.disabled = true;
+    button.classList.add('is-loading');
+    try {
+      await onClick();
+    } finally {
+      button.disabled = false;
+      button.classList.remove('is-loading');
+    }
   });
   return button;
 }
@@ -1836,6 +1913,129 @@ function applyMinimapState() {
   if (!minimapCollapsed) scheduleMinimapRedraw();
 }
 
+function readStoredMinimapPos() {
+  const x = Number(localStorage.getItem('graphChat.minimapPosX'));
+  const y = Number(localStorage.getItem('graphChat.minimapPosY'));
+  if (Number.isFinite(x) && Number.isFinite(y)
+      && localStorage.getItem('graphChat.minimapPosX') !== null) {
+    return { x, y };
+  }
+  return null;
+}
+
+function clampMinimapPos(x, y) {
+  const panel = el.minimapPanel;
+  const parent = el.graphPanel;
+  if (!panel || !parent) return { x, y };
+  const pad = 8;
+  const maxX = Math.max(pad, parent.clientWidth - panel.offsetWidth - pad);
+  const maxY = Math.max(pad, parent.clientHeight - panel.offsetHeight - pad);
+  return {
+    x: Math.min(Math.max(x, pad), maxX),
+    y: Math.min(Math.max(y, pad), maxY),
+  };
+}
+
+// Apply the user-dragged position, switching the panel from its default
+// bottom/right CSS anchor to explicit left/top. No-op (keeps CSS anchor) until
+// the user actually moves it.
+function applyMinimapPosition() {
+  const panel = el.minimapPanel;
+  if (!panel || !minimapPanelPos) return;
+  const { x, y } = clampMinimapPos(minimapPanelPos.x, minimapPanelPos.y);
+  minimapPanelPos = { x, y };
+  panel.style.left = `${x}px`;
+  panel.style.top = `${y}px`;
+  panel.style.right = 'auto';
+  panel.style.bottom = 'auto';
+}
+
+function beginMinimapPanelDrag(event) {
+  if (event.button !== 0) return;
+  // Let the collapse toggle button keep its own click.
+  if (event.target.closest('#minimap-toggle-btn')) return;
+  const panel = el.minimapPanel;
+  const parent = el.graphPanel;
+  if (!panel || !parent) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const panelRect = panel.getBoundingClientRect();
+  const parentRect = parent.getBoundingClientRect();
+  minimapPanelDrag = {
+    pointerId: event.pointerId,
+    // offset of the pointer within the panel
+    grabX: event.clientX - panelRect.left,
+    grabY: event.clientY - panelRect.top,
+    parentLeft: parentRect.left,
+    parentTop: parentRect.top,
+  };
+  el.minimapHeader.setPointerCapture(event.pointerId);
+  panel.classList.add('panel-dragging');
+}
+
+function updateMinimapPanelDrag(event) {
+  if (!minimapPanelDrag || event.pointerId !== minimapPanelDrag.pointerId) return;
+  event.preventDefault();
+  const x = event.clientX - minimapPanelDrag.parentLeft - minimapPanelDrag.grabX;
+  const y = event.clientY - minimapPanelDrag.parentTop - minimapPanelDrag.grabY;
+  minimapPanelPos = clampMinimapPos(x, y);
+  applyMinimapPosition();
+}
+
+function endMinimapPanelDrag(event) {
+  if (!minimapPanelDrag || event.pointerId !== minimapPanelDrag.pointerId) return;
+  minimapPanelDrag = null;
+  el.minimapPanel?.classList.remove('panel-dragging');
+  if (minimapPanelPos) {
+    localStorage.setItem('graphChat.minimapPosX', String(Math.round(minimapPanelPos.x)));
+    localStorage.setItem('graphChat.minimapPosY', String(Math.round(minimapPanelPos.y)));
+  }
+}
+
+function applyEdgeLabelState() {
+  if (el.edgeLabelLayer) {
+    // Pure CSS visibility toggle — no graph re-render needed, and hidden labels
+    // stop intercepting clicks (see .edge-labels-hidden in styles.css).
+    el.edgeLabelLayer.classList.toggle('edge-labels-hidden', !edgeLabelsVisible);
+  }
+  if (el.edgeLabelToggleBtn) {
+    el.edgeLabelToggleBtn.classList.toggle('active', edgeLabelsVisible);
+    el.edgeLabelToggleBtn.setAttribute('aria-pressed', String(edgeLabelsVisible));
+    const tip = edgeLabelsVisible ? t('hideEdgeLabels') : t('showEdgeLabels');
+    el.edgeLabelToggleBtn.title = tip;
+    el.edgeLabelToggleBtn.setAttribute('aria-label', tip);
+  }
+}
+
+function toggleEdgeLabels() {
+  edgeLabelsVisible = !edgeLabelsVisible;
+  localStorage.setItem('graphChat.edgeLabelsVisible', String(edgeLabelsVisible));
+  applyEdgeLabelState();
+}
+
+// One-time use-case hint: nudges users toward the tree view for multi-faceted
+// topics and a linear chat for note-summarization work. Shown once, then
+// remembered as dismissed in localStorage.
+function applyUsecaseHintText() {
+  if (!el.usecaseHint) return;
+  el.usecaseHintTitle.textContent = t('usecaseHintTitle');
+  el.usecaseHintText.textContent = t('usecaseHintText');
+  el.usecaseHintDismiss.textContent = t('usecaseHintDismiss');
+}
+
+function maybeShowUsecaseHint() {
+  if (!el.usecaseHint) return;
+  applyUsecaseHintText();
+  if (localStorage.getItem('graphChat.usecaseHintDismissed') === 'true') return;
+  el.usecaseHint.classList.remove('hidden');
+}
+
+function dismissUsecaseHint() {
+  if (!el.usecaseHint) return;
+  el.usecaseHint.classList.add('hidden');
+  localStorage.setItem('graphChat.usecaseHintDismissed', 'true');
+}
+
 function toggleMinimapCollapsed() {
   minimapCollapsed = !minimapCollapsed;
   localStorage.setItem('graph_minimap_collapsed', String(minimapCollapsed));
@@ -2297,18 +2497,11 @@ function startEdgePhraseEdit(edge, labelElement) {
   input.select();
 
   const restoreLabel = () => {
-    // Rebuild the label content so the category dot survives a cancelled edit
-    // without forcing a full re-render.
-    const category = categorizeEdgePhrase(edge.displayPhrase);
-    const dotColor = EDGE_CATEGORY_COLORS[category] || EDGE_CATEGORY_COLORS.default;
-    const dot = document.createElement('span');
-    dot.className = 'edge-label-dot';
-    dot.style.backgroundColor = dotColor;
-    dot.setAttribute('aria-hidden', 'true');
+    // Rebuild the label content after a cancelled edit without a full re-render.
     const text = document.createElement('span');
     text.className = 'edge-label-text';
     text.textContent = edge.displayPhrase || '...';
-    labelElement.replaceChildren(dot, text);
+    labelElement.replaceChildren(text);
   };
 
   let finished = false;
@@ -2445,6 +2638,20 @@ function renderChatSidebar() {
     return;
   }
 
+  // The most recent user message is the only editable one (edit -> regenerate).
+  // Edit/delete affordances are suppressed while sending, in split mode, or while
+  // another edit is open.
+  let lastUserMessageId = null;
+  for (const message of visibleMessages) {
+    if (!message.pending && message.role === 'user') lastUserMessageId = message.id;
+  }
+  // Drop a stale editor if its target message is gone (node switch, deletion) or
+  // is no longer the most recent user message.
+  if (editingMessageId !== null && editingMessageId !== lastUserMessageId) {
+    editingMessageId = null;
+  }
+  const allowMessageActions = !splitMode && !isSending && editingMessageId === null;
+
   for (const message of visibleMessages) {
     const bubble = document.createElement('div');
     bubble.className = `message ${message.role}`;
@@ -2476,15 +2683,145 @@ function renderChatSidebar() {
         event.preventDefault();
         toggleSplitMessage(message.id);
       });
+    } else if (!message.pending && editingMessageId === message.id) {
+      // This user message is being edited inline: show a textarea + actions.
+      bubble.classList.add('editing');
+      bubble.appendChild(buildMessageEditor(node, message));
     } else {
       const content = document.createElement('div');
       content.className = 'message-content';
       appendMessageBody(content, message);
       bubble.appendChild(content);
+
+      if (allowMessageActions && message.id === lastUserMessageId) {
+        bubble.appendChild(buildMessageActions(node, message));
+      }
     }
     el.messageList.appendChild(bubble);
   }
   el.messageList.scrollTop = el.messageList.scrollHeight;
+}
+
+function buildMessageActions(node, message) {
+  const row = document.createElement('div');
+  row.className = 'message-actions';
+  row.setAttribute('role', 'toolbar');
+  row.setAttribute('aria-label', t('messageActions'));
+
+  const editButton = document.createElement('button');
+  editButton.type = 'button';
+  editButton.className = 'message-action-button edit';
+  editButton.textContent = t('editMessage');
+  editButton.addEventListener('click', () => {
+    editingMessageId = message.id;
+    renderChatSidebar();
+  });
+
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.className = 'message-action-button delete';
+  deleteButton.textContent = t('deleteMessage');
+  deleteButton.addEventListener('click', () => deleteLastExchange(node.id));
+
+  row.appendChild(editButton);
+  row.appendChild(deleteButton);
+  return row;
+}
+
+function buildMessageEditor(node, message) {
+  const wrap = document.createElement('div');
+  wrap.className = 'message-edit';
+
+  const textarea = document.createElement('textarea');
+  textarea.className = 'message-edit-input';
+  textarea.rows = 3;
+  textarea.value = message.content;
+
+  const actions = document.createElement('div');
+  actions.className = 'message-edit-actions';
+
+  const saveButton = document.createElement('button');
+  saveButton.type = 'button';
+  saveButton.className = 'button primary message-edit-save';
+  saveButton.textContent = t('saveEdit');
+  saveButton.addEventListener('click', () => saveMessageEdit(node.id, message.id, textarea.value));
+
+  const cancelButton = document.createElement('button');
+  cancelButton.type = 'button';
+  cancelButton.className = 'button message-edit-cancel';
+  cancelButton.textContent = t('cancelEdit');
+  cancelButton.addEventListener('click', () => {
+    editingMessageId = null;
+    renderChatSidebar();
+  });
+
+  textarea.addEventListener('keydown', (event) => {
+    if (event.isComposing) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      editingMessageId = null;
+      renderChatSidebar();
+    } else if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      saveMessageEdit(node.id, message.id, textarea.value);
+    }
+  });
+
+  actions.appendChild(saveButton);
+  actions.appendChild(cancelButton);
+  wrap.appendChild(textarea);
+  wrap.appendChild(actions);
+  // Focus the textarea after it is in the DOM.
+  window.setTimeout(() => {
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  }, 0);
+  return wrap;
+}
+
+async function saveMessageEdit(nodeId, messageId, rawContent) {
+  const content = rawContent.trim();
+  if (!content) return;
+  if (isSending) return;
+  const useWebSearch = webSearchEnabled && Boolean(state.webSearchAvailable);
+  editingMessageId = null;
+  isSending = true;
+  renderChatSidebar();
+  try {
+    const beforeSnapshot = await workspaceSnapshot();
+    const beforeUiState = captureUiState();
+    const data = await api(`/api/nodes/${nodeId}/messages/${messageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ content, webSearchEnabled: useWebSearch }),
+    });
+    state = data.state;
+    messages = data.messages;
+    selectedNodeId = nodeId;
+    nodeMessagesCache.set(nodeId, Array.isArray(messages) ? [...messages] : []);
+    await pushHistoryEntry(beforeSnapshot, beforeUiState);
+  } catch (error) {
+    showError(error);
+  } finally {
+    isSending = false;
+    renderAll();
+  }
+}
+
+async function deleteLastExchange(nodeId) {
+  if (isSending) return;
+  if (!window.confirm(t('deleteExchangeConfirm'))) return;
+  try {
+    const data = await runUndoable(async () => api(`/api/nodes/${nodeId}/messages/last`, {
+      method: 'DELETE',
+    }));
+    state = data.state;
+    messages = data.messages;
+    selectedNodeId = nodeId;
+    nodeMessagesCache.set(nodeId, Array.isArray(messages) ? [...messages] : []);
+    renderAll();
+  } catch (error) {
+    showError(error);
+  }
 }
 
 function messagesForRender(node) {
@@ -2509,12 +2846,132 @@ function appendMessageBody(container, message) {
 
   if (message.role === 'assistant') {
     container.classList.add('markdown-content');
-    container.appendChild(renderMarkdown(message.content));
+    container.appendChild(renderMarkdownWithMath(message.content));
     return;
   }
 
   container.classList.add('plain-text');
   container.textContent = message.content;
+}
+
+// --- TeX math support (KaTeX) -------------------------------------------------
+// The markdown renderer below treats `_` and `*` as emphasis, which would
+// corrupt LaTeX like `x_1` or `a*b`. So we extract math BEFORE markdown runs,
+// leaving private-use sentinels in the text, then swap KaTeX-rendered nodes back
+// in AFTER the DOM is built. The extractor is code-aware: it never treats `$`/
+// `\(` inside fenced or inline code as math (so `echo $$PATH` stays literal).
+// Supported delimiters: $$...$$ and \[...\] (display), \(...\) (inline). Single
+// `$` is intentionally NOT a delimiter, to avoid breaking currency like "$5".
+const MATH_SENTINEL_OPEN = '';
+const MATH_SENTINEL_CLOSE = '';
+const MATH_SENTINEL_SPLIT_RE = /(\d+)/;
+const MATH_SENTINEL_MATCH_RE = /^(\d+)$/;
+
+function extractMathSegments(src) {
+  const text = String(src || '');
+  const n = text.length;
+  const segments = [];
+  let out = '';
+  let i = 0;
+  const atLineStart = (idx) => idx === 0 || text[idx - 1] === '\n';
+
+  while (i < n) {
+    const ch = text[i];
+
+    // Fenced code block: copy verbatim through the closing fence.
+    if (atLineStart(i)) {
+      const fence = text.slice(i).match(/^([ \t]*)(```+)/);
+      if (fence) {
+        const ticks = fence[2];
+        const bodyStart = i + fence[0].length;
+        const closeMatch = text.slice(bodyStart).match(new RegExp('\\n[ \\t]*' + ticks));
+        const end = closeMatch ? bodyStart + closeMatch.index + closeMatch[0].length : n;
+        out += text.slice(i, end);
+        i = end;
+        continue;
+      }
+    }
+
+    // Inline code: copy verbatim through the matching backtick run.
+    if (ch === '`') {
+      const run = text.slice(i).match(/^`+/)[0];
+      const close = text.indexOf(run, i + run.length);
+      const end = close === -1 ? n : close + run.length;
+      out += text.slice(i, end);
+      i = end;
+      continue;
+    }
+
+    const pushSegment = (tex, display, advance) => {
+      out += MATH_SENTINEL_OPEN + segments.length + MATH_SENTINEL_CLOSE;
+      segments.push({ tex, display });
+      i = advance;
+    };
+
+    if (ch === '$' && text[i + 1] === '$') {
+      const close = text.indexOf('$$', i + 2);
+      if (close !== -1) { pushSegment(text.slice(i + 2, close), true, close + 2); continue; }
+    }
+    if (ch === '\\' && text[i + 1] === '[') {
+      const close = text.indexOf('\\]', i + 2);
+      if (close !== -1) { pushSegment(text.slice(i + 2, close), true, close + 2); continue; }
+    }
+    if (ch === '\\' && text[i + 1] === '(') {
+      const close = text.indexOf('\\)', i + 2);
+      if (close !== -1) { pushSegment(text.slice(i + 2, close), false, close + 2); continue; }
+    }
+
+    out += ch;
+    i += 1;
+  }
+
+  return { text: out, segments };
+}
+
+function renderMathInto(span, tex, display) {
+  if (typeof katex === 'undefined') {
+    // KaTeX failed to load — degrade gracefully to the literal source.
+    span.textContent = display ? `$$${tex}$$` : `\\(${tex}\\)`;
+    return;
+  }
+  try {
+    katex.render(tex, span, { displayMode: display, throwOnError: false, errorColor: '#cc0000' });
+  } catch {
+    span.textContent = tex;
+  }
+}
+
+function replaceMathSentinels(root, segments) {
+  if (!segments.length) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const targets = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    if (node.nodeValue && node.nodeValue.indexOf(MATH_SENTINEL_OPEN) !== -1) targets.push(node);
+  }
+  for (const textNode of targets) {
+    const frag = document.createDocumentFragment();
+    for (const part of textNode.nodeValue.split(MATH_SENTINEL_SPLIT_RE)) {
+      const match = part.match(MATH_SENTINEL_MATCH_RE);
+      if (match) {
+        const seg = segments[Number(match[1])];
+        const span = document.createElement('span');
+        span.className = seg && seg.display ? 'katex-block' : 'katex-inline';
+        if (seg) renderMathInto(span, seg.tex, seg.display);
+        frag.appendChild(span);
+      } else if (part) {
+        frag.appendChild(document.createTextNode(part));
+      }
+    }
+    textNode.parentNode.replaceChild(frag, textNode);
+  }
+}
+
+function renderMarkdownWithMath(markdown) {
+  const { text, segments } = extractMathSegments(markdown);
+  const fragment = renderMarkdown(text);
+  replaceMathSentinels(fragment, segments);
+  return fragment;
 }
 
 function renderMarkdown(markdown) {
@@ -3044,6 +3501,10 @@ async function addChild() {
 async function addChildForNode(parentNodeId) {
   const parent = state.nodes.find((node) => node.id === parentNodeId);
   if (!parent) return;
+  const opKey = `add:${parentNodeId}`;
+  if (nodeOpsInFlight.has(opKey)) return; // ignore repeat clicks while a child is being created
+  nodeOpsInFlight.add(opKey);
+  showNotice(t('nodeCreating')); // reassure during the (I/O-bound) create round-trip
   try {
     const data = await runUndoable(async () => api(`/api/nodes/${parentNodeId}/children`, {
       method: 'POST',
@@ -3054,9 +3515,11 @@ async function addChildForNode(parentNodeId) {
     resetMultiSelection();
     pendingCenterNodeId = selectedNodeId;
     messages = [];
-    renderAll();
   } catch (error) {
     showError(error);
+  } finally {
+    nodeOpsInFlight.delete(opKey);
+    renderAll();
   }
 }
 
@@ -3137,6 +3600,9 @@ function dismissDeleteConfirmation() {
 }
 
 async function performDeleteNodeById(nodeId) {
+  const opKey = `del:${nodeId}`;
+  if (nodeOpsInFlight.has(opKey)) return; // ignore repeat clicks while deleting
+  nodeOpsInFlight.add(opKey);
   try {
     dismissDeleteConfirmation();
     state = await runUndoable(async () => api(`/api/nodes/${nodeId}`, { method: 'DELETE' }));
@@ -3145,15 +3611,19 @@ async function performDeleteNodeById(nodeId) {
       selectedNodeId = null;
       messages = [];
     }
-    renderAll();
   } catch (error) {
     showError(error);
+  } finally {
+    nodeOpsInFlight.delete(opKey);
+    renderAll();
   }
 }
 
 async function deleteSelectedNodes() {
   const nodeIds = [...selectedNodeIds];
   if (nodeIds.length === 0) return;
+  if (nodeOpsInFlight.has('del-bulk')) return; // ignore repeat clicks while deleting
+  nodeOpsInFlight.add('del-bulk');
   try {
     dismissDeleteConfirmation();
     state = await runUndoable(async () => api('/api/nodes', {
@@ -3165,9 +3635,11 @@ async function deleteSelectedNodes() {
       selectedNodeId = null;
       messages = [];
     }
-    renderAll();
   } catch (error) {
     showError(error);
+  } finally {
+    nodeOpsInFlight.delete('del-bulk');
+    renderAll();
   }
 }
 
@@ -3232,6 +3704,17 @@ function showError(error) {
   el.toast.textContent = `${t('error')}: ${error.message || error}`;
   el.toast.classList.remove('hidden');
   window.setTimeout(() => el.toast.classList.add('hidden'), 4200);
+}
+
+// Lightweight transient notice reusing the toast element (no error styling).
+// Used to reassure users that a slow node create/delete round-trip is underway,
+// so they don't repeatedly click the button while it processes.
+let noticeHideTimer = null;
+function showNotice(message, durationMs = 2400) {
+  el.toast.textContent = message;
+  el.toast.classList.remove('hidden');
+  if (noticeHideTimer) window.clearTimeout(noticeHideTimer);
+  noticeHideTimer = window.setTimeout(() => el.toast.classList.add('hidden'), durationMs);
 }
 
 function applySearchPlaceholder() {
@@ -3784,6 +4267,13 @@ el.chatEdgeToggle.addEventListener('click', toggleChatSidebar);
 el.threadEdgeToggle.addEventListener('click', toggleThreadSidebar);
 el.newThreadBtn.addEventListener('click', createGraphThread);
 el.selectionModeBtn.addEventListener('click', toggleSelectionMode);
+if (el.edgeLabelToggleBtn) {
+  el.edgeLabelToggleBtn.addEventListener('click', toggleEdgeLabels);
+}
+if (el.usecaseHintDismiss) {
+  el.usecaseHintDismiss.addEventListener('click', dismissUsecaseHint);
+}
+maybeShowUsecaseHint();
 el.bulkDeleteBtn.addEventListener('click', deleteSelectedNodes);
 el.mergeBtn.addEventListener('click', mergeSelectedNodes);
 el.splitModeBtn.addEventListener('click', toggleSplitMode);
@@ -3871,6 +4361,7 @@ window.addEventListener('resize', () => {
   applyChatSidebarState();
   applyThreadSidebarState();
   scheduleMinimapRedraw();
+  applyMinimapPosition(); // re-clamp a dragged minimap so it can't end up off-screen
   if (!state?.nodes.length) return;
   centerViewOnGraph();
   applyGraphView();
@@ -3929,9 +4420,16 @@ if (el.minimapBody) {
 if (el.minimapPanel) {
   el.minimapPanel.addEventListener('pointerdown', (event) => event.stopPropagation());
 }
+if (el.minimapHeader) {
+  el.minimapHeader.addEventListener('pointerdown', beginMinimapPanelDrag);
+  el.minimapHeader.addEventListener('pointermove', updateMinimapPanelDrag);
+  el.minimapHeader.addEventListener('pointerup', endMinimapPanelDrag);
+  el.minimapHeader.addEventListener('pointercancel', endMinimapPanelDrag);
+}
 
 applyGraphControlsLocalization();
 applyMinimapState();
+applyMinimapPosition();
 updateOverlayRightOffset();
 updateZoomDisplay();
 Object.defineProperty(window, 'state', { get: () => state });

@@ -185,6 +185,39 @@ class JsonChatRepository(ChatRepository):
         ]
         return sorted(messages, key=lambda m: m.created_at)
 
+    def update_message_content(self, message_id: str, content: str) -> Message:
+        updated_holder: dict = {}
+
+        def mutate(state: dict) -> None:
+            message = state["messages"].get(message_id)
+            if message is None:
+                raise KeyError(f"Message not found: {message_id}")
+            message["content"] = content
+            if message["thread_id"] in state["threads"]:
+                state["threads"][message["thread_id"]]["updated_at"] = utc_now_iso()
+            updated_holder["message"] = dict(message)
+
+        self._store.update(mutate)
+        return Message.from_dict(updated_holder["message"])
+
+    def delete_messages(self, message_ids: List[str]) -> None:
+        id_set = set(message_ids)
+        if not id_set:
+            return
+
+        def mutate(state: dict) -> None:
+            now = utc_now_iso()
+            touched_threads: set[str] = set()
+            for message_id in list(state["messages"].keys()):
+                if message_id in id_set:
+                    touched_threads.add(state["messages"][message_id]["thread_id"])
+                    state["messages"].pop(message_id, None)
+            for thread_id in touched_threads:
+                if thread_id in state["threads"]:
+                    state["threads"][thread_id]["updated_at"] = now
+
+        self._store.update(mutate)
+
     def count_user_messages(self, thread_id: str) -> int:
         return sum(1 for m in self.list_messages(thread_id) if m.role == "user")
 

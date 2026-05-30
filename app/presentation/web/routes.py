@@ -164,6 +164,42 @@ def register_routes(app: Flask, use_cases: Any) -> None:
             }
         )
 
+    @app.patch("/api/nodes/<node_id>/messages/<message_id>")
+    def edit_last_user_message(node_id: str, message_id: str):
+        data = _json_body()
+        locale = _current_locale(use_cases)
+        content = data.get("content", "")
+        result = use_cases.edit_last_user_message.execute(
+            node_id=node_id,
+            message_id=message_id,
+            content=content,
+            locale=locale,
+            web_search_enabled=bool(data.get("webSearchEnabled", False)),
+        )
+        state = use_cases.get_workspace_state.execute()
+        node = next(n for n in state["nodes"] if n["id"] == node_id)
+        messages = use_cases.load_thread_messages.execute(thread_id=node["threadId"])
+        return jsonify(
+            {
+                "result": _to_dict(result),
+                "messages": [_to_dict(m) for m in messages],
+                "state": state,
+            }
+        )
+
+    @app.delete("/api/nodes/<node_id>/messages/last")
+    def delete_last_exchange(node_id: str):
+        use_cases.delete_last_exchange.execute(node_id=node_id)
+        state = use_cases.get_workspace_state.execute()
+        node = next(n for n in state["nodes"] if n["id"] == node_id)
+        messages = use_cases.load_thread_messages.execute(thread_id=node["threadId"])
+        return jsonify(
+            {
+                "messages": [_to_dict(m) for m in messages],
+                "state": state,
+            }
+        )
+
     @app.patch("/api/edges/<edge_id>/phrase")
     def edit_edge_phrase(edge_id: str):
         data = _json_body()

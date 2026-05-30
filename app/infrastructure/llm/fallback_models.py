@@ -13,6 +13,7 @@ class MockChatModel(ChatModel):
         system_prompt: str,
         messages: List[Message],
         web_search_enabled: bool = False,
+        truncation_notice: str | None = None,
     ) -> str:
         last_user = next((m for m in reversed(messages) if m.role == "user"), None)
         if last_user is None:

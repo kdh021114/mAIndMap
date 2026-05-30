@@ -4,7 +4,12 @@ from dataclasses import dataclass
 
 from flask import Flask
 
-from app.application.chat_use_cases import LoadThreadMessagesUseCase, SendMessageUseCase
+from app.application.chat_use_cases import (
+    DeleteLastExchangeUseCase,
+    EditLastUserMessageUseCase,
+    LoadThreadMessagesUseCase,
+    SendMessageUseCase,
+)
 from app.application.context_builder import AncestorContextPolicy, AncestorLineageContextBuilder
 from app.application.graph_use_cases import (
     AddChildNodeUseCase,
@@ -67,6 +72,8 @@ class UseCaseContainer:
     generate_missing_graph_labels: GenerateMissingGraphLabelsUseCase
     load_thread_messages: LoadThreadMessagesUseCase
     send_message: SendMessageUseCase
+    edit_last_user_message: EditLastUserMessageUseCase
+    delete_last_exchange: DeleteLastExchangeUseCase
     change_locale: ChangeLocaleUseCase
     get_workspace_snapshot: GetWorkspaceSnapshotUseCase
     restore_workspace_snapshot: RestoreWorkspaceSnapshotUseCase
@@ -133,6 +140,16 @@ def create_app(config_module) -> Flask:
         )
     )
 
+    send_message_use_case = SendMessageUseCase(
+        graph_repository=graph_repository,
+        chat_repository=chat_repository,
+        chat_model=llm_services.chat_model,
+        title_generator=llm_services.title_generator,
+        edge_phrase_generator=llm_services.edge_phrase_generator,
+        ancestor_context_builder=ancestor_context_builder,
+        current_thread_message_limit=config_module.CURRENT_THREAD_MESSAGE_LIMIT,
+    )
+
     use_cases = UseCaseContainer(
         get_workspace_state=GetWorkspaceStateUseCase(
             graph_repository=graph_repository,
@@ -195,14 +212,15 @@ def create_app(config_module) -> Flask:
             edge_phrase_generator=llm_services.edge_phrase_generator,
         ),
         load_thread_messages=LoadThreadMessagesUseCase(chat_repository=chat_repository),
-        send_message=SendMessageUseCase(
+        send_message=send_message_use_case,
+        edit_last_user_message=EditLastUserMessageUseCase(
             graph_repository=graph_repository,
             chat_repository=chat_repository,
-            chat_model=llm_services.chat_model,
-            title_generator=llm_services.title_generator,
-            edge_phrase_generator=llm_services.edge_phrase_generator,
-            ancestor_context_builder=ancestor_context_builder,
-            current_thread_message_limit=config_module.CURRENT_THREAD_MESSAGE_LIMIT,
+            send_message_use_case=send_message_use_case,
+        ),
+        delete_last_exchange=DeleteLastExchangeUseCase(
+            graph_repository=graph_repository,
+            chat_repository=chat_repository,
         ),
         change_locale=ChangeLocaleUseCase(settings_repository=settings_repository),
         get_workspace_snapshot=GetWorkspaceSnapshotUseCase(snapshot_repository=snapshot_repository),

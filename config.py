@@ -14,7 +14,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 ROOT_DIR = Path(__file__).resolve().parent
-load_dotenv(ROOT_DIR / ".env")
+# override=True so the project's .env wins over an empty/stale OPENAI_API_KEY
+# that may already be present in the shell environment.
+load_dotenv(ROOT_DIR / ".env", override=True)
 
 # -----------------------------------------------------------------------------
 # Runtime
@@ -64,7 +66,13 @@ OPENAI_TITLE_MODEL = "gpt-5.4-nano"
 # model rejects it, switch to "low" or set this to None.
 OPENAI_REASONING_EFFORT = "none"
 OPENAI_TEXT_VERBOSITY = "low"
-OPENAI_CHAT_MAX_OUTPUT_TOKENS = 512
+# Max tokens for a chat reply. Raised from 512 -> 2048 so long answers are not
+# cut off mid-response. NOTE: GPT-5.4-class models are reasoning models, so
+# reasoning tokens also draw from this budget; the visible answer can be shorter
+# than this number. When a reply is still cut off, the chat path appends a small
+# truncation notice (see OpenAITextClient.complete) instead of failing silently.
+# Cost note: this is an upper bound, but long replies can cost up to ~4x vs 512.
+OPENAI_CHAT_MAX_OUTPUT_TOKENS = 2048
 OPENAI_LABEL_MAX_OUTPUT_TOKENS = 80
 OPENAI_STORE_RESPONSES = False
 OPENAI_TIMEOUT_SECONDS = 45.0
