@@ -751,7 +751,8 @@ button, textarea, select {
 }
 
 .selection-mode-button,
-.selection-delete-button {
+.selection-delete-button,
+.edge-label-toggle-button {
   width: 30px;
   height: 30px;
   display: grid;
@@ -769,12 +770,14 @@ button, textarea, select {
 }
 
 .selection-mode-button:hover,
-.selection-delete-button:hover:not(:disabled) {
+.selection-delete-button:hover:not(:disabled),
+.edge-label-toggle-button:hover {
   border-color: #b9c5d6;
   box-shadow: 0 5px 14px rgba(15, 23, 42, 0.1);
 }
 
-.selection-mode-button.active {
+.selection-mode-button.active,
+.edge-label-toggle-button.active {
   background: #eef6ff;
   border-color: #93c5fd;
   color: #1e3a8a;
@@ -1000,22 +1003,17 @@ button, textarea, select {
 
 /* Category dot prefix (6x6) - the only colored element so the
    label background stays subtle. */
-.edge-label-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #94a3b8;
-  flex: 0 0 6px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.65);
-}
-
 .edge-label-text {
   display: inline-block;
 }
 
-/* Hide the dot while inline-editing (the input replaces children). */
-.edge-label.editing .edge-label-dot,
+/* When edge labels are toggled off, hide the whole layer and stop it from
+   intercepting pointer events so the canvas underneath stays interactive. */
+.edge-labels-hidden {
+  display: none;
+}
+
+/* Hide the text while inline-editing (the input replaces children). */
 .edge-label.editing .edge-label-text {
   display: none;
 }
@@ -1027,13 +1025,6 @@ button, textarea, select {
   color: #94a3b8;
   box-shadow: none;
   padding: 3px 7px;
-}
-
-.edge-label.edge-label-duplicate .edge-label-dot {
-  opacity: 0.6;
-  width: 5px;
-  height: 5px;
-  flex-basis: 5px;
 }
 
 /* User-edited labels keep full styling even if their phrase is duplicated. */
@@ -1338,6 +1329,40 @@ button, textarea, select {
 .node-action-button.delete {
   color: var(--danger);
   font-size: 13px;
+}
+
+.node-action-button[disabled] {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.node-action-button[disabled]:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+}
+
+/* Spinner shown while a node create/delete request is in flight. */
+.node-action-button.is-loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.node-action-button.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(15, 23, 42, 0.25);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: node-action-spin 0.6s linear infinite;
+}
+
+@keyframes node-action-spin {
+  to { transform: rotate(360deg); }
 }
 
 .delete-confirm-popover {
@@ -2195,6 +2220,16 @@ button, textarea, select {
   padding: 6px 8px 6px 12px;
   border-bottom: 1px solid rgba(217, 224, 234, 0.6);
   background: rgba(255, 255, 255, 0.6);
+  cursor: grab;
+  touch-action: none;
+}
+
+.minimap-panel.panel-dragging {
+  user-select: none;
+}
+
+.minimap-panel.panel-dragging .minimap-header {
+  cursor: grabbing;
 }
 
 .minimap-panel.collapsed .minimap-header {
@@ -2288,6 +2323,162 @@ button, textarea, select {
   padding: 12px 14px;
   box-shadow: var(--shadow);
   z-index: 20;
+}
+
+/* One-time use-case hint banner (tree vs. linear guidance). */
+.usecase-hint {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 18;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: min(560px, calc(100% - 48px));
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.usecase-hint.hidden {
+  display: none;
+}
+
+.usecase-hint-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.usecase-hint-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.usecase-hint-text {
+  color: var(--muted);
+}
+
+.usecase-hint-dismiss {
+  flex: 0 0 auto;
+  align-self: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: 120ms ease;
+}
+
+.usecase-hint-dismiss:hover {
+  border-color: #b9c5d6;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+/* Edit/Delete affordances on the most recent chat message. Hidden until the
+   message bubble is hovered/focused to keep the transcript clean. */
+.message-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.message:hover .message-actions,
+.message:focus-within .message-actions {
+  opacity: 1;
+}
+
+.message-action-button {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.message-action-button:hover {
+  background: #ffffff;
+  color: var(--text);
+}
+
+.message-action-button.delete:hover {
+  color: var(--danger);
+  border-color: #fecaca;
+}
+
+/* Inline editor for the most recent user message. */
+.message.editing {
+  width: 100%;
+}
+
+.message-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.message-edit-input {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--text);
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.message-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.message-edit-actions .button {
+  font-size: 13px;
+  padding: 5px 12px;
+}
+
+/* KaTeX math (assistant messages). Inline math sits in the text flow; display
+   math gets its own line and scrolls horizontally so a wide equation cannot
+   blow out the chat bubble width. */
+.katex-inline {
+  display: inline;
+}
+
+.katex-block {
+  display: block;
+  margin: 8px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+.katex-block .katex-display {
+  margin: 0;
+}
+
+.markdown-content .katex {
+  font-size: 1.02em;
 }
 
 @media (max-width: 960px) {

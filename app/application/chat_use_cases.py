@@ -25,6 +25,13 @@ class SendMessageResult:
     updated_edge: GraphEdge | None
 
 
+def _truncation_notice(locale: str) -> str:
+    """Short marker appended to a chat reply that hit the output-token limit."""
+    if locale == "ko":
+        return "\n\n_(⚠️ 답변이 최대 길이에 도달해 잘렸습니다. '이어서 설명해줘'라고 요청해 보세요.)_"
+    return "\n\n_(⚠️ This reply hit the maximum length and was cut off. Ask “continue” to see the rest.)_"
+
+
 class LoadThreadMessagesUseCase:
     def __init__(self, chat_repository: ChatRepository):
         self._chat_repository = chat_repository
@@ -80,6 +87,7 @@ class SendMessageUseCase:
             system_prompt=system_prompt,
             messages=current_messages,
             web_search_enabled=web_search_enabled,
+            truncation_notice=_truncation_notice(locale),
         )
         assistant_message = Message.new(
             message_id=create_id("msg"),
@@ -173,3 +181,81 @@ class SendMessageUseCase:
         )
         self._graph_repository.save_edge(updated_edge)
         return updated_edge
+
+
+def _tail_from_last_user_message(messages: List[Message]) -> List[Message]:
+    """Return the most recent exchange: the last user message plus everything
+    after it (its assistant reply). Empty if there is no user message."""
+    last_user_index = None
+    for index in range(len(messages) - 1, -1, -1):
+        if messages[index].role == "user":
+            last_user_index = index
+            break
+    if last_user_index is None:
+        return []
+    return messages[last_user_index:]
+
+
+class DeleteLastExchangeUseCase:
+    """Delete the most recent exchange (last user message + its assistant reply)."""
+
+    def __init__(self, graph_repository: GraphRepository, chat_repository: ChatRepository):
+        self._graph_repository = graph_repository
+        self._chat_repository = chat_repository
+
+    def execute(self, *, node_id: str) -> List[Message]:
+        node = self._graph_repository.get_node(node_id)
+        messages = self._chat_repository.list_messages(node.thread_id)
+        tail = _tail_from_last_user_message(messages)
+        if not tail:
+            raise ValueError("There is no message to delete.")
+        self._chat_repository.delete_messages([m.id for m in tail])
+        return self._chat_repository.list_messages(node.thread_id)
+
+
+class EditLastUserMessageUseCase:
+    """Edit the most recent user message, then regenerate the assistant reply.
+
+    Implemented as "delete the last exchange, then resend the edited prompt" so
+    it reuses the full SendMessageUseCase flow (context building, first-prompt
+    title/edge generation, truncation notice) instead of duplicating it.
+    """
+
+    def __init__(
+        self,
+        graph_repository: GraphRepository,
+        chat_repository: ChatRepository,
+        send_message_use_case: "SendMessageUseCase",
+    ):
+        self._graph_repository = graph_repository
+        self._chat_repository = chat_repository
+        self._send_message = send_message_use_case
+
+    def execute(
+        self,
+        *,
+        node_id: str,
+        message_id: str,
+        content: str,
+        locale: str,
+        web_search_enabled: bool = False,
+    ) -> SendMessageResult:
+        if not content.strip():
+            raise ValueError("Message is empty.")
+
+        node = self._graph_repository.get_node(node_id)
+        messages = self._chat_repository.list_messages(node.thread_id)
+        tail = _tail_from_last_user_message(messages)
+        if not tail:
+            raise ValueError("There is no message to edit.")
+        # Only the most recent user message may be edited.
+        if tail[0].id != message_id:
+            raise ValueError("Only the most recent message can be edited.")
+
+        self._chat_repository.delete_messages([m.id for m in tail])
+        return self._send_message.execute(
+            node_id=node_id,
+            content=content,
+            locale=locale,
+            web_search_enabled=web_search_enabled,
+        )

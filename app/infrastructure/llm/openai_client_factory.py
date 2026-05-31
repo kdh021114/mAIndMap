@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAIClientFactory:
@@ -52,7 +55,17 @@ class OpenAITextClient:
         input_text: str,
         max_output_tokens: int | None = None,
         web_search_options: dict[str, Any] | None = None,
+        truncation_notice: str | None = None,
     ) -> str:
+        """Run one Responses API call and return the text.
+
+        If ``truncation_notice`` is provided and the response was cut off because
+        it hit ``max_output_tokens`` (Responses API ``status == "incomplete"``
+        with reason ``max_output_tokens``), the notice is appended to the text so
+        the user can see the answer was truncated rather than silently short.
+        Label callers (titles/edge phrases) pass no notice, so their deliberately
+        small token caps never produce a visible marker.
+        """
         client = self._client_factory.create()
         request: dict[str, Any] = {
             "model": model,
@@ -79,6 +92,18 @@ class OpenAITextClient:
                 request["tool_choice"] = web_search_options["tool_choice"]
 
         response = client.responses.create(**request)
+        text = self._extract_text(response)
+        if _was_truncated_by_length(response):
+            logger.warning(
+                "OpenAI response for model=%s was truncated at max_output_tokens=%s",
+                model,
+                max_output_tokens,
+            )
+            if truncation_notice and text:
+                text = f"{text}{truncation_notice}"
+        return text
+
+    def _extract_text(self, response: Any) -> str:
         formatted = _response_text_with_citations(response)
         if formatted:
             return formatted
@@ -101,6 +126,24 @@ def _read_field(value: Any, field_name: str, default: Any) -> Any:
     if isinstance(value, dict):
         return value.get(field_name, default)
     return getattr(value, field_name, default)
+
+
+def _was_truncated_by_length(response: Any) -> bool:
+    """True if the Responses API stopped because it hit max_output_tokens.
+
+    Fail-soft: any unexpected SDK shape is treated as "not truncated" so a
+    detection-path error can never break an otherwise-valid reply.
+    """
+    try:
+        if _read_field(response, "status", None) != "incomplete":
+            return False
+        details = _read_field(response, "incomplete_details", None)
+        if details is None:
+            return False
+        reason = _read_field(details, "reason", None)
+        return reason == "max_output_tokens"
+    except Exception:  # pragma: no cover - defensive guard around SDK shape drift
+        return False
 
 
 def _response_text_with_citations(response: Any) -> str:

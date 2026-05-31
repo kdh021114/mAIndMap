@@ -4,11 +4,32 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HAI Graph Chat Prototype</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+    integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+    crossorigin="anonymous"
+  />
+  <!-- KaTeX provides the global `katex` used by renderMathInContainer() in app.js.
+       Loaded synchronously (before app.js) so math is ready on first message render. -->
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+    integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
+    crossorigin="anonymous"
+  ></script>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
   <div id="app-shell">
     <main class="workspace">
+      <div id="usecase-hint" class="usecase-hint hidden" role="note">
+        <div class="usecase-hint-body">
+          <strong id="usecase-hint-title" class="usecase-hint-title"></strong>
+          <span id="usecase-hint-text" class="usecase-hint-text"></span>
+        </div>
+        <button id="usecase-hint-dismiss" class="usecase-hint-dismiss" type="button"></button>
+      </div>
       <aside id="thread-sidebar" class="thread-sidebar">
         <div class="thread-header">
           <button id="new-thread-btn" class="icon-button" type="button">+</button>
@@ -31,6 +52,7 @@
           </div>
           <div class="graph-header-right">
             <div id="selection-toolbar" class="selection-toolbar">
+              <button id="edge-label-toggle-btn" class="edge-label-toggle-button" type="button" aria-pressed="false">↔</button>
               <button id="selection-mode-btn" class="selection-mode-button" type="button"></button>
               <button id="merge-btn" class="selection-merge-button hidden" type="button"></button>
               <button id="bulk-delete-btn" class="selection-delete-button" type="button"></button>
@@ -62,7 +84,7 @@
         </div>
         <div id="search-offscreen-indicator" class="search-offscreen-indicator hidden" aria-hidden="true"></div>
         <div id="minimap-panel" class="minimap-panel">
-          <div class="minimap-header">
+          <div id="minimap-header" class="minimap-header">
             <span class="minimap-title">Map</span>
             <button id="minimap-toggle-btn" class="minimap-toggle-btn" type="button" title="">▾</button>
           </div>
@@ -124,6 +146,8 @@
   </div>
 
   <div id="toast" class="toast hidden"></div>
-  <script src="/static/app.js"></script>
+  <!-- defer so the deferred KaTeX script above is guaranteed to run first
+       (deferred scripts execute in document order before DOMContentLoaded). -->
+  <script defer src="/static/app.js"></script>
 </body>
 </html>
