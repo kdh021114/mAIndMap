@@ -1041,7 +1041,7 @@ function renderGraph() {
   // Once the graph has any node (e.g. after the root is created), the empty-state
   // prompt must go away — otherwise its text lingers on top of the real nodes.
   hideEmptyCta();
-  applyRelativeNodeSizes();
+  applyFixedNodeSizes();
   const contextHighlight = selectedContextHighlight();
   el.graphViewport.classList.toggle('context-active', contextHighlight.active);
   renderContextBreadcrumb(contextHighlight);
@@ -1212,37 +1212,18 @@ function renderContextBreadcrumb(contextHighlight) {
   });
 }
 
-function applyRelativeNodeSizes() {
+function applyFixedNodeSizes() {
   if (!state?.nodes?.length) return;
-  const weights = state.nodes.map(nodeContentWeight);
-  const minWeight = Math.min(...weights);
-  const maxWeight = Math.max(...weights);
-
   for (const node of state.nodes) {
-    const ratio = relativeNodeSizeRatio(nodeContentWeight(node), minWeight, maxWeight);
-    const width = Math.round(lerp(NODE_SIZE.minWidth, NODE_SIZE.maxWidth, ratio));
-    const height = Math.round(lerp(NODE_SIZE.minHeight, NODE_SIZE.maxHeight, ratio));
     const basePosition = node.position || node.layout || { x: 0, y: 0 };
     node.layout = {
       ...node.layout,
       x: Number(basePosition.x) || 0,
       y: Number(basePosition.y) || 0,
-      width,
-      height,
+      width: NODE_SIZE.minWidth,
+      height: NODE_SIZE.minHeight,
     };
   }
-  alignAutoChildrenByVisualSize();
-}
-
-function nodeContentWeight(node) {
-  if ((node.userMessageCount || 0) < 2) return 0;
-  return Math.sqrt(Math.max(0, node.messageTextLength || 0));
-}
-
-function relativeNodeSizeRatio(weight, minWeight, maxWeight) {
-  if (maxWeight <= 0) return 0;
-  if (maxWeight === minWeight) return 0.48;
-  return clamp((weight - minWeight) / (maxWeight - minWeight), 0, 1) ** 1.45;
 }
 
 function alignAutoChildrenByVisualSize() {
