@@ -52,6 +52,7 @@ const i18n = {
     graphThreads: '그래프 스레드',
     graphThreadMeta: '독립 그래프와 로그',
     newGraphThread: '새 스레드',
+    goChat: '선형 채팅',
     endConversation: '대화 종료',
     endConversationHint: '전체 대화를 스레드별 JSON으로 묶어 ZIP으로 내려받기',
     exportDone: '대화 로그를 ZIP으로 내려받았어요.',
@@ -161,6 +162,7 @@ const i18n = {
     graphThreads: 'Graph Threads',
     graphThreadMeta: 'Independent graphs and logs',
     newGraphThread: 'New thread',
+    goChat: 'Linear Chat',
     endConversation: 'End conversation',
     endConversationHint: 'Download the whole conversation as a ZIP of per-thread JSON files',
     exportDone: 'Conversation log downloaded as a ZIP.',
@@ -411,6 +413,7 @@ const el = {
   threadEdgeToggle: document.getElementById('thread-edge-toggle'),
   endConversationBtn: document.getElementById('end-conversation-btn'),
   localeSwitch: document.getElementById('locale-switch'),
+  goChatLabel: document.getElementById('go-chat-label'),
   searchPanel: document.getElementById('search-panel'),
   searchInput: document.getElementById('search-input'),
   searchClearBtn: document.getElementById('search-clear-btn'),
@@ -786,6 +789,9 @@ function renderAll() {
   }
   if (el.localeSwitch) {
     el.localeSwitch.checked = state?.locale === 'en';
+  }
+  if (el.goChatLabel) {
+    el.goChatLabel.textContent = t('goChat');
   }
   el.messageInput.disabled = !selectedNodeId || isSending;
   el.sendButton.disabled = !selectedNodeId || isSending;

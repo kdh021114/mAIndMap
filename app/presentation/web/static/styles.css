@@ -171,6 +171,30 @@ button, textarea, select {
   flex: 0 0 auto;
 }
 
+/* ── View-switch button (그래프 ↔ 채팅 진입) ────────────────────────── */
+.view-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 120ms ease;
+}
+
+.view-switch-btn:hover {
+  border-color: #b9c5d6;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
 /* ── Locale toggle switch (한 / EN) ─────────────────────────────────── */
 .locale-switch {
   display: inline-flex;

@@ -13,6 +13,7 @@
   const I18N = {
     ko: {
       "app.title": "Chat",
+      "sidebar.goGraph": "그래프 뷰",
       "sidebar.newChat": "+ 새 대화",
       "sidebar.localeToggle": "EN",
       "sidebar.empty": "+ 새 대화로 시작하세요",
@@ -31,6 +32,7 @@
     },
     en: {
       "app.title": "Chat",
+      "sidebar.goGraph": "Graph View",
       "sidebar.newChat": "+ New chat",
       "sidebar.localeToggle": "KO",
       "sidebar.empty": "+ Start a new chat",
