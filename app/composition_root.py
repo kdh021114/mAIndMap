@@ -11,6 +11,7 @@ from app.application.chat_use_cases import (
     SendMessageUseCase,
 )
 from app.application.context_builder import AncestorContextPolicy, AncestorLineageContextBuilder
+from app.application.export_use_cases import ExportThreadLogsUseCase
 from app.application.graph_use_cases import (
     AddChildNodeUseCase,
     CreateGraphThreadUseCase,
@@ -46,6 +47,8 @@ from app.infrastructure.persistence.json_repositories import (
     JsonWorkspaceSnapshotRepository,
 )
 from app.infrastructure.persistence.json_store import JsonStore
+from app.infrastructure.persistence.user_scoped_store import UserScopedJsonStore
+from app.presentation.web.identity import register_identity, resolve_participant_id
 from app.presentation.web.routes import register_routes
 from chat_ui import register_chat_ui
 from chat_ui.streaming import (
@@ -80,10 +83,14 @@ class UseCaseContainer:
     search_workspace: SearchWorkspaceUseCase
     merge_sibling_nodes: MergeSiblingNodesUseCase
     split_node: SplitNodeUseCase
+    export_thread_logs: ExportThreadLogsUseCase
 
 
 def create_app(config_module) -> Flask:
-    store = JsonStore(config_module.DATA_FILE)
+    store = UserScopedJsonStore(
+        users_dir=config_module.USERS_DIR,
+        get_participant_id=resolve_participant_id,
+    )
     graph_repository = JsonGraphRepository(store)
     chat_repository = JsonChatRepository(store)
     snapshot_repository = JsonWorkspaceSnapshotRepository(store)
@@ -244,9 +251,19 @@ def create_app(config_module) -> Flask:
             default_vertical_gap=config_module.TREE_VERTICAL_GAP,
             default_horizontal_gap=config_module.TREE_HORIZONTAL_GAP,
         ),
+        export_thread_logs=ExportThreadLogsUseCase(
+            graph_repository=graph_repository,
+            chat_repository=chat_repository,
+            settings_repository=settings_repository,
+        ),
     )
 
     flask_app = Flask(__name__, static_folder="presentation/web/static", static_url_path="/static")
+    register_identity(
+        flask_app,
+        cookie_name=config_module.PARTICIPANT_COOKIE_NAME,
+        cookie_max_age=config_module.PARTICIPANT_COOKIE_MAX_AGE,
+    )
     register_routes(flask_app, use_cases)
     register_chat_ui(
         flask_app,

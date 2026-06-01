@@ -33,6 +33,7 @@
       <aside id="thread-sidebar" class="thread-sidebar">
         <div class="thread-header">
           <button id="new-thread-btn" class="icon-button" type="button">+</button>
+          <button id="end-conversation-btn" class="thread-export-button" type="button"></button>
         </div>
         <div id="thread-list" class="thread-list"></div>
       </aside>
@@ -51,6 +52,14 @@
             <div id="mode-indicator" class="mode-indicator hidden"></div>
           </div>
           <div class="graph-header-right">
+            <label id="locale-switch-label" class="locale-switch" aria-label="Language / 언어">
+              <span class="locale-switch-ko">한</span>
+              <span class="locale-switch-track">
+                <input id="locale-switch" type="checkbox" class="locale-switch-input" />
+                <span class="locale-switch-thumb"></span>
+              </span>
+              <span class="locale-switch-en">EN</span>
+            </label>
             <div id="selection-toolbar" class="selection-toolbar">
               <button id="edge-label-toggle-btn" class="edge-label-toggle-button" type="button" aria-pressed="false">↔</button>
               <button id="selection-mode-btn" class="selection-mode-button" type="button"></button>

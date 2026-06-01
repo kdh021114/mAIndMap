@@ -1,6 +1,15 @@
 # Local secrets
 .env
 
+# Per-participant data (generated at runtime, not committed)
+storage/users/
+
+# Misc
+*.pdf
+*.png
+*.jpg
+.playwright-mcp/
+
 # Python cache files
 __pycache__/
 *.py[cod]

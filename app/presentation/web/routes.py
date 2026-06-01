@@ -1,16 +1,24 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime
+import io
+import json
 import math
+import re
+import zipfile
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, Response, g, jsonify, request, send_from_directory
 
 from app.domain.graph import NodePosition
 
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+
+# Characters that are unsafe in zip entry / download file names.
+_UNSAFE_FILENAME_RE = re.compile(r'[\\/:*?"<>|\x00-\x1f]+')
 
 
 def register_routes(app: Flask, use_cases: Any) -> None:
@@ -34,6 +42,60 @@ def register_routes(app: Flask, use_cases: Any) -> None:
             raise ValueError("snapshot must be an object.")
         use_cases.restore_workspace_snapshot.execute(snapshot=snapshot)
         return jsonify({"state": use_cases.get_workspace_state.execute()})
+
+    @app.get("/api/export/threads.zip")
+    def export_thread_logs():
+        participant_id = getattr(g, "participant_id", "unknown")
+        export = use_cases.export_thread_logs.execute()
+        manifest = dict(export["manifest"])
+        manifest["participant_id"] = participant_id
+        # Pre-build per-graph folder names (collision-safe).
+        graph_folder_names: dict[str, str] = {}
+        used_folders: set[str] = set()
+        for graph_meta in manifest.get("graphs", []):
+            gid = graph_meta["id"]
+            folder = _unique_export_name(
+                graph_meta["index"], graph_meta["title"], gid, used_folders, ext=""
+            )
+            graph_folder_names[gid] = folder
+
+        buffer = io.BytesIO()
+        used_names: set[str] = set()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(
+                "index.json",
+                json.dumps(manifest, ensure_ascii=False, indent=2),
+            )
+            for entry in export["entries"]:
+                data = dict(entry["data"])
+                data["participant_id"] = participant_id
+                graph_id = entry["data"]["graph_thread"]["id"]
+                folder = graph_folder_names.get(graph_id, f"graph_{entry['graph_index']}")
+                # Use a per-folder name set so identical titles in different
+                # trees don't collide with each other.
+                folder_key = f"{folder}/"
+                folder_used = {
+                    n[len(folder_key):]
+                    for n in used_names
+                    if n.startswith(folder_key)
+                }
+                basename = _unique_export_name(
+                    entry["order"], entry["title"], entry["thread_id"], folder_used
+                )
+                path = f"{folder}/{basename}"
+                used_names.add(path)
+                archive.writestr(
+                    path,
+                    json.dumps(data, ensure_ascii=False, indent=2),
+                )
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        safe_pid = re.sub(r'[^a-zA-Z0-9_-]', '', participant_id)[:20]
+        download_name = f"{ts}_{safe_pid}.zip"
+        return Response(
+            buffer.getvalue(),
+            mimetype="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="{download_name}"'},
+        )
 
     @app.post("/api/settings/locale")
     def change_locale():
@@ -251,6 +313,24 @@ def register_routes(app: Flask, use_cases: Any) -> None:
 
 def _json_body() -> dict:
     return request.get_json(silent=True) or {}
+
+
+def _unique_export_name(
+    order: int, title: str, id_fallback: str, used_names: set[str], ext: str = ".json"
+) -> str:
+    """Build a readable, collision-free `NN_<name>[ext]` zip entry/folder name."""
+    safe = _UNSAFE_FILENAME_RE.sub(" ", title or "")
+    safe = re.sub(r"\s+", " ", safe).strip()[:50].strip()
+    if not safe:
+        safe = id_fallback
+    base = f"{order:02d}_{safe}"
+    candidate = f"{base}{ext}"
+    suffix = 2
+    while candidate in used_names:
+        candidate = f"{base} ({suffix}){ext}"
+        suffix += 1
+    used_names.add(candidate)
+    return candidate
 
 
 def _position_from_body(data: dict) -> NodePosition | None:

@@ -52,6 +52,10 @@ const i18n = {
     graphThreads: '그래프 스레드',
     graphThreadMeta: '독립 그래프와 로그',
     newGraphThread: '새 스레드',
+    endConversation: '대화 종료',
+    endConversationHint: '전체 대화를 스레드별 JSON으로 묶어 ZIP으로 내려받기',
+    exportDone: '대화 로그를 ZIP으로 내려받았어요.',
+    exportFailed: '대화 로그를 내보내지 못했어요',
     deleteGraphThread: '스레드 삭제',
     hideThreads: '스레드 숨기기',
     showThreads: '스레드 보이기',
@@ -81,6 +85,28 @@ const i18n = {
     webSearchReady: '다음 메시지에서 OpenAI 웹검색을 실행합니다.',
     webSearchUnavailable: 'OpenAI 실사용 모드에서만 웹검색을 사용할 수 있습니다.',
     sources: '출처',
+    emptyCtaHeading: '새 그래프를 시작하세요',
+    emptyCtaSubtext: '첫 루트 노드를 만들면 채팅 스레드가 시작됩니다.',
+    emptyCtaButton: '루트 노드 생성',
+    dotAwaiting: '답변을 기다리는 중',
+    dotRecent: '최근 업데이트됨',
+    centerOnRoot: '루트로 이동',
+    fitToView: '전체 보기',
+    zoomReset: '확대/축소 초기화',
+    minimapCollapse: '미니맵 접기',
+    minimapExpand: '미니맵 펼치기',
+    contextBreadcrumbLabel: '컨텍스트 경로',
+    contextBreadcrumbEllipsis: '중간 노드가 생략되었습니다',
+    contextBreadcrumbRoot: '루트',
+    contextBreadcrumbTooltip: '이 노드로 이동',
+    editGraphTitle: '그래프 제목 편집',
+    untitledGraph: '제목 없는 그래프',
+    splitNodeNoMessages: '분리할 메시지가 없습니다.',
+    timeNever: '기록 없음',
+    timeJustNow: '방금 전',
+    timeMinutesAgo: '{n}분 전',
+    timeHoursAgo: '{n}시간 전',
+    timeDaysAgo: '{n}일 전',
   },
   en: {
     createRoot: 'Create Root',
@@ -135,6 +161,10 @@ const i18n = {
     graphThreads: 'Graph Threads',
     graphThreadMeta: 'Independent graphs and logs',
     newGraphThread: 'New thread',
+    endConversation: 'End conversation',
+    endConversationHint: 'Download the whole conversation as a ZIP of per-thread JSON files',
+    exportDone: 'Conversation log downloaded as a ZIP.',
+    exportFailed: 'Could not export the conversation log',
     deleteGraphThread: 'Delete thread',
     hideThreads: 'Hide threads',
     showThreads: 'Show threads',
@@ -164,6 +194,28 @@ const i18n = {
     webSearchReady: 'Run OpenAI web search for the next message.',
     webSearchUnavailable: 'Web search is available only in real OpenAI mode.',
     sources: 'Sources',
+    emptyCtaHeading: 'Start a new graph',
+    emptyCtaSubtext: 'Create the first root node to begin a chat thread.',
+    emptyCtaButton: 'Create root node',
+    dotAwaiting: 'Awaiting reply',
+    dotRecent: 'Recently updated',
+    centerOnRoot: 'Center on root',
+    fitToView: 'Fit to view',
+    zoomReset: 'Reset zoom',
+    minimapCollapse: 'Collapse minimap',
+    minimapExpand: 'Expand minimap',
+    contextBreadcrumbLabel: 'Context path',
+    contextBreadcrumbEllipsis: 'Hidden nodes in between',
+    contextBreadcrumbRoot: 'Root',
+    contextBreadcrumbTooltip: 'Go to this node',
+    editGraphTitle: 'Edit graph title',
+    untitledGraph: 'Untitled graph',
+    splitNodeNoMessages: 'There are no messages to split out.',
+    timeNever: 'Never',
+    timeJustNow: 'Just now',
+    timeMinutesAgo: '{n} min ago',
+    timeHoursAgo: '{n} hr ago',
+    timeDaysAgo: '{n} days ago',
   },
 };
 
@@ -225,6 +277,10 @@ let minimapPanelPos = readStoredMinimapPos();
 const localGraphTitleOverrides = new Map();
 let nodeMessagesCache = new Map();
 let freshnessRefreshHandle = null;
+// One-shot heartbeat that fires when the soonest "recent" node crosses its
+// window, so the blue dot actually disappears instead of lingering until the
+// next graph mutation forces a re-render.
+let freshnessExpiryHandle = null;
 const FRESHNESS_RECENT_WINDOW_MS = 5 * 60 * 1000;
 
 const GRAPH_VIEW = {
@@ -353,6 +409,8 @@ const el = {
   threadList: document.getElementById('thread-list'),
   newThreadBtn: document.getElementById('new-thread-btn'),
   threadEdgeToggle: document.getElementById('thread-edge-toggle'),
+  endConversationBtn: document.getElementById('end-conversation-btn'),
+  localeSwitch: document.getElementById('locale-switch'),
   searchPanel: document.getElementById('search-panel'),
   searchInput: document.getElementById('search-input'),
   searchClearBtn: document.getElementById('search-clear-btn'),
@@ -402,6 +460,9 @@ function parseTimestamp(value) {
 
 function isNodeRecent(node) {
   if (!node) return false;
+  // A freshly created-but-empty node has no activity to highlight, so the blue
+  // "recent" dot only applies once the node actually holds an exchange.
+  if (!node.messageCount) return false;
   const ts = parseTimestamp(node.updatedAt) || parseTimestamp(node.createdAt);
   if (ts === null) return false;
   return Date.now() - ts <= FRESHNESS_RECENT_WINDOW_MS;
@@ -479,20 +540,43 @@ function refreshFreshnessUi() {
     }
   }
   refreshThreadFreshnessDots();
+  scheduleFreshnessExpiry();
+}
+
+// Schedule a single re-check at the exact moment the soonest still-recent node
+// crosses its window. When it fires, refreshFreshnessUi() drops the now-expired
+// dot and re-arms for the next one. Self-terminating: with no recent nodes left
+// (or only empty/awaiting ones), nothing is scheduled and the heartbeat stops.
+function scheduleFreshnessExpiry() {
+  if (freshnessExpiryHandle) return;
+  const now = Date.now();
+  let soonest = Infinity;
+  for (const node of state?.nodes || []) {
+    if (!isNodeRecent(node)) continue;
+    const ts = parseTimestamp(node.updatedAt) || parseTimestamp(node.createdAt);
+    if (ts === null) continue;
+    soonest = Math.min(soonest, ts + FRESHNESS_RECENT_WINDOW_MS);
+  }
+  if (soonest === Infinity) return;
+  // +250ms cushion so the node is unambiguously past its window on re-check.
+  const delay = Math.max(0, soonest - now) + 250;
+  freshnessExpiryHandle = setTimeout(() => {
+    freshnessExpiryHandle = null;
+    refreshFreshnessUi();
+  }, delay);
 }
 
 function updateNodeStatusDot(card, node) {
   const existing = card.querySelector('.node-status-dot');
   const awaiting = isNodeAwaitingReply(node);
-  const recent = !awaiting && isNodeRecent(node);
-  if (!awaiting && !recent) {
+  if (!awaiting) {
     if (existing) existing.remove();
     return;
   }
   const dot = existing || document.createElement('span');
-  dot.className = `node-status-dot ${awaiting ? 'awaiting' : 'recent'}`;
-  dot.title = awaiting ? t('dotAwaiting') : t('dotRecent');
-  dot.setAttribute('aria-label', awaiting ? t('dotAwaiting') : t('dotRecent'));
+  dot.className = 'node-status-dot awaiting';
+  dot.title = t('dotAwaiting');
+  dot.setAttribute('aria-label', t('dotAwaiting'));
   if (!existing) card.appendChild(dot);
 }
 
@@ -695,6 +779,14 @@ function renderAll() {
   el.hideChatBtn.setAttribute('aria-label', t('hideChat'));
   el.newThreadBtn.title = t('newGraphThread');
   el.newThreadBtn.setAttribute('aria-label', t('newGraphThread'));
+  if (el.endConversationBtn) {
+    el.endConversationBtn.textContent = t('endConversation');
+    el.endConversationBtn.title = t('endConversationHint');
+    el.endConversationBtn.setAttribute('aria-label', t('endConversation'));
+  }
+  if (el.localeSwitch) {
+    el.localeSwitch.checked = state?.locale === 'en';
+  }
   el.messageInput.disabled = !selectedNodeId || isSending;
   el.sendButton.disabled = !selectedNodeId || isSending;
   renderSelectionToolbar();
@@ -946,6 +1038,9 @@ function renderGraph() {
     return;
   }
 
+  // Once the graph has any node (e.g. after the root is created), the empty-state
+  // prompt must go away — otherwise its text lingers on top of the real nodes.
+  hideEmptyCta();
   applyRelativeNodeSizes();
   const contextHighlight = selectedContextHighlight();
   el.graphViewport.classList.toggle('context-active', contextHighlight.active);
@@ -3455,6 +3550,52 @@ async function createGraphThread() {
   }
 }
 
+// "End conversation": bundle the entire workspace into a ZIP of per-thread JSON
+// files and download it. Each JSON records the thread's place in the tree
+// (level, sibling creation order, sibling set), the messages, and the speaker.
+async function endConversation() {
+  if (el.endConversationBtn) el.endConversationBtn.disabled = true;
+  try {
+    const response = await fetch('/api/export/threads.zip');
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || `${response.status} ${response.statusText}`);
+    }
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition') || '';
+    const match = /filename="?([^"]+)"?/.exec(disposition);
+    const filename = match ? match[1] : 'threads.zip';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showNotice(t('exportDone'));
+  } catch (error) {
+    showError(new Error(`${t('exportFailed')}: ${error.message || error}`));
+  } finally {
+    if (el.endConversationBtn) el.endConversationBtn.disabled = false;
+  }
+}
+
+async function changeLocale(locale) {
+  try {
+    const data = await api('/api/settings/locale', {
+      method: 'POST',
+      body: JSON.stringify({ locale }),
+    });
+    state = data;
+    renderAll();
+  } catch (error) {
+    showError(error);
+    // Revert the checkbox to match the actual server state.
+    if (el.localeSwitch) el.localeSwitch.checked = state?.locale === 'en';
+  }
+}
+
 async function selectGraphThread(graphThreadId) {
   if (graphThreadId === state.activeGraphThreadId) return;
   try {
@@ -4266,6 +4407,14 @@ if (el.graphHeader) {
 el.chatEdgeToggle.addEventListener('click', toggleChatSidebar);
 el.threadEdgeToggle.addEventListener('click', toggleThreadSidebar);
 el.newThreadBtn.addEventListener('click', createGraphThread);
+if (el.endConversationBtn) {
+  el.endConversationBtn.addEventListener('click', endConversation);
+}
+if (el.localeSwitch) {
+  el.localeSwitch.addEventListener('change', () => {
+    changeLocale(el.localeSwitch.checked ? 'en' : 'ko');
+  });
+}
 el.selectionModeBtn.addEventListener('click', toggleSelectionMode);
 if (el.edgeLabelToggleBtn) {
   el.edgeLabelToggleBtn.addEventListener('click', toggleEdgeLabels);

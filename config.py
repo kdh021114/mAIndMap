@@ -21,9 +21,9 @@ load_dotenv(ROOT_DIR / ".env", override=True)
 # -----------------------------------------------------------------------------
 # Runtime
 # -----------------------------------------------------------------------------
-HOST = "127.0.0.1"
-PORT = 7860
-DEBUG = True
+HOST = "0.0.0.0"
+PORT = int(os.environ.get("PORT", 7860))
+DEBUG = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
 
 # -----------------------------------------------------------------------------
 # Test mode
@@ -36,8 +36,19 @@ TEST_MODE = False
 # -----------------------------------------------------------------------------
 # Storage
 # -----------------------------------------------------------------------------
-DATA_DIR = ROOT_DIR / "storage"
+DATA_DIR = Path(os.environ.get("DATA_DIR", str(ROOT_DIR / "storage")))
 DATA_FILE = DATA_DIR / "data.json"
+
+# Per-participant isolation: each browser gets its own anonymous workspace file
+# under storage/users/<participant_id>/data.json. The legacy single DATA_FILE
+# above is left untouched (kept for reference) and is no longer used at runtime.
+USERS_DIR = DATA_DIR / "users"
+
+# Anonymous identity cookie. No login / no password: each browser is handed a
+# random id the first time it visits, persisted in this cookie so the same
+# browser keeps its own workspace across refreshes and return visits.
+PARTICIPANT_COOKIE_NAME = "participant_id"
+PARTICIPANT_COOKIE_MAX_AGE = 60 * 60 * 24 * 365  # 1 year, in seconds
 
 # -----------------------------------------------------------------------------
 # Locale / labels
