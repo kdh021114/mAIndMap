@@ -284,14 +284,21 @@ class StreamReplyUseCase:
         system_prompt = _build_system_prompt(locale)
 
         buffer: List[str] = []
-        for delta in self._streaming_chat_model.stream_reply(
-            system_prompt=system_prompt,
-            messages=domain_messages,
-        ):
-            if not delta:
-                continue
-            buffer.append(delta)
-            yield {"type": "chunk", "delta": delta}
+        try:
+            for delta in self._streaming_chat_model.stream_reply(
+                system_prompt=system_prompt,
+                messages=domain_messages,
+            ):
+                if not delta:
+                    continue
+                buffer.append(delta)
+                yield {"type": "chunk", "delta": delta}
+        except Exception as exc:  # noqa: BLE001 - keep the SSE connection graceful
+            yield {
+                "type": "error",
+                "message": str(exc) or exc.__class__.__name__,
+            }
+            return
 
         assistant_message = ChatMessage.new(
             message_id=create_id("cmsg"),

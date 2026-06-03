@@ -680,6 +680,13 @@
               conv.title = { ...(conv.title || {}), [state.locale]: payload.title };
               patchConvItemTitle(cid);
             }
+          } else if (payload.type === "error") {
+            streamError = new Error(payload.message || "stream error");
+            if (assistantBubble) {
+              assistantBubble.classList.remove("streaming");
+              assistantBubble.dataset.raw = t("error.stream", { message: streamError.message });
+              assistantBubble.innerHTML = renderMarkdown(assistantBubble.dataset.raw);
+            }
           }
         },
         onDone: () => {

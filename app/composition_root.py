@@ -53,7 +53,6 @@ from app.presentation.web.routes import register_routes
 from chat_ui import register_chat_ui
 from chat_ui.streaming import (
     MockStreamingChatModel,
-    OpenAIStreamingChatModel,
     StreamingChatModel,
 )
 
@@ -280,12 +279,7 @@ def _build_streaming_chat_model(
     llm_services,
     config_module,
 ) -> StreamingChatModel:
-    if llm_services.using_mock:
-        return MockStreamingChatModel(llm_services.chat_model)
-    # Real-OpenAI path is a deferred skeleton; raises on first stream attempt.
-    from app.infrastructure.llm.openai_client_factory import (
-        OpenAIClientFactory,
-        OpenAITextClient,
-    )
-    text_client = OpenAITextClient(OpenAIClientFactory(api_key=config_module.OPENAI_API_KEY))
-    return OpenAIStreamingChatModel(text_client, config_module.OPENAI_CHAT_MODEL)
+    # The linear chat UI consumes SSE frames, but the real OpenAI streaming
+    # adapter is not implemented yet. Wrap the configured chat model so both
+    # mock and real OpenAI modes produce the same chunked stream contract.
+    return MockStreamingChatModel(llm_services.chat_model)
