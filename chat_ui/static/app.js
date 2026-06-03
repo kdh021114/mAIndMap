@@ -4,6 +4,7 @@
   const API = "/api/chat/conversations";
   const LOCALE_API = "/api/chat/locale";
   const SETTINGS_LOCALE_API = "/api/settings/locale";
+  const EXPORT_API = "/api/chat/export/conversations.zip";
   const STREAM_RENDER_INTERVAL_MS = 200;
   const SCROLL_PIN_THRESHOLD_PX = 80;
   const COMPOSER_MAX_LINES = 8;
@@ -15,6 +16,7 @@
       "app.title": "Chat",
       "sidebar.goGraph": "그래프 뷰",
       "sidebar.newChat": "+ 새 대화",
+      "sidebar.endConversation": "대화 마침",
       "sidebar.localeToggle": "EN",
       "sidebar.empty": "+ 새 대화로 시작하세요",
       "chat.empty": "대화를 선택하세요",
@@ -29,11 +31,14 @@
       "menu.aria": "대화 메뉴 열기",
       "error.loadList": "대화 목록을 불러오지 못했습니다.",
       "error.stream": "오류: {message}",
+      "export.done": "대화 로그를 저장했습니다.",
+      "export.failed": "대화 로그 저장에 실패했습니다.",
     },
     en: {
       "app.title": "Chat",
       "sidebar.goGraph": "Graph View",
       "sidebar.newChat": "+ New chat",
+      "sidebar.endConversation": "End conversation",
       "sidebar.localeToggle": "KO",
       "sidebar.empty": "+ Start a new chat",
       "chat.empty": "Select a conversation",
@@ -48,6 +53,8 @@
       "menu.aria": "Open conversation menu",
       "error.loadList": "Failed to load conversations.",
       "error.stream": "Error: {message}",
+      "export.done": "Conversation logs saved.",
+      "export.failed": "Failed to save conversation logs.",
     },
   };
 
@@ -149,6 +156,7 @@
     activeId: null,
     messages: [],
     sending: false,
+    exporting: false,
     openMenuConvId: null,
     renamingConvId: null,
   };
@@ -157,6 +165,7 @@
   const listEl = document.getElementById("conv-list");
   const listEmptyEl = document.getElementById("conv-list-empty");
   const newBtn = document.getElementById("new-conv-btn");
+  const endConversationBtn = document.getElementById("end-conversation-btn");
   const localeBtn = document.getElementById("locale-btn");
   const placeholderEl = document.getElementById("chat-placeholder");
   const messagesEl = document.getElementById("messages");
@@ -267,6 +276,18 @@
     return res.body.getReader();
   }
 
+  async function fetchConversationExport() {
+    const res = await fetch(EXPORT_API);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `export failed: ${res.status}`);
+    }
+    const blob = await res.blob();
+    const disposition = res.headers.get("Content-Disposition") || "";
+    const match = /filename="?([^"]+)"?/.exec(disposition);
+    return { blob, filename: match ? match[1] : "linear_chat.zip" };
+  }
+
   // render --------------------------------------------------------------
   function renderConversations() {
     listEl.innerHTML = "";
@@ -374,6 +395,9 @@
     composerSubmit.disabled = state.sending || !hasActive || !composerInput.value.trim();
     composerInput.disabled = state.sending || !hasActive;
     composerEl.classList.toggle("is-sending", state.sending);
+    if (endConversationBtn) {
+      endConversationBtn.disabled = state.sending || state.exporting;
+    }
   }
 
   function render() {
@@ -710,6 +734,29 @@
     renderChatPane();
   }
 
+  async function endConversation() {
+    if (state.sending || state.exporting) return;
+    state.exporting = true;
+    updateComposerEnabled();
+    try {
+      const { blob, filename } = await fetchConversationExport();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      window.alert(t("export.done"));
+    } catch (err) {
+      window.alert(`${t("export.failed")} ${err.message || err}`);
+    } finally {
+      state.exporting = false;
+      updateComposerEnabled();
+    }
+  }
+
   // event wiring (bound once at boot, delegated where possible) ---------
   newBtn.addEventListener("click", async () => {
     closeMenu();
@@ -728,6 +775,10 @@
     if (state.sending) return;
     toggleLocale();
   });
+
+  if (endConversationBtn) {
+    endConversationBtn.addEventListener("click", endConversation);
+  }
 
   composerEl.addEventListener("submit", (e) => {
     e.preventDefault();

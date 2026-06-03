@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime
+import io
 import json
+import re
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -8,6 +12,7 @@ from flask import (
     Blueprint,
     Flask,
     Response,
+    g,
     jsonify,
     request,
     send_from_directory,
@@ -23,6 +28,7 @@ from chat_ui.streaming import StreamingChatModel
 from chat_ui.use_cases import (
     CreateConversationUseCase,
     DeleteConversationUseCase,
+    ExportConversationLogsUseCase,
     ListConversationsUseCase,
     LoadMessagesUseCase,
     RenameConversationUseCase,
@@ -31,6 +37,7 @@ from chat_ui.use_cases import (
 
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+_UNSAFE_FILENAME_RE = re.compile(r'[\\/:*?"<>|\x00-\x1f]+')
 
 
 @dataclass(frozen=True)
@@ -41,6 +48,7 @@ class ChatUiContainer:
     delete_conversation: DeleteConversationUseCase
     load_messages: LoadMessagesUseCase
     stream_reply: StreamReplyUseCase
+    export_conversation_logs: ExportConversationLogsUseCase
     settings_repository: JsonSettingsRepository
 
 
@@ -58,6 +66,7 @@ def _build_container(
         delete_conversation=DeleteConversationUseCase(repo),
         load_messages=LoadMessagesUseCase(repo),
         stream_reply=StreamReplyUseCase(repo, streaming_chat_model, title_generator),
+        export_conversation_logs=ExportConversationLogsUseCase(repo),
         settings_repository=settings_repository,
     )
 
@@ -112,6 +121,41 @@ def register_chat_ui(
     @bp.get("/api/chat/locale")
     def get_locale():
         return jsonify({"locale": container.settings_repository.get_locale()})
+
+    @bp.get("/api/chat/export/conversations.zip")
+    def export_conversation_logs():
+        participant_id = getattr(g, "participant_id", "unknown")
+        locale = container.settings_repository.get_locale()
+        export = container.export_conversation_logs.execute(locale=locale)
+        manifest = dict(export["manifest"])
+        manifest["participant_id"] = participant_id
+
+        buffer = io.BytesIO()
+        used_names: set[str] = set()
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr(
+                "index.json",
+                json.dumps(manifest, ensure_ascii=False, indent=2),
+            )
+            for entry in export["entries"]:
+                data = dict(entry["data"])
+                data["participant_id"] = participant_id
+                basename = _unique_export_name(
+                    entry["order"], entry["title"], entry["conversation_id"], used_names
+                )
+                archive.writestr(
+                    f"conversations/{basename}",
+                    json.dumps(data, ensure_ascii=False, indent=2),
+                )
+
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_pid = re.sub(r"[^a-zA-Z0-9_-]", "", participant_id)[:20]
+        download_name = f"{ts}_{safe_pid}_linear_chat.zip"
+        return Response(
+            buffer.getvalue(),
+            mimetype="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="{download_name}"'},
+        )
 
     @bp.get("/api/chat/conversations")
     def list_conversations():
@@ -192,3 +236,20 @@ def register_chat_ui(
         )
 
     app.register_blueprint(bp)
+
+
+def _unique_export_name(
+    order: int, title: str, id_fallback: str, used_names: set[str], ext: str = ".json"
+) -> str:
+    safe = _UNSAFE_FILENAME_RE.sub(" ", title or "")
+    safe = re.sub(r"\s+", " ", safe).strip()[:50].strip()
+    if not safe:
+        safe = id_fallback
+    base = f"{order:02d}_{safe}"
+    candidate = f"{base}{ext}"
+    suffix = 2
+    while candidate in used_names:
+        candidate = f"{base} ({suffix}){ext}"
+        suffix += 1
+    used_names.add(candidate)
+    return candidate

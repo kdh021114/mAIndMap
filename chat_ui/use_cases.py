@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator, List
+from typing import Any, Dict, Iterator, List
 
 from app.domain.chat import Message
 from app.domain.common import create_id
@@ -11,6 +11,7 @@ from chat_ui.repository import JsonConversationRepository
 from chat_ui.streaming import StreamingChatModel
 
 MAX_HISTORY = 20
+_SPEAKER_BY_ROLE = {"user": "user", "assistant": "LLM", "system": "system"}
 
 
 def _build_system_prompt(locale: str) -> str:
@@ -76,6 +77,80 @@ class LoadMessagesUseCase:
         # Surfaces KeyError if the conversation is missing so routes can 404.
         self._conversation_repository.get_conversation(conversation_id)
         return self._conversation_repository.list_messages(conversation_id)
+
+
+class ExportConversationLogsUseCase:
+    def __init__(self, conversation_repository: JsonConversationRepository):
+        self._conversation_repository = conversation_repository
+
+    def execute(self, *, locale: str) -> Dict[str, Any]:
+        from app.domain.common import utc_now_iso
+
+        exported_at = utc_now_iso()
+        conversations = self._conversation_repository.list_conversations()
+        entries: List[Dict[str, Any]] = []
+        manifest_conversations: List[Dict[str, Any]] = []
+
+        for order, conversation in enumerate(conversations, start=1):
+            messages = self._conversation_repository.list_messages(conversation.id)
+            title = _pick_title(conversation.title, locale)
+            message_dicts = [
+                {
+                    "index": index,
+                    "id": message.id,
+                    "role": message.role,
+                    "speaker": _SPEAKER_BY_ROLE.get(message.role, message.role),
+                    "content": message.content,
+                    "created_at": message.created_at,
+                }
+                for index, message in enumerate(messages, start=1)
+            ]
+            data = {
+                "schema": "linear-chat-log/v1",
+                "exported_at": exported_at,
+                "locale": locale,
+                "order": order,
+                "conversation": {
+                    "id": conversation.id,
+                    "title": title,
+                    "localized_title": dict(conversation.title),
+                    "created_at": conversation.created_at,
+                    "updated_at": conversation.updated_at,
+                },
+                "message_count": len(message_dicts),
+                "messages": message_dicts,
+            }
+            entries.append(
+                {
+                    "order": order,
+                    "title": title,
+                    "conversation_id": conversation.id,
+                    "data": data,
+                }
+            )
+            manifest_conversations.append(
+                {
+                    "order": order,
+                    "id": conversation.id,
+                    "title": title,
+                    "created_at": conversation.created_at,
+                    "updated_at": conversation.updated_at,
+                    "message_count": len(message_dicts),
+                }
+            )
+
+        return {
+            "exported_at": exported_at,
+            "locale": locale,
+            "entries": entries,
+            "manifest": {
+                "schema": "linear-chat-log-index/v1",
+                "exported_at": exported_at,
+                "locale": locale,
+                "conversation_count": len(entries),
+                "conversations": manifest_conversations,
+            },
+        }
 
 
 @dataclass(frozen=True)
@@ -266,3 +341,12 @@ class StreamReplyUseCase:
             print(f"[chat_ui] title generation failed: {exc!r}")
             return ""
         return (raw or "").strip()
+
+
+def _pick_title(localized_title: dict, locale: str) -> str:
+    if localized_title.get(locale):
+        return localized_title[locale]
+    for fallback_locale in ("ko", "en"):
+        if localized_title.get(fallback_locale):
+            return localized_title[fallback_locale]
+    return "(untitled)"
