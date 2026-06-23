@@ -18,20 +18,17 @@ editable. Users can branch from any selected node, keep unrelated subtopics in
 separate local threads, and still preserve a global overview of how ideas
 relate.
 
-For detailed design rationale and system background, see
-[Team Sungdongjin_Final Report.pdf](Team%20Sungdongjin_Final%20Report.pdf).
-
 ## Media
 
-![mAIndMap pipeline](pipeline.png)
+![mAIndMap pipeline](assets/pipeline.png)
 
 System flow from workspace state to node-local chatting.
 
-![mAIndMap vs ChatGPT](mAIndMap_vs_chatgpt.png)
+![mAIndMap vs ChatGPT](assets/mAIndMap_vs_chatgpt.png)
 
 Simple comparison with a conventional linear chat UI.
 
-[Demo_mAIndMap.mp4](Demo_mAIndMap.mp4): Short demo of branching, chatting, and
+[Demo_mAIndMap.mp4](assets/Demo_mAIndMap.mp4): Short demo of branching, chatting, and
 node-based navigation.
 
 ## Key features
