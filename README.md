@@ -25,11 +25,11 @@ For detailed design rationale and system background, see
 
 ![mAIndMap pipeline](pipeline.png)
 
-`pipeline.png`: System flow from workspace state to node-local chatting.
+System flow from workspace state to node-local chatting.
 
 ![mAIndMap vs ChatGPT](mAIndMap_vs_chatgpt.png)
 
-`mAIndMap_vs_chatgpt.png`: Simple comparison with a conventional linear chat UI.
+Simple comparison with a conventional linear chat UI.
 
 [Demo_mAIndMap.mp4](Demo_mAIndMap.mp4): Short demo of branching, chatting, and
 node-based navigation.
