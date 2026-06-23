@@ -1,0 +1,1267 @@
+{
+  "edges": {
+    "edge_039f70023a60": {
+      "created_at": "2026-05-31T06:24:20.631980+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_039f70023a60",
+      "phrase": {
+        "ko": "Debugging"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_7b05e6175738",
+      "target_node_id": "node_77e5d597f0b1",
+      "updated_at": "2026-05-31T06:24:38.810316+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_077156bbf55d": {
+      "created_at": "2026-05-19T01:50:54.333465+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_077156bbf55d",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_98fa10c1d8e4",
+      "target_node_id": "node_14534027373a",
+      "updated_at": "2026-05-19T01:50:54.333465+00:00",
+      "user_edited_phrase_locales": {}
+    },
+    "edge_10b6632fd6a8": {
+      "created_at": "2026-05-19T01:10:35.914884+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_10b6632fd6a8",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_cd0dd6e986ea",
+      "target_node_id": "node_868bbb464e45",
+      "updated_at": "2026-05-19T01:10:35.914884+00:00",
+      "user_edited_phrase_locales": {}
+    },
+    "edge_1b6d5939c390": {
+      "created_at": "2026-05-31T06:23:19.618081+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_1b6d5939c390",
+      "phrase": {
+        "ko": "Back-End"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_1164df321c26",
+      "target_node_id": "node_7b05e6175738",
+      "updated_at": "2026-05-31T06:23:56.345798+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_3e7675ebdf7c": {
+      "created_at": "2026-05-18T12:06:22.636731+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_3e7675ebdf7c",
+      "phrase": {
+        "ko": "구체화"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_98fa10c1d8e4",
+      "updated_at": "2026-05-19T01:49:23.953635+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_4387e94c47f4": {
+      "created_at": "2026-05-31T06:18:24.096863+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_4387e94c47f4",
+      "phrase": {
+        "ko": "Code"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_a535cde06467",
+      "target_node_id": "node_1164df321c26",
+      "updated_at": "2026-05-31T06:22:14.689133+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_4a1688ed411a": {
+      "created_at": "2026-05-21T00:07:07.484843+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_4a1688ed411a",
+      "phrase": {
+        "ko": "구체화"
+      },
+      "phrase_generated_by": "ai",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_5c032e459f2d",
+      "updated_at": "2026-05-21T00:33:50.438124+00:00",
+      "user_edited_phrase_locales": {
+        "ko": false
+      }
+    },
+    "edge_62b43c33cd77": {
+      "created_at": "2026-05-18T12:07:34.191244+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_62b43c33cd77",
+      "phrase": {
+        "ko": "구체화"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_e9c59afd15bc",
+      "target_node_id": "node_cd0dd6e986ea",
+      "updated_at": "2026-05-19T01:49:26.187506+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_a72cd6e60e24": {
+      "created_at": "2026-05-31T06:24:58.164308+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_a72cd6e60e24",
+      "phrase": {
+        "ko": "Terminology"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_25fc112ab420",
+      "target_node_id": "node_ff2cef059261",
+      "updated_at": "2026-05-31T06:25:22.931584+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_b7d42e73c279": {
+      "created_at": "2026-05-31T06:25:40.519202+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_b7d42e73c279",
+      "phrase": {
+        "ko": "Verification"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_a535cde06467",
+      "target_node_id": "node_b82e23dc48e3",
+      "updated_at": "2026-05-31T06:27:51.260458+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_bbf04850db37": {
+      "created_at": "2026-05-19T01:50:30.481313+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "edge_bbf04850db37",
+      "phrase": {
+        "ko": "새 분기"
+      },
+      "phrase_generated_by": "system",
+      "source_node_id": "node_98fa10c1d8e4",
+      "target_node_id": "node_76c3a6eb1a2d",
+      "updated_at": "2026-05-19T01:50:30.481313+00:00",
+      "user_edited_phrase_locales": {}
+    },
+    "edge_dc95e8f91975": {
+      "created_at": "2026-05-31T06:24:42.254762+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_dc95e8f91975",
+      "phrase": {
+        "ko": "Scheduling"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_a535cde06467",
+      "target_node_id": "node_3ec4738137a6",
+      "updated_at": "2026-05-31T06:29:10.404563+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_e7c28300db8b": {
+      "created_at": "2026-05-31T06:18:19.499748+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_e7c28300db8b",
+      "phrase": {
+        "ko": "Finding Topics"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_a535cde06467",
+      "target_node_id": "node_25fc112ab420",
+      "updated_at": "2026-05-31T06:22:06.404604+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    },
+    "edge_f0fec5f91613": {
+      "created_at": "2026-05-31T06:22:54.771902+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "edge_f0fec5f91613",
+      "phrase": {
+        "ko": "Front-End"
+      },
+      "phrase_generated_by": "user",
+      "source_node_id": "node_1164df321c26",
+      "target_node_id": "node_ead2306fe60b",
+      "updated_at": "2026-05-31T06:23:17.841693+00:00",
+      "user_edited_phrase_locales": {
+        "ko": true
+      }
+    }
+  },
+  "graph_threads": {
+    "graph_8a8591b15e10": {
+      "created_at": "2026-05-24T06:12:23.909563+00:00",
+      "id": "graph_8a8591b15e10",
+      "title": {
+        "ko": "그래프 스레드 3"
+      },
+      "updated_at": "2026-05-24T06:12:23.909563+00:00"
+    },
+    "graph_default": {
+      "created_at": "1970-01-01T00:00:00+00:00",
+      "id": "graph_default",
+      "title": {
+        "en": "Default thread",
+        "ko": "기본 스레드"
+      },
+      "updated_at": "1970-01-01T00:00:00+00:00"
+    },
+    "graph_e35a962628be": {
+      "created_at": "2026-05-18T11:31:20.679798+00:00",
+      "id": "graph_e35a962628be",
+      "title": {
+        "ko": "그래프 스레드 2"
+      },
+      "updated_at": "2026-05-18T11:31:20.679798+00:00"
+    }
+  },
+  "messages": {
+    "msg_01b9975f4c8d": {
+      "content": "The OpenAI API isn't connecting on the backend. Where do you think the problem is?",
+      "created_at": "2026-05-31T06:33:06.858159+00:00",
+      "id": "msg_01b9975f4c8d",
+      "role": "user",
+      "thread_id": "thread_cf87d4e814db"
+    },
+    "msg_020138daa6e5": {
+      "content": "안녕하세요! 😊",
+      "created_at": "2026-05-31T06:38:33.238329+00:00",
+      "id": "msg_020138daa6e5",
+      "role": "assistant",
+      "thread_id": "thread_61cfe665336d"
+    },
+    "msg_0591bf786e13": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:51.525271+00:00",
+      "id": "msg_0591bf786e13",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_08dc4a3474fb": {
+      "content": "안녕",
+      "created_at": "2026-05-23T05:25:38.923681+00:00",
+      "id": "msg_08dc4a3474fb",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_0912566a6f71": {
+      "content": "d",
+      "created_at": "2026-05-20T16:20:25.461918+00:00",
+      "id": "msg_0912566a6f71",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_11439937872a": {
+      "content": "안녕이라고 대답해",
+      "created_at": "2026-05-31T06:38:34.424236+00:00",
+      "id": "msg_11439937872a",
+      "role": "user",
+      "thread_id": "thread_61cfe665336d"
+    },
+    "msg_125cbf78d105": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:01.691172+00:00",
+      "id": "msg_125cbf78d105",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_151e34271574": {
+      "content": "안녕하세요! 😊  \n(“안녕”보다는 보통 “안녕하세요”라고 하는 게 더 자연스러워요.) ([ko.wiktionary.org](https://ko.wiktionary.org/wiki/%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94?utm_source=openai))\n\nSources:\n- [안녕하세요 - 위키낱말사전](https://ko.wiktionary.org/wiki/%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94?utm_source=openai)",
+      "created_at": "2026-05-31T06:38:38.079668+00:00",
+      "id": "msg_151e34271574",
+      "role": "assistant",
+      "thread_id": "thread_61cfe665336d"
+    },
+    "msg_173b9daa7b76": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:52.961645+00:00",
+      "id": "msg_173b9daa7b76",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_18f79286f218": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:54.485138+00:00",
+      "id": "msg_18f79286f218",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_1d6a6e639e8e": {
+      "content": "8월 싱가포르 여행은 **가장 먼저 “여행 일정/일수”와 “숙소 위치(구역)”**를 정하는 게 좋아요.\n\n1) **며칠 일정인지(예: 3박4일, 5박6일)** 확정  \n2) 그에 맞춰 **동선 좋은 숙소 구역**부터 후보 2~3개로 추리기(예: 마리나베이/오차드/차이나타운/센토사 등)  \n3) 다음으로 **관심사(쇼핑·맛집·자연/관광지·야경·아이동반 여부)**에 따라 “우선순위”를 나눠서 일정에 배치\n\n먼저 **총 몇 박 며칠** 생각 중이고, 여행 목적이 뭐에 더 가까워요? (맛집/쇼핑/관광/자연/휴양 등)",
+      "created_at": "2026-05-23T05:26:35.388066+00:00",
+      "id": "msg_1d6a6e639e8e",
+      "role": "assistant",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_1da230c74143": {
+      "content": "안녕이라고 대답해",
+      "created_at": "2026-05-31T06:38:44.019444+00:00",
+      "id": "msg_1da230c74143",
+      "role": "user",
+      "thread_id": "thread_61cfe665336d"
+    },
+    "msg_1f0d98f70cb2": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:56.177553+00:00",
+      "id": "msg_1f0d98f70cb2",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_22c98ecd7c09": {
+      "content": ".",
+      "created_at": "2026-05-31T06:18:56.824801+00:00",
+      "id": "msg_22c98ecd7c09",
+      "role": "user",
+      "thread_id": "thread_dc0c9509160b"
+    },
+    "msg_2c82495d7278": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:52.911719+00:00",
+      "id": "msg_2c82495d7278",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_3420a67870c8": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:37.027844+00:00",
+      "id": "msg_3420a67870c8",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_3f9539e2976d": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:43.227362+00:00",
+      "id": "msg_3f9539e2976d",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_470f15c7450e": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:37.030701+00:00",
+      "id": "msg_470f15c7450e",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_4790064b3f62": {
+      "content": "안녕이라고 대답해",
+      "created_at": "2026-05-31T06:38:30.384429+00:00",
+      "id": "msg_4790064b3f62",
+      "role": "user",
+      "thread_id": "thread_61cfe665336d"
+    },
+    "msg_47c4990d57cc": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:44.200071+00:00",
+      "id": "msg_47c4990d57cc",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_4ae2976929c7": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:36.287959+00:00",
+      "id": "msg_4ae2976929c7",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_51923fcf5789": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:55.115628+00:00",
+      "id": "msg_51923fcf5789",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_54df6a3bf511": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:02.817844+00:00",
+      "id": "msg_54df6a3bf511",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_5dae390a5cb8": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
+      "created_at": "2026-05-20T16:20:24.092861+00:00",
+      "id": "msg_5dae390a5cb8",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_5f07cd5852c5": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:42.394902+00:00",
+      "id": "msg_5f07cd5852c5",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_6191c8ea0a4e": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:43.230684+00:00",
+      "id": "msg_6191c8ea0a4e",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_63c301841a69": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:37.858302+00:00",
+      "id": "msg_63c301841a69",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_63d9abe8e0a6": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
+      "created_at": "2026-05-20T16:20:26.686393+00:00",
+      "id": "msg_63d9abe8e0a6",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_6541b3ba84ed": {
+      "content": "좋아요. 다만 지금은 제가 링크 페이지 자체(원하시는 날짜/편도·왕복/출발지 입력된 결과)를 **직접 열어서 확인**하진 못해요. 대신, Trip.com에서 보고 있는 **표/옵션 결과를 그대로 복사해서** 주면 그걸 바탕으로 깔끔하게 정리해드릴게요. ([trip.com](https://www.trip.com/flights/to-singapore/airfares-sin/?utm_source=openai))\n\n아래 항목을 보내주세요(있는 그대로 복붙):\n1) 출발 도시/공항 + 싱가포르 도착(보통 SIN)\n2) 출발일 ~ 귀국일(왕복이면)\n3) 인원(성인/아동) + 수하물(기내만/위탁 포함 등)\n4) 항공권 옵션 3~5개 (각 옵션의 **총 가격, 항공사, 경유 횟수/경유지, 비행시간(총), 환불/수하물 조건**)\n5) “가장 중요” 우선순위 1개: 최저가 / 환승 적게 / 직항 / 시간 짧게 / 특정 항공사\n\n그 정보 주시면:\n- 옵션별 비교표\n- 리스크(긴 환승, 짧은 연결 등) 체크\n- 최종 추천 1~2개\n까지 바로 정리해드릴게요.\n\nSources:\n- [JPY 6,480 Cheap Flights to Singapore (SIN)- Discount Airfare| Trip.com](https://www.trip.com/flights/to-singapore/airfares-sin/?utm_source=openai)",
+      "created_at": "2026-05-31T06:38:17.288491+00:00",
+      "id": "msg_6541b3ba84ed",
+      "role": "assistant",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_6b3830d88792": {
+      "content": ".",
+      "created_at": "2026-05-31T06:38:13.171869+00:00",
+      "id": "msg_6b3830d88792",
+      "role": "user",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_6c63d3235683": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:51.717106+00:00",
+      "id": "msg_6c63d3235683",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_7759e318614d": {
+      "content": "안녕이라고 대답해",
+      "created_at": "2026-05-31T06:38:24.365144+00:00",
+      "id": "msg_7759e318614d",
+      "role": "user",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_7ed46903aa5c": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:51.713585+00:00",
+      "id": "msg_7ed46903aa5c",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_7f8e7fc6dfde": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:08.363912+00:00",
+      "id": "msg_7f8e7fc6dfde",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_8322527a8b04": {
+      "content": "ㅣ",
+      "created_at": "2026-05-20T16:40:53.780952+00:00",
+      "id": "msg_8322527a8b04",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_8638ea159449": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:00.665306+00:00",
+      "id": "msg_8638ea159449",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_86fb67d43239": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:38.557513+00:00",
+      "id": "msg_86fb67d43239",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_8896ad2306ce": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:08.367332+00:00",
+      "id": "msg_8896ad2306ce",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_894354ab8a11": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:39.270515+00:00",
+      "id": "msg_894354ab8a11",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_89699be75e12": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:56.172678+00:00",
+      "id": "msg_89699be75e12",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_8ad71e323d05": {
+      "content": "https://www.trip.com/flights/to-singapore/airfares-sin?locale=en_xx&curr=usd&allianceid=742331&sid=4137765&ppcid=adid-680362050905_akid-kwl-3500001_adgid-162290191384&utm_source=google&utm_medium=cpc&utm_campaign=20754138684&gad_source=1&gad_campaignid=20754138684&gbraid=0AAAAABn2eFJHtHIj8257qVYwaiYmKr_Iy&gclid=Cj0KCQjw_b_QBhCSARIsAP6hR4fYRoWD048ebIk_KnECyoKs1sJ9gNRbxC_p0vlDIEIjDWUlmI6ZxAQaAtG1EALw_wcB\n\n이 링크 타고 들어가서 여러 정보를 정리해봐",
+      "created_at": "2026-05-23T05:28:27.910648+00:00",
+      "id": "msg_8ad71e323d05",
+      "role": "user",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_8f41dd5b1f67": {
+      "content": "안녕하세요! 😊",
+      "created_at": "2026-05-31T06:38:25.687665+00:00",
+      "id": "msg_8f41dd5b1f67",
+      "role": "assistant",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_90b5eb3dc9e6": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:39.919968+00:00",
+      "id": "msg_90b5eb3dc9e6",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_93966c368523": {
+      "content": "d",
+      "created_at": "2026-05-20T16:20:24.089548+00:00",
+      "id": "msg_93966c368523",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_93c024f2696a": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:52.957325+00:00",
+      "id": "msg_93c024f2696a",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_9674adcfb6b8": {
+      "content": "링크 내용은 제가 **직접 접속해서 확인(실시간 검색/탐색)할 수는 없어요.** 대신 네가 그 페이지에서 보고 있는 핵심 정보(표/요금/조건)를 그대로 붙여주면, 그걸 바탕으로 정리하고 비교해줄게요.\n\n우선 아래 중 가능한 걸 보내줘(스크린샷이어도 OK, 텍스트면 더 좋아요):\n\n1) 출발 도시/공항 + 도착(싱가포르) 공항  \n2) 날짜(왕복이면 출발/귀국 날짜) 또는 대략 주간  \n3) 인원(성인/아동) + 편도/왕복 여부  \n4) 항공권 옵션 3~5개(가격, 항공사, 경유 횟수, 대략 비행시간, 수하물 포함 여부)  \n5) “가장 원하는 조건” (최저가/직항/시간 짧게/수하물 포함 등)\n\n그 정보 주면:\n- 옵션별 **장단점 비교표**\n- “최저가 vs 최적(시간/환승/리스크)” 추천 1~2개\n- 8월 기준 일정 짜기(어느 요일 출발이 유리한지 관점)  \n까지 정리해줄게요.",
+      "created_at": "2026-05-23T05:28:31.628464+00:00",
+      "id": "msg_9674adcfb6b8",
+      "role": "assistant",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_968e75e702db": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:01.695874+00:00",
+      "id": "msg_968e75e702db",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_96f366f9296a": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:00.670151+00:00",
+      "id": "msg_96f366f9296a",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_977fc752a8c4": {
+      "content": "싱가포르 여행을 가려고 해. 주요 여행지를 찾아줘",
+      "created_at": "2026-05-24T06:22:07.823007+00:00",
+      "id": "msg_977fc752a8c4",
+      "role": "user",
+      "thread_id": "thread_e30ebb864d60"
+    },
+    "msg_99415aabe5c6": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:39.267385+00:00",
+      "id": "msg_99415aabe5c6",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_9c444772091d": {
+      "content": "안녕하세요! 😊  \n“안녕이라고 대답해”처럼 지시한 거라면, 답은 **안녕**이에요.",
+      "created_at": "2026-05-31T06:38:46.378996+00:00",
+      "id": "msg_9c444772091d",
+      "role": "assistant",
+      "thread_id": "thread_61cfe665336d"
+    },
+    "msg_9dc92a68bb51": {
+      "content": "If you suspect the “auth/header or key loading” issue, the fastest way to pinpoint it is:\n\n1) **Check the actual error from your backend**\n- Are you getting **401** or **403**?\n- What is the exact error code/message in the response body (mask the key)?\n\n2) **Verify the key is present at runtime**\n- Log only whether it’s set (not the value), e.g.:\n  - `process.env.OPENAI_API_KEY ? \"set\" : \"missing\"`\n- In Docker/CI: confirm the env var is injected in the *runtime* container, not only build-time.\n\n3) **Verify the request header**\n- Must include exactly:\n  - `Authorization: Bearer <API_KEY>`\n- Ensure your code isn’t overwriting headers or skipping auth in some code path.\n\n4) **Confirm you’re not accidentally sending the key in the wrong place**\n- e.g., query params or `api_key` field instead of `Authorization`.\n\nPaste your **status code (401/403/etc.)** and the **error message/body** (with the key redacted), plus your backend language/framework (Node/Python/etc.), and I’ll tell you exactly which part is failing.",
+      "created_at": "2026-05-31T06:37:34.800566+00:00",
+      "id": "msg_9dc92a68bb51",
+      "role": "assistant",
+      "thread_id": "thread_cf87d4e814db"
+    },
+    "msg_a1c76b6ed172": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:39.922935+00:00",
+      "id": "msg_a1c76b6ed172",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_a695e05f0cbf": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:40.635174+00:00",
+      "id": "msg_a695e05f0cbf",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_a6e5d45d5d38": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:54.488494+00:00",
+      "id": "msg_a6e5d45d5d38",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_a822e89e1def": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:44.196786+00:00",
+      "id": "msg_a822e89e1def",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_b155fa47c66f": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:36.290843+00:00",
+      "id": "msg_b155fa47c66f",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_b51383751c88": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:55.118766+00:00",
+      "id": "msg_b51383751c88",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_b6cef99270e3": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:54.750121+00:00",
+      "id": "msg_b6cef99270e3",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_b74bd7777b61": {
+      "content": "8월에 싱가포르 여행 계획을 짜보려고 해. 뭐부터 시작하는게 좋을까",
+      "created_at": "2026-05-23T05:26:32.994774+00:00",
+      "id": "msg_b74bd7777b61",
+      "role": "user",
+      "thread_id": "thread_565903ef4057"
+    },
+    "msg_b87a84617bf2": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:02.822047+00:00",
+      "id": "msg_b87a84617bf2",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_bb58c7418166": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: d",
+      "created_at": "2026-05-20T16:20:25.464553+00:00",
+      "id": "msg_bb58c7418166",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_bd0dc03ff5c9": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:53.784452+00:00",
+      "id": "msg_bd0dc03ff5c9",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_bd536d530ac1": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:42.400499+00:00",
+      "id": "msg_bd536d530ac1",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_be34090877e2": {
+      "content": "ㅇ",
+      "created_at": "2026-05-20T16:37:38.554382+00:00",
+      "id": "msg_be34090877e2",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_c200ec0401c4": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:37.860669+00:00",
+      "id": "msg_c200ec0401c4",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_c49cd0309cb2": {
+      "content": "d",
+      "created_at": "2026-05-20T16:20:26.683681+00:00",
+      "id": "msg_c49cd0309cb2",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_c5cefbbcd91e": {
+      "content": "“**Representative Papers(대표 논문)**”은 보통 특정 주제/연구 분야를 설명할 때 **그 분야를 대표한다고 판단되는 핵심 논문들(기준이 되는 선행연구/고전/방법론/결정적 기여)**을 묶어 선정한 목록을 뜻해요. ([design-science.or.kr](https://design-science.or.kr/homepage/boardMedia/82556?utm_source=openai))\n\n원하시면, 지금 선택한 노드 제목(Representative Papers)에 맞춰 **어떤 주제의 대표 논문을 찾는지**(예: “대의민주주의/대표성”, “연합학습”, “Transformer”, 등)만 알려줘요. 그러면 그 주제에 맞는 대표 논문 선정 기준(몇 편, 어떤 유형)부터 같이 정리해드릴게요.\n\nSources:\n- [안그라픽스의 새 책 디자인 분야 전공생을 위한 올바른 연구 수행법, 효율적인 논문 작성법](https://design-science.or.kr/homepage/boardMedia/82556?utm_source=openai)",
+      "created_at": "2026-05-31T06:19:01.774685+00:00",
+      "id": "msg_c5cefbbcd91e",
+      "role": "assistant",
+      "thread_id": "thread_dc0c9509160b"
+    },
+    "msg_c74910b97796": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:51.520553+00:00",
+      "id": "msg_c74910b97796",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_cac70b787f9f": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:34:07.317604+00:00",
+      "id": "msg_cac70b787f9f",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_d0389c904d4b": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅇ",
+      "created_at": "2026-05-20T16:37:40.638303+00:00",
+      "id": "msg_d0389c904d4b",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_d34852caa0e5": {
+      "content": "안녕하세요! 이어서 무엇을 도와드릴까요?",
+      "created_at": "2026-05-23T05:25:42.782013+00:00",
+      "id": "msg_d34852caa0e5",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_d6a43a20f689": {
+      "content": "싱가포르 주요 여행지(첫 방문 추천 코스 기준)로는 아래가 가장 유명해요. ([visitsingapore.org](https://www.visitsingapore.org/experience-singapore/must-dos/?utm_source=openai))\n\n- **마리나 베이 샌즈 & 스카이파크(전망)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai))  \n- **가든스 바이 더 베이(클라우드 포레스트/플라워 돔, 수퍼트리 주변 산책)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Gardens_by_the_Bay?utm_source=openai))  \n- **머라이언 파크(머라이언 동상, 포토 스팟)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Merlion_Park?utm_source=openai))  \n- **센토사 섬(리조트/액티비티, 해변 포함)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai))  \n- **싱가포르 동물원/나이트 사파리(동물 테마)** ([en.wikipedia.org](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai))  \n- **싱가포르 보타닉 가든 & 국립 오키드 가든(자연/산책)** ([digilamon.com](https://digilamon.com/destinations/singapore/where-to-go-in-singapore/?utm_source=openai))  \n\n원하는 여행 스타일이 **(1) 쇼핑/도시 야경, (2) 자연·테마파크, (3) 맛집/문화** 중에 뭐에 가까워요? (그리고 며칠 일정인지도 알려주면) 일정에 맞춰 묶어서 추천해드릴게요.\n\nSources:\n- [Must Do’s - Visit Singapore](https://www.visitsingapore.org/experience-singapore/must-dos/?utm_source=openai)\n- [Tourism in Singapore](https://en.wikipedia.org/wiki/Tourism_in_Singapore?utm_source=openai)\n- [Gardens by the Bay](https://en.wikipedia.org/wiki/Gardens_by_the_Bay?utm_source=openai)\n- [Merlion Park](https://en.wikipedia.org/wiki/Merlion_Park?utm_source=openai)\n- [Where to Go in Singapore: 21 Best Places for First-Timers](https://digilamon.com/destinations/singapore/where-to-go-in-singapore/?utm_source=openai)",
+      "created_at": "2026-05-24T06:22:14.662300+00:00",
+      "id": "msg_d6a43a20f689",
+      "role": "assistant",
+      "thread_id": "thread_e30ebb864d60"
+    },
+    "msg_e05d97a0967f": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: .",
+      "created_at": "2026-05-21T00:33:50.431811+00:00",
+      "id": "msg_e05d97a0967f",
+      "role": "assistant",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_e92cceb58f85": {
+      "content": ".",
+      "created_at": "2026-05-21T00:34:07.314332+00:00",
+      "id": "msg_e92cceb58f85",
+      "role": "user",
+      "thread_id": "thread_4dc433d606b9"
+    },
+    "msg_f0f234cb1541": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:54.745796+00:00",
+      "id": "msg_f0f234cb1541",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_f4ddc3b60a87": {
+      "content": ".",
+      "created_at": "2026-05-21T00:33:50.426641+00:00",
+      "id": "msg_f4ddc3b60a87",
+      "role": "user",
+      "thread_id": "thread_163396062d4f"
+    },
+    "msg_f8acc7b968f9": {
+      "content": "모의 응답: 이해했어. 이 방향으로 이어서 생각해보자: ㅣ",
+      "created_at": "2026-05-20T16:40:52.915512+00:00",
+      "id": "msg_f8acc7b968f9",
+      "role": "assistant",
+      "thread_id": "thread_4dc433d606b9"
+    }
+  },
+  "nodes": {
+    "node_1164df321c26": {
+      "created_at": "2026-05-31T06:18:24.096802+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_1164df321c26",
+      "manually_positioned": false,
+      "parent_node_id": "node_a535cde06467",
+      "position": {
+        "x": 0,
+        "y": 150
+      },
+      "thread_id": "thread_61cfe665336d",
+      "title": {
+        "ko": "Main Repository"
+      },
+      "updated_at": "2026-05-31T06:25:40.519912+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_14534027373a": {
+      "created_at": "2026-05-19T01:50:54.333416+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_14534027373a",
+      "manually_positioned": false,
+      "parent_node_id": "node_98fa10c1d8e4",
+      "position": {
+        "x": -193.56640625,
+        "y": 278.1875
+      },
+      "thread_id": "thread_bf1e540ad7d1",
+      "title": {
+        "ko": "Github 관련 문제 해결"
+      },
+      "updated_at": "2026-05-19T01:51:17.112085+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_25fc112ab420": {
+      "created_at": "2026-05-31T06:18:19.499706+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_25fc112ab420",
+      "manually_positioned": false,
+      "parent_node_id": "node_a535cde06467",
+      "position": {
+        "x": -270,
+        "y": 150
+      },
+      "thread_id": "thread_dc0c9509160b",
+      "title": {
+        "ko": "Representative Papers"
+      },
+      "updated_at": "2026-05-31T06:25:40.519901+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_3ec4738137a6": {
+      "created_at": "2026-05-31T06:24:42.254705+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_3ec4738137a6",
+      "manually_positioned": true,
+      "parent_node_id": "node_a535cde06467",
+      "position": {
+        "x": 196,
+        "y": -140
+      },
+      "thread_id": "thread_faad2a2797a9",
+      "title": {
+        "ko": "Conference Deadline"
+      },
+      "updated_at": "2026-05-31T06:29:15.611075+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_5c032e459f2d": {
+      "created_at": "2026-05-21T00:07:07.484816+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_5c032e459f2d",
+      "manually_positioned": false,
+      "parent_node_id": "node_e9c59afd15bc",
+      "position": {
+        "x": 51,
+        "y": 66
+      },
+      "thread_id": "thread_163396062d4f",
+      "title": {
+        "ko": "발표 내용 정리"
+      },
+      "updated_at": "2026-05-21T00:34:23.663990+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_76c3a6eb1a2d": {
+      "created_at": "2026-05-19T01:50:30.481267+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_76c3a6eb1a2d",
+      "manually_positioned": false,
+      "parent_node_id": "node_98fa10c1d8e4",
+      "position": {
+        "x": -463.56640625,
+        "y": 278.1875
+      },
+      "thread_id": "thread_0ce7ca46ff47",
+      "title": {
+        "ko": "Repository 폴더 구조 설계"
+      },
+      "updated_at": "2026-05-19T01:50:54.333920+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_77e5d597f0b1": {
+      "created_at": "2026-05-31T06:24:20.631959+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_77e5d597f0b1",
+      "manually_positioned": false,
+      "parent_node_id": "node_7b05e6175738",
+      "position": {
+        "x": 270,
+        "y": 450
+      },
+      "thread_id": "thread_cf87d4e814db",
+      "title": {
+        "ko": "OpenAI Connection Issue"
+      },
+      "updated_at": "2026-05-31T06:24:33.661593+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_7b05e6175738": {
+      "created_at": "2026-05-31T06:23:19.618056+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_7b05e6175738",
+      "manually_positioned": false,
+      "parent_node_id": "node_1164df321c26",
+      "position": {
+        "x": 270,
+        "y": 300
+      },
+      "thread_id": "thread_be320ae2746c",
+      "title": {
+        "ko": "Connecting LLM API"
+      },
+      "updated_at": "2026-05-31T06:23:50.711602+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_868bbb464e45": {
+      "created_at": "2026-05-19T01:10:35.914835+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_868bbb464e45",
+      "manually_positioned": true,
+      "parent_node_id": "node_cd0dd6e986ea",
+      "position": {
+        "x": 308,
+        "y": 364
+      },
+      "thread_id": "thread_df9ca9721fce",
+      "title": {
+        "ko": "NASA-TLX 질문"
+      },
+      "updated_at": "2026-05-19T02:43:42.419868+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_98fa10c1d8e4": {
+      "created_at": "2026-05-18T12:06:22.636683+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_98fa10c1d8e4",
+      "manually_positioned": true,
+      "parent_node_id": "node_e9c59afd15bc",
+      "position": {
+        "x": -328.56640625,
+        "y": 128.1875
+      },
+      "thread_id": "thread_95f66daacb1c",
+      "title": {
+        "ko": "기술적 구현 방안"
+      },
+      "updated_at": "2026-05-19T01:50:10.402464+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_a535cde06467": {
+      "created_at": "2026-05-23T05:26:02.941923+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_a535cde06467",
+      "manually_positioned": false,
+      "parent_node_id": null,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "thread_id": "thread_565903ef4057",
+      "title": {
+        "ko": "Human-AI Interaction Research Ideation"
+      },
+      "updated_at": "2026-05-31T06:27:11.035092+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_b82e23dc48e3": {
+      "created_at": "2026-05-31T06:25:40.519183+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_b82e23dc48e3",
+      "manually_positioned": false,
+      "parent_node_id": "node_a535cde06467",
+      "position": {
+        "x": 270,
+        "y": 150
+      },
+      "thread_id": "thread_4e2c9295dbcb",
+      "title": {
+        "ko": "Pros and Cons"
+      },
+      "updated_at": "2026-05-31T06:27:45.243135+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_cd0dd6e986ea": {
+      "created_at": "2026-05-18T12:07:34.191212+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_cd0dd6e986ea",
+      "manually_positioned": true,
+      "parent_node_id": "node_e9c59afd15bc",
+      "position": {
+        "x": 308,
+        "y": 140
+      },
+      "thread_id": "thread_573504d5310a",
+      "title": {
+        "ko": "User Study"
+      },
+      "updated_at": "2026-05-19T02:42:59.754193+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_e938d3df2396": {
+      "created_at": "2026-05-24T06:21:53.937738+00:00",
+      "graph_thread_id": "graph_8a8591b15e10",
+      "id": "node_e938d3df2396",
+      "manually_positioned": false,
+      "parent_node_id": null,
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "thread_id": "thread_e30ebb864d60",
+      "title": {
+        "ko": "싱가포르 주요 여행지 추천"
+      },
+      "updated_at": "2026-05-24T06:22:15.264820+00:00",
+      "user_edited_title_locales": {
+        "ko": false
+      }
+    },
+    "node_e9c59afd15bc": {
+      "created_at": "2026-05-18T12:06:17.532523+00:00",
+      "graph_thread_id": "graph_default",
+      "id": "node_e9c59afd15bc",
+      "manually_positioned": true,
+      "parent_node_id": null,
+      "position": {
+        "x": -84,
+        "y": -84
+      },
+      "thread_id": "thread_4dc433d606b9",
+      "title": {
+        "ko": "그래프 인터페이스 연구"
+      },
+      "updated_at": "2026-05-20T16:42:56.382498+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_ead2306fe60b": {
+      "created_at": "2026-05-31T06:22:54.771862+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_ead2306fe60b",
+      "manually_positioned": false,
+      "parent_node_id": "node_1164df321c26",
+      "position": {
+        "x": 0,
+        "y": 300
+      },
+      "thread_id": "thread_6efcc206db36",
+      "title": {
+        "ko": "UI Design"
+      },
+      "updated_at": "2026-05-31T06:24:14.339603+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    },
+    "node_ff2cef059261": {
+      "created_at": "2026-05-31T06:24:58.164285+00:00",
+      "graph_thread_id": "graph_e35a962628be",
+      "id": "node_ff2cef059261",
+      "manually_positioned": true,
+      "parent_node_id": "node_25fc112ab420",
+      "position": {
+        "x": -224,
+        "y": 392
+      },
+      "thread_id": "thread_1adbfa04a40c",
+      "title": {
+        "ko": "What is HCI"
+      },
+      "updated_at": "2026-05-31T06:25:17.126369+00:00",
+      "user_edited_title_locales": {
+        "ko": true
+      }
+    }
+  },
+  "settings": {
+    "active_graph_thread_id": "graph_e35a962628be",
+    "locale": "ko"
+  },
+  "threads": {
+    "thread_0ce7ca46ff47": {
+      "created_at": "2026-05-19T01:50:30.481291+00:00",
+      "id": "thread_0ce7ca46ff47",
+      "node_id": "node_76c3a6eb1a2d",
+      "title": {
+        "ko": "Repository 폴더 구조 설계"
+      },
+      "updated_at": "2026-05-19T01:50:48.636988+00:00"
+    },
+    "thread_163396062d4f": {
+      "created_at": "2026-05-21T00:07:07.484832+00:00",
+      "id": "thread_163396062d4f",
+      "node_id": "node_5c032e459f2d",
+      "title": {
+        "ko": "발표 내용 정리"
+      },
+      "updated_at": "2026-05-21T00:34:23.666830+00:00"
+    },
+    "thread_1adbfa04a40c": {
+      "created_at": "2026-05-31T06:24:58.164299+00:00",
+      "id": "thread_1adbfa04a40c",
+      "node_id": "node_ff2cef059261",
+      "title": {
+        "ko": "What is HCI"
+      },
+      "updated_at": "2026-05-31T06:25:13.790563+00:00"
+    },
+    "thread_4dc433d606b9": {
+      "created_at": "2026-05-18T12:06:17.532588+00:00",
+      "id": "thread_4dc433d606b9",
+      "node_id": "node_e9c59afd15bc",
+      "title": {
+        "ko": "그래프 인터페이스 연구"
+      },
+      "updated_at": "2026-05-23T05:25:42.782306+00:00"
+    },
+    "thread_4e2c9295dbcb": {
+      "created_at": "2026-05-31T06:25:40.519195+00:00",
+      "id": "thread_4e2c9295dbcb",
+      "node_id": "node_b82e23dc48e3",
+      "title": {
+        "ko": "Pros and Cons"
+      },
+      "updated_at": "2026-05-31T06:27:45.247734+00:00"
+    },
+    "thread_565903ef4057": {
+      "created_at": "2026-05-23T05:26:02.941971+00:00",
+      "id": "thread_565903ef4057",
+      "node_id": "node_a535cde06467",
+      "title": {
+        "ko": "Human-AI Interaction Research Ideation"
+      },
+      "updated_at": "2026-05-31T06:38:25.689007+00:00"
+    },
+    "thread_573504d5310a": {
+      "created_at": "2026-05-18T12:07:34.191231+00:00",
+      "id": "thread_573504d5310a",
+      "node_id": "node_cd0dd6e986ea",
+      "title": {
+        "ko": "User Study"
+      },
+      "updated_at": "2026-05-19T01:49:14.184717+00:00"
+    },
+    "thread_61cfe665336d": {
+      "created_at": "2026-05-31T06:18:24.096842+00:00",
+      "id": "thread_61cfe665336d",
+      "node_id": "node_1164df321c26",
+      "title": {
+        "ko": "Main Repository"
+      },
+      "updated_at": "2026-05-31T06:38:46.379941+00:00"
+    },
+    "thread_6efcc206db36": {
+      "created_at": "2026-05-31T06:22:54.771886+00:00",
+      "id": "thread_6efcc206db36",
+      "node_id": "node_ead2306fe60b",
+      "title": {
+        "ko": "UI Design"
+      },
+      "updated_at": "2026-05-31T06:24:14.342704+00:00"
+    },
+    "thread_95f66daacb1c": {
+      "created_at": "2026-05-18T12:06:22.636710+00:00",
+      "id": "thread_95f66daacb1c",
+      "node_id": "node_98fa10c1d8e4",
+      "title": {
+        "ko": "기술적 구현 방안"
+      },
+      "updated_at": "2026-05-19T01:50:10.404640+00:00"
+    },
+    "thread_be320ae2746c": {
+      "created_at": "2026-05-31T06:23:19.618071+00:00",
+      "id": "thread_be320ae2746c",
+      "node_id": "node_7b05e6175738",
+      "title": {
+        "ko": "Connecting LLM API"
+      },
+      "updated_at": "2026-05-31T06:23:50.714504+00:00"
+    },
+    "thread_bf1e540ad7d1": {
+      "created_at": "2026-05-19T01:50:54.333442+00:00",
+      "id": "thread_bf1e540ad7d1",
+      "node_id": "node_14534027373a",
+      "title": {
+        "ko": "Github 관련 문제 해결"
+      },
+      "updated_at": "2026-05-19T01:51:17.115113+00:00"
+    },
+    "thread_cf87d4e814db": {
+      "created_at": "2026-05-31T06:24:20.631971+00:00",
+      "id": "thread_cf87d4e814db",
+      "node_id": "node_77e5d597f0b1",
+      "title": {
+        "ko": "OpenAI Connection Issue"
+      },
+      "updated_at": "2026-05-31T06:39:20.131258+00:00"
+    },
+    "thread_dc0c9509160b": {
+      "created_at": "2026-05-31T06:18:19.499730+00:00",
+      "id": "thread_dc0c9509160b",
+      "node_id": "node_25fc112ab420",
+      "title": {
+        "ko": "Representative Papers"
+      },
+      "updated_at": "2026-05-31T06:19:01.775030+00:00"
+    },
+    "thread_df9ca9721fce": {
+      "created_at": "2026-05-19T01:10:35.914866+00:00",
+      "id": "thread_df9ca9721fce",
+      "node_id": "node_868bbb464e45",
+      "title": {
+        "ko": "NASA-TLX 질문"
+      },
+      "updated_at": "2026-05-19T01:49:41.485631+00:00"
+    },
+    "thread_e30ebb864d60": {
+      "created_at": "2026-05-24T06:21:53.937754+00:00",
+      "id": "thread_e30ebb864d60",
+      "node_id": "node_e938d3df2396",
+      "title": {
+        "ko": "싱가포르 주요 여행지 추천"
+      },
+      "updated_at": "2026-05-24T06:22:15.272369+00:00"
+    },
+    "thread_faad2a2797a9": {
+      "created_at": "2026-05-31T06:24:42.254740+00:00",
+      "id": "thread_faad2a2797a9",
+      "node_id": "node_3ec4738137a6",
+      "title": {
+        "ko": "Conference Deadline"
+      },
+      "updated_at": "2026-05-31T06:29:15.614371+00:00"
+    }
+  }
+}

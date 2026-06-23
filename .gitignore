@@ -10,6 +10,11 @@ storage/users/
 *.jpg
 .playwright-mcp/
 
+# README assets
+!Team Sungdongjin_Final Report.pdf
+!pipeline.png
+!mAIndMap_vs_chatgpt.png
+
 # Python cache files
 __pycache__/
 *.py[cod]
