@@ -28,8 +28,9 @@ System flow from workspace state to node-local chatting.
 
 Simple comparison with a conventional linear chat UI.
 
-[Demo_mAIndMap.mp4](assets/Demo_mAIndMap.mp4): Short demo of branching, chatting, and
-node-based navigation.
+https://github.com/user-attachments/assets/e718e8fc-e62c-472e-bc68-e54df5760363
+
+Short demo of branching, chatting, and node-based navigation.
 
 ## Key features
 
